@@ -1,10 +1,376 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+/* Genel Ayarlar */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Navbar */
+/* Navbar Styles - Yeni */
+.navbar {
+  background-color: #ffffff;
+  padding: 15px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.navbar-brand {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #666;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
+}
+
+/* Responsive navbar */
+@media (max-width: 768px) {
+  .navbar .container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Ana Sayfa Hero Bölümü */
+.hero {
+  background-color: #90caf9;
+  color: white;
+  text-align: center;
+  padding: 5rem 2rem;
+  border-radius: 10px;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+}
+
+.hero-buttons .btn {
+  padding: 1rem 2rem;
+  margin: 0.5rem;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Özellikler Bölümü */
+.features {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.feature-list {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.feature-item {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1;
+}
+
+.feature-item h3 {
+  font-size: 1.6rem;
+  color: #42a5f5;
+  margin-bottom: 1rem;
+}
+
+/* Footer */
+.footer {
+  background-color: #ffffff;
+  color: #333;
+  text-align: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+  
+  /* Genel Ayarlar */
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  /* Kayıt Sayfası Düzeni */
+  .devise-container {
+    max-width: 500px;
+    margin: 4rem auto;
+    padding: 4rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .devise-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+  
+  .form-group .form-control {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .actions {
+    margin-top: 2rem;
+  }
+  
+  .actions .btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #42a5f5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .actions .btn:hover {
+    background-color: #90caf9;
+  }
+  
+  /* Bağlantılar */
+  .devise-container a {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: #42a5f5;
+    text-decoration: none;
+  }
+  
+  .devise-container a:hover {
+    text-decoration: underline;
+  }
+
+  /* Giriş Sayfası Stilleri */
+.devise-container {
+    max-width: 450px;
+    margin: 4rem auto;
+    padding: 8rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .devise-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
+  
+  .form-group .form-control {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .actions {
+    margin-top: 2rem;
+  }
+  
+  .actions .btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: #42a5f5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .actions .btn:hover {
+    background-color: #90caf9;
+  }
+  
+  .links {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  
+  .links a {
+    display: block;
+    color: #42a5f5;
+    text-decoration: none;
+    margin-top: 0.5rem;
+  }
+  
+  .links a:hover {
+    text-decoration: underline;
+  }
+  /* Checkbox ve Label Hizalaması */
+  .f.remember-me-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;  /* checkbox ile metin arasındaki boşluk */
+  }
+
+  .remember-me-container input[type="checkbox"] {
+    margin: 0;  /* varsayılan margin'i sıfırla */
+  }
+
+  .remember-me-container label {
+    margin: 0;  /* varsayılan margin'i sıfırla */
+    line-height: 1;  /* metin yüksekliğini ayarla */
+  }
+
+  /* Logo Stil */
+.logo-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .logo {
+    max-width: 150px;
+    height: auto;
+  }
+
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.field input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.actions {
+  margin-top: 1rem;
+}
+
+.actions input[type="submit"] {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions input[type="submit"]:hover {
+  background-color: #0056b3;
+}

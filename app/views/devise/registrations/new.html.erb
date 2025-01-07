@@ -1,0 +1,52 @@
+<div class="devise-container">
+  <!-- Logo -->
+  <div class="logo-container">
+    <img src="<%= asset_path('logo.png') %>" alt="bulsam.ai Logo" class="logo">
+  </div>
+
+  <h2>Kayıt Ol</h2>
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+    <% if resource.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(resource.errors.count, "hata") %> nedeniyle kayıt oluşturulamadı:</h4>
+        <ul>
+          <% resource.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <%= f.label :name, "İsim Soyisim" %>
+      <%= f.text_field :name, autofocus: true, required: true, placeholder: "İsim Soyisim giriniz" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :email, "E-posta" %>
+      <%= f.email_field :email, autocomplete: "email", required: true, placeholder: "E-posta adresinizi giriniz" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :password, "Şifre" %>
+      <% if @minimum_password_length %>
+      <em>(<%= @minimum_password_length %> karakter minimum)</em>
+      <% end %>
+      <%= f.password_field :password, autocomplete: "new-password", required: true %>
+      <small class="form-text text-muted">
+        Şifreniz en az 8 karakter uzunluğunda olmalı ve en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.
+      </small>
+    </div>
+
+    <div class="field">
+      <%= f.label :password_confirmation, "Şifre Tekrar" %>
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true %>
+    </div>
+
+    <div class="actions">
+      <%= f.submit "Kayıt Ol", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</div>
