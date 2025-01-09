@@ -1,2 +1,154 @@
-<h1>Dashboard</h1>
-<p>Hoş geldiniz, <%= current_user.email %>!</p>
+<!-- Main Layout Container -->
+<div class="main-layout">
+  <!-- Navigation Sidebar -->
+  <div class="nav-sidebar">
+    <div class="logo">
+      <img src="https://placehold.co/50x50" alt="Logo" />
+      <span>Bulsam AI</span>
+    </div>
+    
+    <nav class="nav-menu">
+      <a href="#" class="nav-item active">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-car"></i>
+        <span>Araç Takibi</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Emlak Takibi</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-bell"></i>
+        <span>Bildirimler</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Ayarlar</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <div class="welcome-header">
+      <h1>Hoşgeldiniz, <%= current_user.name     %></h1>
+      <p>İlanlarınızı takip etmeye başlayın</p>
+      
+      <div class="search-bar">
+        <input type="text" placeholder="Arama yapın..." />
+        <button class="search-btn"><i class="fas fa-search"></i></button>
+        <button class="filter-btn"><i class="fas fa-filter"></i></button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon car-icon">
+          <i class="fas fa-car"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Aktif Araç Takibi</span>
+          <span class="stat-value">12</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon home-icon">
+          <i class="fas fa-home"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Aktif Emlak Takibi</span>
+          <span class="stat-value">8</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bell-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Yeni Bildirimler</span>
+          <span class="stat-value">3</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon check-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Eşleşen İlanlar</span>
+          <span class="stat-value">24</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="activities-section">
+      <div class="section-header">
+        <h2>Son Eşleşen İlanlar</h2>
+        <button class="view-all">Tümünü Gör</button>
+      </div>
+
+      <div class="activities-list">
+        <div class="activity-item">
+          <div class="activity-info">
+            <h3>2018 BMW 320i</h3>
+            <p>İstanbul, Kadıköy</p>
+            <span class="time">2 saat önce eklendi</span>
+          </div>
+          <div class="activity-price">
+            ₺850.000
+            <a href="#" class="details-link">Detaylar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="settings-section">
+      <h2>Takip Ayarları</h2>
+      
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <i class="fas fa-bell"></i>
+            <div>
+              <h3>Güncelleme Sıklığı</h3>
+              <p>Her saat başı kontrol et</p>
+            </div>
+          </div>
+          <a href="#" class="edit-link">Düzenle</a>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <i class="fas fa-envelope"></i>
+            <div>
+              <h3>Bildirim Tercihleri</h3>
+              <p>E-posta ve Push Bildirimler</p>
+            </div>
+          </div>
+          <a href="#" class="edit-link">Düzenle</a>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <i class="fas fa-filter"></i>
+            <div>
+              <h3>Filtreleme Kriterleri</h3>
+              <p>5 aktif filtre</p>
+            </div>
+          </div>
+          <a href="#" class="edit-link">Düzenle</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
