@@ -1,0 +1,346 @@
+<!-- Main Layout Container -->
+<div class="main-layout">
+  <!-- Navigation Sidebar -->
+  <div class="nav-sidebar">
+    <div class="logo">
+      <img src="https://placehold.co/50x50" alt="Logo" />
+      <span>Bulsam AI</span>
+    </div>
+    
+    <nav class="nav-menu">
+      <a href="/dashboard" class="nav-item">
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/car_tracking" class="nav-item">
+        <i class="fas fa-car"></i>
+        <span>Araç Takibi</span>
+      </a>
+      <a href="/property_tracking" class="nav-item active">
+        <i class="fas fa-home"></i>
+        <span>Emlak Takibi</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-bell"></i>
+        <span>Bildirimler</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Ayarlar</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <div class="content-header">
+      <div class="header-left">
+        <h1>Emlak Takibi</h1>
+        <p>Takip ettiğiniz emlakların listesi</p>
+      </div>
+      
+      <div class="search-bar">
+        <input type="text" placeholder="Emlak ara..." />
+        <button class="search-btn"><i class="fas fa-search"></i></button>
+        <button class="filter-btn"><i class="fas fa-filter"></i></button>
+      </div>
+    </div>
+
+    <!-- Tracked Properties List -->
+    <div class="tracked-items">
+      <div class="tracked-item">
+        <div class="item-image">
+          <img src="https://placehold.co/200x150" alt="Kadıköy Daire" />
+        </div>
+        <div class="item-details">
+          <div class="item-header">
+            <h3>3+1 Lüks Daire</h3>
+            <div class="price">₺4.850.000</div>
+          </div>
+          <div class="item-specs">
+            <span><i class="fas fa-ruler-combined"></i> 145m²</span>
+            <span><i class="fas fa-building"></i> 5. Kat</span>
+            <span><i class="fas fa-calendar-alt"></i> 5 Yaşında</span>
+          </div>
+          <div class="item-location">
+            <i class="fas fa-map-marker-alt"></i>
+            İstanbul, Kadıköy - Suadiye
+          </div>
+          <div class="item-tracking">
+            <span class="tracking-date">10 gündür takip ediliyor</span>
+            <span class="price-change negative">
+              <i class="fas fa-arrow-up"></i> ₺150.000 artış
+            </span>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="btn-details">Detaylar</button>
+          <button class="btn-stop-tracking">Takibi Bırak</button>
+        </div>
+      </div>
+
+      <div class="tracked-item">
+        <div class="item-image">
+          <img src="https://placehold.co/200x150" alt="Beşiktaş Villa" />
+        </div>
+        <div class="item-details">
+          <div class="item-header">
+            <h3>4+2 Müstakil Villa</h3>
+            <div class="price">₺12.500.000</div>
+          </div>
+          <div class="item-specs">
+            <span><i class="fas fa-ruler-combined"></i> 280m²</span>
+            <span><i class="fas fa-layer-group"></i> 3 Katlı</span>
+            <span><i class="fas fa-tree"></i> Bahçeli</span>
+          </div>
+          <div class="item-location">
+            <i class="fas fa-map-marker-alt"></i>
+            İstanbul, Beşiktaş - Etiler
+          </div>
+          <div class="item-tracking">
+            <span class="tracking-date">5 gündür takip ediliyor</span>
+            <span class="price-change positive">
+              <i class="fas fa-arrow-down"></i> ₺500.000 düşüş
+            </span>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="btn-details">Detaylar</button>
+          <button class="btn-stop-tracking">Takibi Bırak</button>
+        </div>
+      </div>
+
+      <div class="tracked-item">
+        <div class="item-image">
+          <img src="https://placehold.co/200x150" alt="Şişli Ofis" />
+        </div>
+        <div class="item-details">
+          <div class="item-header">
+            <h3>Plaza Katı - Ofis</h3>
+            <div class="price">₺8.950.000</div>
+          </div>
+          <div class="item-specs">
+            <span><i class="fas fa-ruler-combined"></i> 180m²</span>
+            <span><i class="fas fa-building"></i> 12. Kat</span>
+            <span><i class="fas fa-parking"></i> Otoparklı</span>
+          </div>
+          <div class="item-location">
+            <i class="fas fa-map-marker-alt"></i>
+            İstanbul, Şişli - Mecidiyeköy
+          </div>
+          <div class="item-tracking">
+            <span class="tracking-date">2 gündür takip ediliyor</span>
+            <span class="price-change neutral">
+              <i class="fas fa-minus"></i> Değişim yok
+            </span>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="btn-details">Detaylar</button>
+          <button class="btn-stop-tracking">Takibi Bırak</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add New Tracking Button -->
+    <div class="add-new-tracking">
+      <button class="btn-add-tracking">
+        <i class="fas fa-plus"></i>
+        Yeni Emlak Takibi Ekle
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-left h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.header-left p {
+  color: #666;
+}
+
+.tracked-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tracked-item {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  gap: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.item-image img {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.item-header h3 {
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.price {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.item-specs {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.item-specs span {
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-location {
+  color: #666;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-tracking {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.tracking-date {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.price-change {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-change.positive {
+  color: #27ae60;
+}
+
+.price-change.negative {
+  color: #e74c3c;
+}
+
+.price-change.neutral {
+  color: #666;
+}
+
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 150px;
+}
+
+.item-actions button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-details {
+  background: #007bff;
+  color: white;
+}
+
+.btn-details:hover {
+  background: #0056b3;
+}
+
+.btn-stop-tracking {
+  background: #f8f9fa;
+  color: #dc3545;
+}
+
+.btn-stop-tracking:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.add-new-tracking {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn-add-tracking {
+  padding: 1rem 2rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s;
+}
+
+.btn-add-tracking:hover {
+  background: #218838;
+}
+
+@media (max-width: 1024px) {
+  .tracked-item {
+    flex-direction: column;
+  }
+
+  .item-image img {
+    width: 100%;
+    height: 200px;
+  }
+
+  .item-actions {
+    flex-direction: row;
+    min-width: auto;
+  }
+}
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 

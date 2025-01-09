@@ -1,22 +1,36 @@
 Rails.application.routes.draw do
-  # Root path tanımı (ana sayfa)
-  root 'home#index'
-  
   # Devise routes
   devise_for :users, controllers: {
     registrations: 'users/registrations'
   }
 
-  # Dashboard route
-  get 'dashboard', to: 'dashboard#index'
+  # Root path definitions
+  root 'home#index'
 
-  # Giriş yapmış kullanıcılar için varsayılan rota
+  # Dashboard routes
+  get 'dashboard', to: 'dashboard#index', as: :dashboard
+  
+  # Car tracking routes
+  resources :cars do
+    member do
+      post 'start_tracking'
+      post 'stop_tracking'
+    end
+  end
+  
+  # Property tracking routes
+  resources :properties do
+    member do
+      post 'start_tracking'
+      post 'stop_tracking'
+    end
+  end
+
+  # Authentication based routes
   authenticated :user do
-    root "dashboard#index", as: :authenticated_root
+    # Özel rotalar eklenebilir
   end
 
-  # Giriş yapmamış kullanıcılar için varsayılan rota
-  unauthenticated do
-    root "home#index", as: :unauthenticated_root
-  end
+  # Home controller routes
+  get 'home', to: 'home#index'
 end

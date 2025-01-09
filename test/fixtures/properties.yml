@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  property_type: MyString
+  rooms: MyString
+  size: 1
+  floor: MyString
+  age: 1
+  price: 9.99
+  location: MyString
+  features: MyText
+  status: MyString
+  user: one
+
+two:
+  property_type: MyString
+  rooms: MyString
+  size: 1
+  floor: MyString
+  age: 1
+  price: 9.99
+  location: MyString
+  features: MyText
+  status: MyString
+  user: two

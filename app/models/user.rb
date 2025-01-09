@@ -9,6 +9,9 @@ class User < ApplicationRecord
   validates :password, presence: { message: "Şifre alanı boş bırakılamaz" }
   validate :password_complexity
 
+  has_many :cars, dependent: :destroy
+  has_many :properties, dependent: :destroy
+
   private
 
   def password_complexity

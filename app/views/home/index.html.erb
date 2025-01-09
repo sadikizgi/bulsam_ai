@@ -1,42 +1,73 @@
-<div class="landing-page">
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <h1 class="hero-title">Pazarları Takip Edin, Fırsatları Yakalayın!</h1>
-      <p class="hero-subtitle">bulsam.ai ile pazar trendlerini analiz edin ve geleceği öngörün.</p>
-      <div id="clock" class="clock"></div>
-      <div class="hero-buttons">
-        <%= link_to "Hemen Başlayın", new_user_registration_path, class: "btn btn-primary" %>
-        <%= link_to "Daha Fazla Bilgi", "#features", class: "btn btn-outline" %>
-      </div>
+<div class="home-container">
+  <div class="welcome-section">
+    <h1>Bulsam AI</h1>
+    <p>Araç ve Emlak Takip Sistemi</p>
+    
+    <div class="auth-buttons">
+      <%= link_to "Giriş Yap", new_user_session_path, class: "btn-login" %>
+      <%= link_to "Kayıt Ol", new_user_registration_path, class: "btn-register" %>
     </div>
-  </section>
-
-  <!-- Features Section -->
-  <section id="features" class="features">
-    <div class="container">
-      <h2 class="section-title">Özelliklerimiz</h2>
-      <div class="feature-list">
-        <div class="feature-item">
-          <h3>Detaylı Analiz</h3>
-          <p>Veri analitiğiyle içgörüler elde edin.</p>
-        </div>
-        <div class="feature-item">
-          <h3>Anlık Bildirimler</h3>
-          <p>Pazar değişikliklerinden anında haberdar olun.</p>
-        </div>
-        <div class="feature-item">
-          <h3>Trend Takibi</h3>
-          <p>Rakiplerinizin önüne geçin ve fırsatları yakalayın.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p>© 2025 bulsam.ai. Tüm Hakları Saklıdır.</p>
-    </div>
-  </footer>
+  </div>
 </div>
+
+<style>
+.home-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.welcome-section {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.welcome-section p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-login, .btn-register {
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-login {
+  background: #007bff;
+  color: white;
+}
+
+.btn-login:hover {
+  background: #0056b3;
+}
+
+.btn-register {
+  background: #28a745;
+  color: white;
+}
+
+.btn-register:hover {
+  background: #218838;
+}
+</style>

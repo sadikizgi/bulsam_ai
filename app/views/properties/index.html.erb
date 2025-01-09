@@ -1,0 +1,124 @@
+<!-- Main Layout Container -->
+<div class="main-layout">
+  <!-- Navigation Sidebar -->
+  <div class="nav-sidebar">
+    <div class="logo">
+      <img src="https://placehold.co/50x50" alt="Logo" />
+      <span>Bulsam AI</span>
+    </div>
+    
+    <nav class="nav-menu">
+      <%= link_to dashboard_path, class: "nav-item #{current_page?(dashboard_path) ? 'active' : ''}" do %>
+        <i class="fas fa-th-large"></i>
+        <span>Dashboard</span>
+      <% end %>
+      
+      <%= link_to cars_path, class: "nav-item #{controller_name == 'cars' ? 'active' : ''}" do %>
+        <i class="fas fa-car"></i>
+        <span>Araç Takibi</span>
+      <% end %>
+      
+      <%= link_to properties_path, class: "nav-item #{controller_name == 'properties' ? 'active' : ''}" do %>
+        <i class="fas fa-home"></i>
+        <span>Emlak Takibi</span>
+      <% end %>
+      
+      <a href="#" class="nav-item">
+        <i class="fas fa-bell"></i>
+        <span>Bildirimler</span>
+      </a>
+      
+      <a href="#" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Ayarlar</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <div class="content-header">
+      <div class="header-left">
+        <h1>Emlak Takibi</h1>
+        <p>Takip ettiğiniz emlakların listesi</p>
+      </div>
+      
+      <div class="search-bar">
+        <input type="text" placeholder="Emlak ara..." />
+        <button class="search-btn"><i class="fas fa-search"></i></button>
+        <button class="filter-btn"><i class="fas fa-filter"></i></button>
+      </div>
+    </div>
+
+    <!-- Tracked Properties List -->
+    <div class="tracked-items">
+      <% if @properties.any? %>
+        <% @properties.each do |property| %>
+          <div class="tracked-item">
+            <div class="item-image">
+              <img src="https://placehold.co/200x150" alt="<%= property.property_type %>" />
+            </div>
+            <div class="item-details">
+              <div class="item-header">
+                <h3><%= property.rooms %> <%= property.property_type %></h3>
+                <div class="price">₺<%= number_with_delimiter(property.price.to_i) %></div>
+              </div>
+              <div class="item-specs">
+                <span><i class="fas fa-ruler-combined"></i> <%= property.size %>m²</span>
+                <span><i class="fas fa-building"></i> <%= property.floor %></span>
+                <span><i class="fas fa-calendar-alt"></i> <%= property.age %> Yaşında</span>
+              </div>
+              <div class="item-location">
+                <i class="fas fa-map-marker-alt"></i>
+                <%= property.location %>
+              </div>
+              <div class="item-tracking">
+                <span class="tracking-date">
+                  <%= time_ago_in_words(property.created_at) %> önce eklendi
+                </span>
+                <span class="price-change positive">
+                  <i class="fas fa-arrow-down"></i> Fiyat takibi başladı
+                </span>
+              </div>
+            </div>
+            <div class="item-actions">
+              <%= link_to "Detaylar", property_path(property), class: "btn-details" %>
+              <%= button_to "Takibi Bırak", stop_tracking_property_path(property), method: :post, class: "btn-stop-tracking" %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="no-items">
+          <p>Henüz takip ettiğiniz emlak bulunmuyor.</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Add New Tracking Button -->
+    <div class="add-new-tracking">
+      <%= link_to new_property_path, class: "btn-add-tracking" do %>
+        <i class="fas fa-plus"></i>
+        Yeni Emlak Takibi Ekle
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+.no-items {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.no-items p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* ... existing styles ... */
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

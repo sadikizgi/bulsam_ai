@@ -8,22 +8,26 @@
     </div>
     
     <nav class="nav-menu">
-      <a href="#" class="nav-item active">
+      <%= link_to dashboard_path, class: "nav-item #{current_page?(dashboard_path) ? 'active' : ''}" do %>
         <i class="fas fa-th-large"></i>
         <span>Dashboard</span>
-      </a>
-      <a href="#" class="nav-item">
+      <% end %>
+      
+      <%= link_to cars_path, class: "nav-item #{controller_name == 'cars' ? 'active' : ''}" do %>
         <i class="fas fa-car"></i>
         <span>Araç Takibi</span>
-      </a>
-      <a href="#" class="nav-item">
+      <% end %>
+      
+      <%= link_to properties_path, class: "nav-item #{controller_name == 'properties' ? 'active' : ''}" do %>
         <i class="fas fa-home"></i>
         <span>Emlak Takibi</span>
-      </a>
+      <% end %>
+      
       <a href="#" class="nav-item">
         <i class="fas fa-bell"></i>
         <span>Bildirimler</span>
       </a>
+      
       <a href="#" class="nav-item">
         <i class="fas fa-cog"></i>
         <span>Ayarlar</span>
