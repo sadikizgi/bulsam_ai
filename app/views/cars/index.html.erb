@@ -104,6 +104,60 @@
   </div>
 </div>
 
+<div class="popup-overlay" id="trackingPopup">
+  <div class="tracking-popup">
+    <div class="popup-header">
+      <h2>Yeni Araç Takibi</h2>
+      <p>Takip etmek istediğiniz web sitesini seçin</p>
+    </div>
+    <input type="text" class="website-input" placeholder="Web sitesi URL'si" />
+    <div class="checkbox-group">
+      <div class="checkbox-item">
+        <input type="checkbox" id="sahibinden" />
+        <label for="sahibinden">Sahibinden.com</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="arabam" />
+        <label for="arabam">Arabam.com</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="letgo" />
+        <label for="letgo">Letgo</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="otomerkezi" />
+        <label for="otomerkezi">Otomerkezi</label>
+      </div>
+      <div class="checkbox-item">
+        <input type="checkbox" id="tasit" />
+        <label for="tasit">Tasit.com</label>
+      </div>
+    </div>
+    <div class="popup-actions">
+      <button class="btn-cancel" onclick="closePopup()">İptal</button>
+      <button class="btn-save">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelector('.btn-add-tracking').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('trackingPopup').classList.add('active');
+});
+
+function closePopup() {
+  document.getElementById('trackingPopup').classList.remove('active');
+}
+
+// Close popup when clicking outside
+document.getElementById('trackingPopup').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closePopup();
+  }
+});
+</script>
+
 <style>
 .no-items {
   text-align: center;
