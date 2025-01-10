@@ -12,6 +12,11 @@ class User < ApplicationRecord
   has_many :cars, dependent: :destroy
   has_many :properties, dependent: :destroy
 
+  # Admin kontrolü için method
+  def admin?
+    admin
+  end
+
   private
 
   def password_complexity

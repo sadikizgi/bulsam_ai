@@ -64,3 +64,10 @@ end
 
 gem "devise", "~> 4.9"
 gem 'guard-livereload', require: false
+
+# Web scraping gems
+gem 'nokogiri'
+gem 'httparty'
+gem 'mechanize'
+gem 'sidekiq'
+gem 'faker' # For rotating user agents
