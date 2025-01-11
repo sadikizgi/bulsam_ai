@@ -93,6 +93,14 @@
         </div>
       <% end %>
     </div>
+
+    <!-- Add New Tracking Button -->
+    <div class="add-new-tracking">
+      <button class="btn-add-tracking">
+        <i class="fas fa-plus"></i>
+        Yeni Araç Takibi Ekle
+      </button>
+    </div>
   </div>
 </div>
 
@@ -100,54 +108,455 @@
   <div class="tracking-popup">
     <div class="popup-header">
       <h2>Yeni Araç Takibi</h2>
-      <p>Takip etmek istediğiniz web sitesini seçin</p>
+      <p>Adım adım araç takibi oluşturun</p>
     </div>
-    <input type="text" class="website-input" placeholder="Web sitesi URL'si" />
-    <div class="checkbox-group">
-      <div class="checkbox-item">
-        <input type="checkbox" id="sahibinden" />
-        <label for="sahibinden">Sahibinden.com</label>
-      </div>
-      <div class="checkbox-item">
-        <input type="checkbox" id="arabam" />
-        <label for="arabam">Arabam.com</label>
-      </div>
-      <div class="checkbox-item">
-        <input type="checkbox" id="letgo" />
-        <label for="letgo">Letgo</label>
-      </div>
-      <div class="checkbox-item">
-        <input type="checkbox" id="otomerkezi" />
-        <label for="otomerkezi">Otomerkezi</label>
-      </div>
-      <div class="checkbox-item">
-        <input type="checkbox" id="tasit" />
-        <label for="tasit">Tasit.com</label>
+
+    <div class="popup-steps">
+      <div class="step-indicator">
+        <div class="step-dot active" data-step="1"></div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="2"></div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="3"></div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="4"></div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="5"></div>
       </div>
     </div>
+
+    <div class="selection-summary" style="display: none;">
+      <h4>Seçimleriniz</h4>
+      <p class="website-selection"></p>
+      <p class="city-selection"></p>
+      <p class="type-selection"></p>
+      <p class="brand-selection"></p>
+      <p class="model-selection"></p>
+    </div>
+
+    <div class="popup-content">
+      <!-- Step 1: Website Selection -->
+      <div class="step-content active" data-step="1">
+        <div class="website-options">
+          <div class="option-card multi-select" data-value="arabam">
+            <img src="https://www.arabam.com/assets/img/logo-new.svg" alt="Arabam.com">
+            <span>Arabam.com</span>
+          </div>
+          <div class="option-card multi-select" data-value="sahibinden">
+            <img src="https://www.sahibinden.com/assets/images/logo.svg" alt="Sahibinden.com">
+            <span>Sahibinden.com</span>
+          </div>
+          <div class="option-card multi-select" data-value="tasit">
+            <img src="https://www.tasit.com/assets/images/logo.png" alt="Tasit.com">
+            <span>Tasit.com</span>
+          </div>
+          <div class="option-card multi-select" data-value="otomerkezi">
+            <img src="https://www.otomerkezi.com/assets/images/logo.png" alt="Otomerkezi.com">
+            <span>Otomerkezi.com</span>
+          </div>
+          <div class="option-card multi-select" data-value="letgo">
+            <img src="https://www.letgo.com/assets/img/logo.svg" alt="Letgo">
+            <span>Letgo</span>
+          </div>
+          <div class="option-card multi-select" data-value="gittigidiyor">
+            <img src="https://www.gittigidiyor.com/assets/images/logo.svg" alt="GittiGidiyor">
+            <span>GittiGidiyor</span>
+          </div>
+          <div class="option-card multi-select" data-value="carmarket">
+            <img src="https://www.carmarket.com/assets/images/logo.png" alt="CarMarket">
+            <span>CarMarket</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: City Selection -->
+      <div class="step-content" data-step="2">
+        <div class="city-options">
+          <div class="option-card multi-select special-option" data-value="all">
+            <i class="fas fa-globe-europe"></i>
+            <span>Tüm Türkiye</span>
+          </div>
+          <div class="option-card multi-select" data-value="istanbul">
+            <i class="fas fa-city"></i>
+            <span>İstanbul</span>
+          </div>
+          <div class="option-card multi-select" data-value="ankara">
+            <i class="fas fa-city"></i>
+            <span>Ankara</span>
+          </div>
+          <div class="option-card multi-select" data-value="izmir">
+            <i class="fas fa-city"></i>
+            <span>İzmir</span>
+          </div>
+          <div class="option-card multi-select" data-value="antalya">
+            <i class="fas fa-city"></i>
+            <span>Antalya</span>
+          </div>
+          <div class="option-card multi-select" data-value="bursa">
+            <i class="fas fa-city"></i>
+            <span>Bursa</span>
+          </div>
+          <div class="option-card multi-select" data-value="adana">
+            <i class="fas fa-city"></i>
+            <span>Adana</span>
+          </div>
+          <div class="option-card multi-select" data-value="mersin">
+            <i class="fas fa-city"></i>
+            <span>Mersin</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Vehicle Type Selection -->
+      <div class="step-content" data-step="3">
+        <div class="type-options">
+          <div class="option-card" data-value="otomobil">
+            <i class="fas fa-car"></i>
+            <span>Otomobil</span>
+          </div>
+          <div class="option-card" data-value="suv">
+            <i class="fas fa-truck"></i>
+            <span>SUV</span>
+          </div>
+          <div class="option-card" data-value="ticari">
+            <i class="fas fa-shuttle-van"></i>
+            <span>Ticari</span>
+          </div>
+          <div class="option-card" data-value="motosiklet">
+            <i class="fas fa-motorcycle"></i>
+            <span>Motosiklet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Brand Selection -->
+      <div class="step-content" data-step="4">
+        <div class="brand-options">
+          <!-- Dinamik olarak doldurulacak -->
+        </div>
+      </div>
+
+      <!-- Step 5: Model Selection -->
+      <div class="step-content" data-step="5">
+        <div class="model-options">
+          <!-- Dinamik olarak doldurulacak -->
+        </div>
+      </div>
+    </div>
+
     <div class="popup-actions">
+      <button class="btn-prev" style="display: none;">Geri</button>
       <button class="btn-cancel" onclick="closePopup()">İptal</button>
-      <button class="btn-save">Kaydet</button>
+      <button class="btn-next">Devam Et</button>
     </div>
   </div>
 </div>
 
 <script>
+let currentStep = 1;
+const totalSteps = 5;
+let selections = {
+  websites: [],
+  cities: [],
+  type: '',
+  brand: '',
+  model: ''
+};
+
+// Marka ve model verileri (örnek)
+const carData = {
+  otomobil: {
+    bmw: ['320i', '520i', 'X3', 'X5'],
+    mercedes: ['C200', 'E250', 'GLA200', 'GLC300'],
+    audi: ['A3', 'A4', 'Q3', 'Q5'],
+    volkswagen: ['Golf', 'Passat', 'Tiguan', 'T-Roc']
+  },
+  suv: {
+    bmw: ['X1', 'X3', 'X5', 'X7'],
+    mercedes: ['GLA', 'GLC', 'GLE', 'GLS'],
+    audi: ['Q2', 'Q3', 'Q5', 'Q7'],
+    volkswagen: ['T-Roc', 'Tiguan', 'Touareg']
+  }
+};
+
 document.querySelector('.btn-add-tracking').addEventListener('click', function(e) {
   e.preventDefault();
   document.getElementById('trackingPopup').classList.add('active');
+  updateSummary();
 });
 
 function closePopup() {
   document.getElementById('trackingPopup').classList.remove('active');
+  resetPopup();
 }
 
-// Close popup when clicking outside
 document.getElementById('trackingPopup').addEventListener('click', function(e) {
   if (e.target === this) {
     closePopup();
   }
 });
+
+// Option card click handler for multi-select
+document.querySelectorAll('.option-card.multi-select').forEach(card => {
+  card.addEventListener('click', function() {
+    const step = this.closest('.step-content').dataset.step;
+    const value = this.dataset.value;
+    
+    // Toggle selection
+    this.classList.toggle('selected');
+    
+    // Store selection
+    switch(step) {
+      case '1':
+        if (this.classList.contains('selected')) {
+          selections.websites.push(value);
+        } else {
+          selections.websites = selections.websites.filter(w => w !== value);
+        }
+        break;
+      case '2':
+        if (value === 'all') {
+          // If "Tüm Türkiye" is selected, clear other selections
+          if (this.classList.contains('selected')) {
+            document.querySelectorAll('.city-options .option-card').forEach(city => {
+              if (city !== this) {
+                city.classList.remove('selected');
+              }
+            });
+            selections.cities = ['all'];
+          } else {
+            selections.cities = [];
+          }
+        } else {
+          // If other city is selected, unselect "Tüm Türkiye"
+          const allOption = document.querySelector('.city-options .special-option');
+          allOption.classList.remove('selected');
+          selections.cities = selections.cities.filter(c => c !== 'all');
+          
+          if (this.classList.contains('selected')) {
+            selections.cities.push(value);
+          } else {
+            selections.cities = selections.cities.filter(c => c !== value);
+          }
+        }
+        break;
+    }
+    
+    updateSummary();
+  });
+});
+
+// Option card click handler for single-select
+document.querySelectorAll('.type-options .option-card, .brand-options .option-card, .model-options .option-card').forEach(card => {
+  card.addEventListener('click', function() {
+    const step = this.closest('.step-content').dataset.step;
+    const value = this.dataset.value;
+    
+    // Remove previous selection in this step
+    this.closest('.step-content').querySelectorAll('.option-card').forEach(c => {
+      c.classList.remove('selected');
+    });
+    
+    // Add selection to clicked card
+    this.classList.add('selected');
+    
+    // Store selection
+    switch(step) {
+      case '3':
+        selections.type = value;
+        updateBrandOptions(value);
+        break;
+      case '4':
+        selections.brand = value;
+        updateModelOptions(selections.type, value);
+        break;
+      case '5':
+        selections.model = value;
+        break;
+    }
+    
+    updateSummary();
+  });
+});
+
+// Next button click handler
+document.querySelector('.btn-next').addEventListener('click', function() {
+  const currentContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+  
+  // Check for multi-select steps
+  if (currentStep === 1 && selections.websites.length === 0) {
+    alert('Lütfen en az bir web sitesi seçin');
+    return;
+  }
+  if (currentStep === 2 && selections.cities.length === 0) {
+    alert('Lütfen en az bir şehir seçin');
+    return;
+  }
+  
+  // Check for single-select steps
+  if (currentStep > 2) {
+    const selected = currentContent.querySelector('.option-card.selected');
+    if (!selected) {
+      alert('Lütfen bir seçim yapın');
+      return;
+    }
+  }
+  
+  if (currentStep < totalSteps) {
+    currentStep++;
+    updateStepDisplay();
+  } else {
+    // Form submission
+    console.log('Final selections:', selections);
+    // TODO: Add AJAX call to submit data
+  }
+});
+
+// Previous button click handler
+document.querySelector('.btn-prev').addEventListener('click', function() {
+  if (currentStep > 1) {
+    currentStep--;
+    updateStepDisplay();
+  }
+});
+
+function updateStepDisplay() {
+  // Update step dots
+  document.querySelectorAll('.step-dot').forEach(dot => {
+    const step = parseInt(dot.dataset.step);
+    dot.classList.toggle('active', step <= currentStep);
+  });
+  
+  // Update content visibility
+  document.querySelectorAll('.step-content').forEach(content => {
+    content.classList.toggle('active', parseInt(content.dataset.step) === currentStep);
+  });
+  
+  // Update buttons
+  document.querySelector('.btn-prev').style.display = currentStep > 1 ? 'block' : 'none';
+  document.querySelector('.btn-next').textContent = currentStep === totalSteps ? 'Tamamla' : 'Devam Et';
+  
+  updateSummary();
+}
+
+function updateBrandOptions(type) {
+  const brandContainer = document.querySelector('.brand-options');
+  brandContainer.innerHTML = '';
+  
+  const brands = Object.keys(carData[type] || {});
+  brands.forEach(brand => {
+    const card = document.createElement('div');
+    card.className = 'option-card';
+    card.dataset.value = brand;
+    card.innerHTML = `
+      <i class="fas fa-car"></i>
+      <span>${brand.charAt(0).toUpperCase() + brand.slice(1)}</span>
+    `;
+    brandContainer.appendChild(card);
+  });
+  
+  // Reattach click handlers for single-select
+  brandContainer.querySelectorAll('.option-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const value = this.dataset.value;
+      
+      // Remove previous selection
+      brandContainer.querySelectorAll('.option-card').forEach(c => {
+        c.classList.remove('selected');
+      });
+      
+      // Add selection to clicked card
+      this.classList.add('selected');
+      
+      // Store selection and update models
+      selections.brand = value;
+      updateModelOptions(selections.type, value);
+      
+      updateSummary();
+    });
+  });
+}
+
+function updateModelOptions(type, brand) {
+  const modelContainer = document.querySelector('.model-options');
+  modelContainer.innerHTML = '';
+  
+  const models = carData[type]?.[brand] || [];
+  models.forEach(model => {
+    const card = document.createElement('div');
+    card.className = 'option-card';
+    card.dataset.value = model;
+    card.innerHTML = `
+      <i class="fas fa-car"></i>
+      <span>${model}</span>
+    `;
+    modelContainer.appendChild(card);
+  });
+  
+  // Reattach click handlers for single-select
+  modelContainer.querySelectorAll('.option-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const value = this.dataset.value;
+      
+      // Remove previous selection
+      modelContainer.querySelectorAll('.option-card').forEach(c => {
+        c.classList.remove('selected');
+      });
+      
+      // Add selection to clicked card
+      this.classList.add('selected');
+      
+      // Store selection
+      selections.model = value;
+      
+      updateSummary();
+    });
+  });
+}
+
+function updateSummary() {
+  const summary = document.querySelector('.selection-summary');
+  const hasSelections = selections.websites.length > 0 || 
+                       selections.cities.length > 0 || 
+                       selections.type || 
+                       selections.brand || 
+                       selections.model;
+  
+  if (hasSelections) {
+    summary.style.display = 'block';
+    if (selections.websites.length > 0) {
+      document.querySelector('.website-selection').textContent = 
+        `Web Siteleri: ${selections.websites.join(', ')}`;
+    }
+    if (selections.cities.length > 0) {
+      document.querySelector('.city-selection').textContent = 
+        `Şehirler: ${selections.cities.includes('all') ? 'Tüm Türkiye' : selections.cities.join(', ')}`;
+    }
+    if (selections.type) document.querySelector('.type-selection').textContent = `Araç Tipi: ${selections.type}`;
+    if (selections.brand) document.querySelector('.brand-selection').textContent = `Marka: ${selections.brand}`;
+    if (selections.model) document.querySelector('.model-selection').textContent = `Model: ${selections.model}`;
+  } else {
+    summary.style.display = 'none';
+  }
+}
+
+function resetPopup() {
+  currentStep = 1;
+  selections = {
+    websites: [],
+    cities: [],
+    type: '',
+    brand: '',
+    model: ''
+  };
+  
+  document.querySelectorAll('.option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  updateStepDisplay();
+  document.querySelector('.selection-summary').style.display = 'none';
+}
 </script>
 
 <style>
@@ -165,6 +574,53 @@ document.getElementById('trackingPopup').addEventListener('click', function(e) {
 }
 
 /* ... existing styles ... */
+
+.option-card.multi-select {
+  position: relative;
+}
+
+.option-card.multi-select::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.option-card.multi-select.selected::before {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.option-card.multi-select.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 13px;
+  color: white;
+  font-size: 14px;
+}
+
+.option-card.special-option {
+  grid-column: 1 / -1;
+  background-color: #f8f9fa;
+}
+
+.option-card.special-option:hover {
+  background-color: #e9ecef;
+}
+
+.website-options,
+.city-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
