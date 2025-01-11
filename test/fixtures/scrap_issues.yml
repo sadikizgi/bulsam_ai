@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  url: MyString
+  error_message: MyText
+  sprint: one
+
+two:
+  url: MyString
+  error_message: MyText
+  sprint: two

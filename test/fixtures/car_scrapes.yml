@@ -1,0 +1,67 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  address: MyString
+  name: MyString
+  title: MyString
+  add_date: 2025-01-11 22:13:36
+  make: MyString
+  series: MyString
+  model: MyString
+  year: 1
+  fuel_type: MyString
+  gear: MyString
+  km: 1
+  body_type: MyString
+  enginepower: MyString
+  enginecategory: MyString
+  traction: MyString
+  color: MyString
+  warranty: MyString
+  plate: MyString
+  from: MyString
+  videocall: false
+  exchangeable: false
+  condition: MyString
+  price: 9.99
+  seller_name: MyString
+  seller_work_tel: MyString
+  seller_mobile_tel: MyString
+  description: MyText
+  product_url: MyString
+  car: one
+  category: one
+  sprint: one
+
+two:
+  address: MyString
+  name: MyString
+  title: MyString
+  add_date: 2025-01-11 22:13:36
+  make: MyString
+  series: MyString
+  model: MyString
+  year: 1
+  fuel_type: MyString
+  gear: MyString
+  km: 1
+  body_type: MyString
+  enginepower: MyString
+  enginecategory: MyString
+  traction: MyString
+  color: MyString
+  warranty: MyString
+  plate: MyString
+  from: MyString
+  videocall: false
+  exchangeable: false
+  condition: MyString
+  price: 9.99
+  seller_name: MyString
+  seller_work_tel: MyString
+  seller_mobile_tel: MyString
+  description: MyText
+  product_url: MyString
+  car: two
+  category: two
+  sprint: two

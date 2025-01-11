@@ -52,29 +52,29 @@
 
     <!-- Tracked Cars List -->
     <div class="tracked-items">
-      <% if @cars.any? %>
-        <% @cars.each do |car| %>
+      <% if @car_scrapes.any? %>
+        <% @car_scrapes.each do |scrape| %>
           <div class="tracked-item">
             <div class="item-image">
-              <img src="https://placehold.co/200x150" alt="<%= car.brand %> <%= car.model %>" />
+              <img src="https://placehold.co/200x150" alt="<%= scrape.make %> <%= scrape.model %>" />
             </div>
             <div class="item-details">
               <div class="item-header">
-                <h3><%= car.year %> <%= car.brand %> <%= car.model %></h3>
-                <div class="price">₺<%= number_with_delimiter(car.price.to_i) %></div>
+                <h3><%= scrape.year %> <%= scrape.make %> <%= scrape.model %></h3>
+                <div class="price">₺<%= number_with_delimiter(scrape.price.to_i) %></div>
               </div>
               <div class="item-specs">
-                <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(car.mileage.to_i) %> KM</span>
-                <span><i class="fas fa-gas-pump"></i> <%= car.fuel_type %></span>
-                <span><i class="fas fa-cog"></i> <%= car.transmission %></span>
+                <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(scrape.km.to_i) %> KM</span>
+                <span><i class="fas fa-gas-pump"></i> <%= scrape.fuel_type %></span>
+                <span><i class="fas fa-cog"></i> <%= scrape.gear %></span>
               </div>
               <div class="item-location">
                 <i class="fas fa-map-marker-alt"></i>
-                <%= car.location %>
+                <%= scrape.address %>
               </div>
               <div class="item-tracking">
                 <span class="tracking-date">
-                  <%= time_ago_in_words(car.created_at) %> önce eklendi
+                  <%= time_ago_in_words(scrape.created_at) %> önce eklendi
                 </span>
                 <span class="price-change positive">
                   <i class="fas fa-arrow-down"></i> Fiyat takibi başladı
@@ -82,8 +82,8 @@
               </div>
             </div>
             <div class="item-actions">
-              <%= link_to "Detaylar", car_path(car), class: "btn-details" %>
-              <%= button_to "Takibi Bırak", stop_tracking_car_path(car), method: :post, class: "btn-stop-tracking" %>
+              <%= link_to "Detaylar", car_path(scrape.car), class: "btn-details" %>
+              <%= link_to "İlanı Gör", scrape.product_url, class: "btn-view-listing", target: "_blank" %>
             </div>
           </div>
         <% end %>
@@ -91,14 +91,6 @@
         <div class="no-items">
           <p>Henüz takip ettiğiniz araç bulunmuyor.</p>
         </div>
-      <% end %>
-    </div>
-
-    <!-- Add New Tracking Button -->
-    <div class="add-new-tracking">
-      <%= link_to new_car_path, class: "btn-add-tracking" do %>
-        <i class="fas fa-plus"></i>
-        Yeni Araç Takibi Ekle
       <% end %>
     </div>
   </div>
