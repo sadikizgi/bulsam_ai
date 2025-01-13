@@ -295,20 +295,25 @@ body {
   .links a:hover {
     text-decoration: underline;
   }
-  /* Checkbox ve Label Hizalaması */
-  .f.remember-me-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;  /* checkbox ile metin arasındaki boşluk */
+
+  /* Checkbox ve Yazıyı Yan Yana ve Tam Dikey Hizalama */
+  .remember-me {
+    display: flex; /* Yan yana hizalama */
+    align-items: center; /* Dikeyde tam ortalama */
+    gap: 0.5rem; /* Checkbox ve yazı arasındaki boşluk */
   }
 
-  .remember-me-container input[type="checkbox"] {
-    margin: 0;  /* varsayılan margin'i sıfırla */
+  .remember-me input[type="checkbox"] {
+    width: 16px; /* Checkbox genişliğini ayarla */
+    height: 16px; /* Checkbox yüksekliğini ayarla */
+    margin: 0; /* Varsayılan margin'i sıfırla */
+    vertical-align: middle; /* Dikey hizalamayı düzelt */
   }
 
-  .remember-me-container label {
-    margin: 0;  /* varsayılan margin'i sıfırla */
-    line-height: 1;  /* metin yüksekliğini ayarla */
+  .remember-me label {
+    margin: 0; /* Varsayılan margin'i sıfırla */
+    font-size: 1rem; /* Yazı boyutu */
+    line-height: 1; /* Yazıyı dikeyde hizala */
   }
 
   /* Logo Stil */
