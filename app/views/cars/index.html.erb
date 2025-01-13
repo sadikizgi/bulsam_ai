@@ -92,6 +92,33 @@
             </div>
           </div>
         <% end %>
+
+        <% if @total_pages > 1 %>
+          <div class="pagination">
+            <div class="pagination-info">
+              Toplam <%= @total_count %> araç, Sayfa <%= page %> / <%= @total_pages %>
+            </div>
+            <div class="pagination-links">
+              <% if page > 1 %>
+                <%= link_to "← Önceki", cars_path(page: page - 1), class: "pagination-link" %>
+              <% end %>
+              
+              <% (1..@total_pages).each do |p| %>
+                <% if p == page %>
+                  <span class="pagination-link active"><%= p %></span>
+                <% elsif (p - page).abs <= 2 || p == 1 || p == @total_pages %>
+                  <%= link_to p, cars_path(page: p), class: "pagination-link" %>
+                <% elsif (p == 2 && page > 4) || (p == @total_pages - 1 && page < @total_pages - 3) %>
+                  <span class="pagination-ellipsis">...</span>
+                <% end %>
+              <% end %>
+              
+              <% if page < @total_pages %>
+                <%= link_to "Sonraki →", cars_path(page: page + 1), class: "pagination-link" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       <% else %>
         <div class="no-items">
           <p>Henüz takip ettiğiniz araç bulunmuyor.</p>
@@ -385,6 +412,66 @@
     width: 100%;
     justify-content: center;
     margin-top: 0.5rem;
+  }
+}
+
+/* Pagination Styles */
+.pagination {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination-info {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pagination-links {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-link {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  color: #007bff;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.pagination-link:hover {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination-link.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination-ellipsis {
+  color: #666;
+  padding: 0.5rem;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .pagination-links {
+    gap: 0.25rem;
+  }
+  
+  .pagination-link {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
   }
 }
 </style>

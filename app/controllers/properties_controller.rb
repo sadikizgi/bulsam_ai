@@ -1,15 +1,22 @@
 class PropertiesController < ApplicationController
   include ActionView::Helpers::NumberHelper
+  include Paginatable
+  
   before_action :authenticate_user!
   before_action :set_property, only: [:show]
 
   def index
-    # Kullanıcının takip ettiği emlakları PropertyScrape üzerinden getir
-    @property_scrapes = PropertyScrape.joins(:sprint)
-                                    .select('DISTINCT ON (property_scrapes.property_id) property_scrapes.*')
-                                    .order('property_scrapes.property_id, property_scrapes.created_at DESC')
+    @property_scrapes = paginate(
+      PropertyScrape.joins(:sprint)
+                    .order(created_at: :desc)
+    )
+    
+    @total_count = PropertyScrape.count
+    @total_pages = (@total_count.to_f / per_page).ceil
   rescue
     @property_scrapes = []
+    @total_count = 0
+    @total_pages = 0
   end
 
   def show
