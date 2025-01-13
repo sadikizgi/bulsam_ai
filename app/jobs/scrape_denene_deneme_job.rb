@@ -103,6 +103,7 @@ class ScrapeDeneneDenemeJob < ApplicationJob
     
     @scrap.product_url = product[:link]
     @scrap.currency = "₺"
+    @scrap.domain = "arabam.com"
     @scrap.price = product[:price].gsub(".", "").to_i
     @scrap.year = product[:year].gsub(".", "").to_i
     @scrap.km = product[:km].gsub(".", "").to_i
