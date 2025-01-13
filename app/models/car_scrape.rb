@@ -1,6 +1,4 @@
 class CarScrape < ApplicationRecord
-  belongs_to :car
-  belongs_to :category
   belongs_to :sprint
   
   has_many :images, class_name: 'ScrapImage', as: :scrape, dependent: :destroy

@@ -47,6 +47,10 @@
         <input type="text" placeholder="Araç ara..." />
         <button class="search-btn"><i class="fas fa-search"></i></button>
         <button class="filter-btn"><i class="fas fa-filter"></i></button>
+        <button class="btn-add-tracking">
+          <i class="fas fa-plus"></i>
+          Yeni Araç Takibi Ekle
+        </button>
       </div>
     </div>
 
@@ -56,33 +60,34 @@
         <% @car_scrapes.each do |scrape| %>
           <div class="tracked-item">
             <div class="item-image">
-              <img src="https://placehold.co/200x150" alt="<%= scrape.make %> <%= scrape.model %>" />
+              <img src="<%= scrape.image_url || 'https://placehold.co/200x150' %>" alt="<%= scrape.name %>" />
             </div>
             <div class="item-details">
               <div class="item-header">
-                <h3><%= scrape.year %> <%= scrape.make %> <%= scrape.model %></h3>
-                <div class="price">₺<%= number_with_delimiter(scrape.price.to_i) %></div>
+                <h3><%= scrape.title %></h3>
+                <div class="price"><%= scrape.currency %><%= number_with_delimiter(scrape.price) %></div>
               </div>
               <div class="item-specs">
-                <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(scrape.km.to_i) %> KM</span>
-                <span><i class="fas fa-gas-pump"></i> <%= scrape.fuel_type %></span>
-                <span><i class="fas fa-cog"></i> <%= scrape.gear %></span>
+                <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(scrape.km) %> KM</span>
+                <span><i class="fas fa-calendar"></i> <%= scrape.year %></span>
+                <span><i class="fas fa-palette"></i> <%= scrape.color %></span>
               </div>
               <div class="item-location">
                 <i class="fas fa-map-marker-alt"></i>
-                <%= scrape.address %>
+                <%= scrape.city %>
               </div>
               <div class="item-tracking">
                 <span class="tracking-date">
                   <%= time_ago_in_words(scrape.created_at) %> önce eklendi
                 </span>
-                <span class="price-change positive">
-                  <i class="fas fa-arrow-down"></i> Fiyat takibi başladı
-                </span>
+                <% if scrape.public_date.present? %>
+                  <span class="listing-date">
+                    <i class="fas fa-calendar-alt"></i> İlan tarihi: <%= l(scrape.public_date, format: :long) %>
+                  </span>
+                <% end %>
               </div>
             </div>
             <div class="item-actions">
-              <%= link_to "Detaylar", car_path(scrape.car), class: "btn-details" %>
               <%= link_to "İlanı Gör", scrape.product_url, class: "btn-view-listing", target: "_blank" %>
             </div>
           </div>
@@ -93,476 +98,250 @@
         </div>
       <% end %>
     </div>
-
-    <!-- Add New Tracking Button -->
-    <div class="add-new-tracking">
-      <button class="btn-add-tracking">
-        <i class="fas fa-plus"></i>
-        Yeni Araç Takibi Ekle
-      </button>
-    </div>
   </div>
 </div>
-
-<div class="popup-overlay" id="trackingPopup">
-  <div class="tracking-popup">
-    <div class="popup-header">
-      <h2>Yeni Araç Takibi</h2>
-      <p>Adım adım araç takibi oluşturun</p>
-    </div>
-
-    <div class="popup-steps">
-      <div class="step-indicator">
-        <div class="step-dot active" data-step="1"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="2"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="3"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="4"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="5"></div>
-      </div>
-    </div>
-
-    <div class="selection-summary" style="display: none;">
-      <h4>Seçimleriniz</h4>
-      <p class="website-selection"></p>
-      <p class="city-selection"></p>
-      <p class="type-selection"></p>
-      <p class="brand-selection"></p>
-      <p class="model-selection"></p>
-    </div>
-
-    <div class="popup-content">
-      <!-- Step 1: Website Selection -->
-      <div class="step-content active" data-step="1">
-        <div class="website-options">
-          <div class="option-card multi-select" data-value="arabam">
-            <img src="https://www.arabam.com/assets/img/logo-new.svg" alt="Arabam.com">
-            <span>Arabam.com</span>
-          </div>
-          <div class="option-card multi-select" data-value="sahibinden">
-            <img src="https://www.sahibinden.com/assets/images/logo.svg" alt="Sahibinden.com">
-            <span>Sahibinden.com</span>
-          </div>
-          <div class="option-card multi-select" data-value="tasit">
-            <img src="https://www.tasit.com/assets/images/logo.png" alt="Tasit.com">
-            <span>Tasit.com</span>
-          </div>
-          <div class="option-card multi-select" data-value="otomerkezi">
-            <img src="https://www.otomerkezi.com/assets/images/logo.png" alt="Otomerkezi.com">
-            <span>Otomerkezi.com</span>
-          </div>
-          <div class="option-card multi-select" data-value="letgo">
-            <img src="https://www.letgo.com/assets/img/logo.svg" alt="Letgo">
-            <span>Letgo</span>
-          </div>
-          <div class="option-card multi-select" data-value="gittigidiyor">
-            <img src="https://www.gittigidiyor.com/assets/images/logo.svg" alt="GittiGidiyor">
-            <span>GittiGidiyor</span>
-          </div>
-          <div class="option-card multi-select" data-value="carmarket">
-            <img src="https://www.carmarket.com/assets/images/logo.png" alt="CarMarket">
-            <span>CarMarket</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2: City Selection -->
-      <div class="step-content" data-step="2">
-        <div class="city-options">
-          <div class="option-card multi-select special-option" data-value="all">
-            <i class="fas fa-globe-europe"></i>
-            <span>Tüm Türkiye</span>
-          </div>
-          <div class="option-card multi-select" data-value="istanbul">
-            <i class="fas fa-city"></i>
-            <span>İstanbul</span>
-          </div>
-          <div class="option-card multi-select" data-value="ankara">
-            <i class="fas fa-city"></i>
-            <span>Ankara</span>
-          </div>
-          <div class="option-card multi-select" data-value="izmir">
-            <i class="fas fa-city"></i>
-            <span>İzmir</span>
-          </div>
-          <div class="option-card multi-select" data-value="antalya">
-            <i class="fas fa-city"></i>
-            <span>Antalya</span>
-          </div>
-          <div class="option-card multi-select" data-value="bursa">
-            <i class="fas fa-city"></i>
-            <span>Bursa</span>
-          </div>
-          <div class="option-card multi-select" data-value="adana">
-            <i class="fas fa-city"></i>
-            <span>Adana</span>
-          </div>
-          <div class="option-card multi-select" data-value="mersin">
-            <i class="fas fa-city"></i>
-            <span>Mersin</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3: Vehicle Type Selection -->
-      <div class="step-content" data-step="3">
-        <div class="type-options">
-          <div class="option-card" data-value="otomobil">
-            <i class="fas fa-car"></i>
-            <span>Otomobil</span>
-          </div>
-          <div class="option-card" data-value="suv">
-            <i class="fas fa-truck"></i>
-            <span>SUV</span>
-          </div>
-          <div class="option-card" data-value="ticari">
-            <i class="fas fa-shuttle-van"></i>
-            <span>Ticari</span>
-          </div>
-          <div class="option-card" data-value="motosiklet">
-            <i class="fas fa-motorcycle"></i>
-            <span>Motosiklet</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: Brand Selection -->
-      <div class="step-content" data-step="4">
-        <div class="brand-options">
-          <!-- Dinamik olarak doldurulacak -->
-        </div>
-      </div>
-
-      <!-- Step 5: Model Selection -->
-      <div class="step-content" data-step="5">
-        <div class="model-options">
-          <!-- Dinamik olarak doldurulacak -->
-        </div>
-      </div>
-    </div>
-
-    <div class="popup-actions">
-      <button class="btn-prev" style="display: none;">Geri</button>
-      <button class="btn-cancel" onclick="closePopup()">İptal</button>
-      <button class="btn-next">Devam Et</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let currentStep = 1;
-const totalSteps = 5;
-let selections = {
-  websites: [],
-  cities: [],
-  type: '',
-  brand: '',
-  model: ''
-};
-
-// Marka ve model verileri (örnek)
-const carData = {
-  otomobil: {
-    bmw: ['320i', '520i', 'X3', 'X5'],
-    mercedes: ['C200', 'E250', 'GLA200', 'GLC300'],
-    audi: ['A3', 'A4', 'Q3', 'Q5'],
-    volkswagen: ['Golf', 'Passat', 'Tiguan', 'T-Roc']
-  },
-  suv: {
-    bmw: ['X1', 'X3', 'X5', 'X7'],
-    mercedes: ['GLA', 'GLC', 'GLE', 'GLS'],
-    audi: ['Q2', 'Q3', 'Q5', 'Q7'],
-    volkswagen: ['T-Roc', 'Tiguan', 'Touareg']
-  }
-};
-
-document.querySelector('.btn-add-tracking').addEventListener('click', function(e) {
-  e.preventDefault();
-  document.getElementById('trackingPopup').classList.add('active');
-  updateSummary();
-});
-
-function closePopup() {
-  document.getElementById('trackingPopup').classList.remove('active');
-  resetPopup();
-}
-
-document.getElementById('trackingPopup').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closePopup();
-  }
-});
-
-// Option card click handler for multi-select
-document.querySelectorAll('.option-card.multi-select').forEach(card => {
-  card.addEventListener('click', function() {
-    const step = this.closest('.step-content').dataset.step;
-    const value = this.dataset.value;
-    
-    // Toggle selection
-    this.classList.toggle('selected');
-    
-    // Store selection
-    switch(step) {
-      case '1':
-        if (this.classList.contains('selected')) {
-          selections.websites.push(value);
-        } else {
-          selections.websites = selections.websites.filter(w => w !== value);
-        }
-        break;
-      case '2':
-        if (value === 'all') {
-          // If "Tüm Türkiye" is selected, clear other selections
-          if (this.classList.contains('selected')) {
-            document.querySelectorAll('.city-options .option-card').forEach(city => {
-              if (city !== this) {
-                city.classList.remove('selected');
-              }
-            });
-            selections.cities = ['all'];
-          } else {
-            selections.cities = [];
-          }
-        } else {
-          // If other city is selected, unselect "Tüm Türkiye"
-          const allOption = document.querySelector('.city-options .special-option');
-          allOption.classList.remove('selected');
-          selections.cities = selections.cities.filter(c => c !== 'all');
-          
-          if (this.classList.contains('selected')) {
-            selections.cities.push(value);
-          } else {
-            selections.cities = selections.cities.filter(c => c !== value);
-          }
-        }
-        break;
-    }
-    
-    updateSummary();
-  });
-});
-
-// Option card click handler for single-select
-document.querySelectorAll('.type-options .option-card, .brand-options .option-card, .model-options .option-card').forEach(card => {
-  card.addEventListener('click', function() {
-    const step = this.closest('.step-content').dataset.step;
-    const value = this.dataset.value;
-    
-    // Remove previous selection in this step
-    this.closest('.step-content').querySelectorAll('.option-card').forEach(c => {
-      c.classList.remove('selected');
-    });
-    
-    // Add selection to clicked card
-    this.classList.add('selected');
-    
-    // Store selection
-    switch(step) {
-      case '3':
-        selections.type = value;
-        updateBrandOptions(value);
-        break;
-      case '4':
-        selections.brand = value;
-        updateModelOptions(selections.type, value);
-        break;
-      case '5':
-        selections.model = value;
-        break;
-    }
-    
-    updateSummary();
-  });
-});
-
-// Next button click handler
-document.querySelector('.btn-next').addEventListener('click', function() {
-  const currentContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
-  
-  // Check for multi-select steps
-  if (currentStep === 1 && selections.websites.length === 0) {
-    alert('Lütfen en az bir web sitesi seçin');
-    return;
-  }
-  if (currentStep === 2 && selections.cities.length === 0) {
-    alert('Lütfen en az bir şehir seçin');
-    return;
-  }
-  
-  // Check for single-select steps
-  if (currentStep > 2) {
-    const selected = currentContent.querySelector('.option-card.selected');
-    if (!selected) {
-      alert('Lütfen bir seçim yapın');
-      return;
-    }
-  }
-  
-  if (currentStep < totalSteps) {
-    currentStep++;
-    updateStepDisplay();
-  } else {
-    // Form submission
-    console.log('Final selections:', selections);
-    // TODO: Add AJAX call to submit data
-  }
-});
-
-// Previous button click handler
-document.querySelector('.btn-prev').addEventListener('click', function() {
-  if (currentStep > 1) {
-    currentStep--;
-    updateStepDisplay();
-  }
-});
-
-function updateStepDisplay() {
-  // Update step dots
-  document.querySelectorAll('.step-dot').forEach(dot => {
-    const step = parseInt(dot.dataset.step);
-    dot.classList.toggle('active', step <= currentStep);
-  });
-  
-  // Update content visibility
-  document.querySelectorAll('.step-content').forEach(content => {
-    content.classList.toggle('active', parseInt(content.dataset.step) === currentStep);
-  });
-  
-  // Update buttons
-  document.querySelector('.btn-prev').style.display = currentStep > 1 ? 'block' : 'none';
-  document.querySelector('.btn-next').textContent = currentStep === totalSteps ? 'Tamamla' : 'Devam Et';
-  
-  updateSummary();
-}
-
-function updateBrandOptions(type) {
-  const brandContainer = document.querySelector('.brand-options');
-  brandContainer.innerHTML = '';
-  
-  const brands = Object.keys(carData[type] || {});
-  brands.forEach(brand => {
-    const card = document.createElement('div');
-    card.className = 'option-card';
-    card.dataset.value = brand;
-    card.innerHTML = `
-      <i class="fas fa-car"></i>
-      <span>${brand.charAt(0).toUpperCase() + brand.slice(1)}</span>
-    `;
-    brandContainer.appendChild(card);
-  });
-  
-  // Reattach click handlers for single-select
-  brandContainer.querySelectorAll('.option-card').forEach(card => {
-    card.addEventListener('click', function() {
-      const value = this.dataset.value;
-      
-      // Remove previous selection
-      brandContainer.querySelectorAll('.option-card').forEach(c => {
-        c.classList.remove('selected');
-      });
-      
-      // Add selection to clicked card
-      this.classList.add('selected');
-      
-      // Store selection and update models
-      selections.brand = value;
-      updateModelOptions(selections.type, value);
-      
-      updateSummary();
-    });
-  });
-}
-
-function updateModelOptions(type, brand) {
-  const modelContainer = document.querySelector('.model-options');
-  modelContainer.innerHTML = '';
-  
-  const models = carData[type]?.[brand] || [];
-  models.forEach(model => {
-    const card = document.createElement('div');
-    card.className = 'option-card';
-    card.dataset.value = model;
-    card.innerHTML = `
-      <i class="fas fa-car"></i>
-      <span>${model}</span>
-    `;
-    modelContainer.appendChild(card);
-  });
-  
-  // Reattach click handlers for single-select
-  modelContainer.querySelectorAll('.option-card').forEach(card => {
-    card.addEventListener('click', function() {
-      const value = this.dataset.value;
-      
-      // Remove previous selection
-      modelContainer.querySelectorAll('.option-card').forEach(c => {
-        c.classList.remove('selected');
-      });
-      
-      // Add selection to clicked card
-      this.classList.add('selected');
-      
-      // Store selection
-      selections.model = value;
-      
-      updateSummary();
-    });
-  });
-}
-
-function updateSummary() {
-  const summary = document.querySelector('.selection-summary');
-  const hasSelections = selections.websites.length > 0 || 
-                       selections.cities.length > 0 || 
-                       selections.type || 
-                       selections.brand || 
-                       selections.model;
-  
-  if (hasSelections) {
-    summary.style.display = 'block';
-    if (selections.websites.length > 0) {
-      document.querySelector('.website-selection').textContent = 
-        `Web Siteleri: ${selections.websites.join(', ')}`;
-    }
-    if (selections.cities.length > 0) {
-      document.querySelector('.city-selection').textContent = 
-        `Şehirler: ${selections.cities.includes('all') ? 'Tüm Türkiye' : selections.cities.join(', ')}`;
-    }
-    if (selections.type) document.querySelector('.type-selection').textContent = `Araç Tipi: ${selections.type}`;
-    if (selections.brand) document.querySelector('.brand-selection').textContent = `Marka: ${selections.brand}`;
-    if (selections.model) document.querySelector('.model-selection').textContent = `Model: ${selections.model}`;
-  } else {
-    summary.style.display = 'none';
-  }
-}
-
-function resetPopup() {
-  currentStep = 1;
-  selections = {
-    websites: [],
-    cities: [],
-    type: '',
-    brand: '',
-    model: ''
-  };
-  
-  document.querySelectorAll('.option-card').forEach(card => {
-    card.classList.remove('selected');
-  });
-  
-  updateStepDisplay();
-  document.querySelector('.selection-summary').style.display = 'none';
-}
-</script>
 
 <style>
+/* Main Layout Styles */
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Navigation Sidebar */
+.nav-sidebar {
+  width: 250px;
+  background: #114856;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  color: #a0a0a0;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-left h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.header-left p {
+  color: #666;
+}
+
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.search-bar input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  width: 300px;
+}
+
+.search-btn, .filter-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.search-btn:hover, .filter-btn:hover {
+  background: #0056b3;
+}
+
+.btn-add-tracking {
+  padding: 0.5rem 1rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-add-tracking:hover {
+  background: #218838;
+}
+
+/* Tracked Items */
+.tracked-items {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.tracked-item {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.item-image {
+  width: 200px;
+  height: 150px;
+  flex-shrink: 0;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.item-header h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin: 0;
+}
+
+.price {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.item-specs {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.item-specs span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+}
+
+.item-specs i {
+  color: #007bff;
+}
+
+.item-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+}
+
+.item-location i {
+  color: #dc3545;
+}
+
+.item-tracking {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.item-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.btn-view-listing {
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+}
+
+.btn-view-listing:hover {
+  background: #0056b3;
+}
+
 .no-items {
   text-align: center;
-  padding: 2rem;
+  padding: 3rem;
   background: white;
   border-radius: 1rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -573,54 +352,41 @@ function resetPopup() {
   font-size: 1.1rem;
 }
 
-/* ... existing styles ... */
-
-.option-card.multi-select {
-  position: relative;
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  
+  .nav-sidebar {
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .tracked-item {
+    flex-direction: column;
+  }
+  
+  .item-image {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .search-bar {
+    flex-wrap: wrap;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .btn-add-tracking {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
 }
-
-.option-card.multi-select::before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.option-card.multi-select.selected::before {
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.option-card.multi-select.selected::after {
-  content: '✓';
-  position: absolute;
-  top: 10px;
-  right: 13px;
-  color: white;
-  font-size: 14px;
-}
-
-.option-card.special-option {
-  grid-column: 1 / -1;
-  background-color: #f8f9fa;
-}
-
-.option-card.special-option:hover {
-  background-color: #e9ecef;
-}
-
-.website-options,
-.city-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

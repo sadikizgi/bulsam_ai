@@ -4,10 +4,9 @@ class CarsController < ApplicationController
   before_action :set_car, only: [:show]
 
   def index
-    # Kullanıcının takip ettiği araçları CarScrape üzerinden getir
+    # Tüm araç scrapelerini getir, en son eklenenler önce
     @car_scrapes = CarScrape.joins(:sprint)
-                           .select('DISTINCT ON (car_scrapes.car_id) car_scrapes.*')
-                           .order('car_scrapes.car_id, car_scrapes.created_at DESC')
+                           .order(created_at: :desc)
   rescue
     @car_scrapes = []
   end
