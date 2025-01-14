@@ -5,27 +5,18 @@ export default class extends Controller {
 
   connect() {
     this.currentStep = 1;
-    this.totalSteps = 5;
+    this.totalSteps = 6;
     this.selections = {
       websites: [],
       cities: [],
       type: '',
+      type_name: '',
       brand: '',
-      model: ''
-    };
-
-    // Araç verileri
-    this.vehicleData = {
-      otomobil: {
-        volkswagen: ['Polo', 'Golf', 'Passat', 'Arteon'],
-        bmw: ['1 Serisi', '3 Serisi', '5 Serisi', '7 Serisi'],
-        mercedes: ['A Serisi', 'C Serisi', 'E Serisi', 'S Serisi']
-      },
-      suv: {
-        volkswagen: ['T-Roc', 'Tiguan', 'Touareg'],
-        bmw: ['X1', 'X3', 'X5', 'X7'],
-        mercedes: ['GLA', 'GLC', 'GLE', 'GLS']
-      }
+      brand_name: '',
+      model: '',
+      model_name: '',
+      serial: '',
+      serial_name: ''
     };
   }
 
@@ -59,6 +50,22 @@ export default class extends Controller {
       case '1':
         if (card.classList.contains('selected')) {
           this.selections.websites.push(value);
+          if (value === 'arabam') {
+            // arabam.com seçildiğinde diğer siteleri devre dışı bırak
+            this.element.querySelectorAll('.website-options .option-card').forEach(site => {
+              if (site !== card) {
+                site.classList.remove('selected');
+                this.selections.websites = this.selections.websites.filter(w => w !== site.dataset.value);
+              }
+            });
+          } else {
+            // başka site seçildiğinde arabam.com'u devre dışı bırak
+            const arabamCard = this.element.querySelector('.website-options .option-card[data-value="arabam"]');
+            if (arabamCard) {
+              arabamCard.classList.remove('selected');
+              this.selections.websites = this.selections.websites.filter(w => w !== 'arabam');
+            }
+          }
         } else {
           this.selections.websites = this.selections.websites.filter(w => w !== value);
         }
@@ -96,6 +103,7 @@ export default class extends Controller {
     const card = event.currentTarget;
     const step = card.closest('.step-content').dataset.step;
     const value = card.dataset.value;
+    const name = card.querySelector('span').textContent;
     
     card.closest('.step-content').querySelectorAll('.option-card').forEach(c => {
       c.classList.remove('selected');
@@ -106,25 +114,111 @@ export default class extends Controller {
     switch(step) {
       case '3':
         this.selections.type = value;
-        this.updateBrandOptions(value);
+        this.selections.type_name = name;
+        if (this.selections.websites.includes('arabam')) {
+          this.loadArabamBrands(value);
+        }
         break;
       case '4':
         this.selections.brand = value;
-        this.updateModelOptions(this.selections.type, value);
+        this.selections.brand_name = name;
+        if (this.selections.websites.includes('arabam')) {
+          this.loadArabamModels(value);
+        }
         break;
       case '5':
         this.selections.model = value;
+        this.selections.model_name = name;
+        if (this.selections.websites.includes('arabam')) {
+          this.loadArabamSerials(value);
+        }
+        break;
+      case '6':
+        this.selections.serial = value;
+        this.selections.serial_name = name;
         break;
     }
     
     this.updateSummary();
   }
 
+  async loadArabamBrands(categoryId) {
+    try {
+      const response = await fetch(`/api/categories/${categoryId}/brands`);
+      const brands = await response.json();
+      
+      const brandContainer = this.element.querySelector('.brand-options');
+      brandContainer.innerHTML = '';
+      
+      brands.forEach(brand => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+        card.dataset.value = brand.id;
+        card.dataset.action = 'click->popup#handleSingleSelect';
+        card.innerHTML = `
+          <i class="fas fa-car"></i>
+          <span>${brand.name}</span>
+        `;
+        brandContainer.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Error loading brands:', error);
+    }
+  }
+
+  async loadArabamModels(brandId) {
+    try {
+      const response = await fetch(`/api/brands/${brandId}/models`);
+      const models = await response.json();
+      
+      const modelContainer = this.element.querySelector('.model-options');
+      modelContainer.innerHTML = '';
+      
+      models.forEach(model => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+        card.dataset.value = model.id;
+        card.dataset.action = 'click->popup#handleSingleSelect';
+        card.innerHTML = `
+          <i class="fas fa-car"></i>
+          <span>${model.name}</span>
+        `;
+        modelContainer.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Error loading models:', error);
+    }
+  }
+
+  async loadArabamSerials(modelId) {
+    try {
+      const response = await fetch(`/api/models/${modelId}/serials`);
+      const serials = await response.json();
+      
+      const serialContainer = this.element.querySelector('.serial-options');
+      serialContainer.innerHTML = '';
+      
+      serials.forEach(serial => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+        card.dataset.value = serial.id;
+        card.dataset.action = 'click->popup#handleSingleSelect';
+        card.innerHTML = `
+          <i class="fas fa-car"></i>
+          <span>${serial.name}</span>
+        `;
+        serialContainer.appendChild(card);
+      });
+    } catch (error) {
+      console.error('Error loading serials:', error);
+    }
+  }
+
   next() {
     const currentContent = this.stepContentTargets[this.currentStep - 1];
     
     if (this.currentStep === 1 && this.selections.websites.length === 0) {
-      alert('Lütfen en az bir web sitesi seçin');
+      alert('Lütfen bir web sitesi seçin');
       return;
     }
     if (this.currentStep === 2 && this.selections.cities.length === 0) {
@@ -171,48 +265,13 @@ export default class extends Controller {
     this.updateSummary();
   }
 
-  updateBrandOptions(type) {
-    const brandContainer = this.element.querySelector('.brand-options');
-    brandContainer.innerHTML = '';
-    
-    const brands = Object.keys(this.vehicleData[type] || {});
-    brands.forEach(brand => {
-      const card = document.createElement('div');
-      card.className = 'option-card';
-      card.dataset.value = brand;
-      card.dataset.action = 'click->popup#handleSingleSelect';
-      card.innerHTML = `
-        <i class="fas fa-car"></i>
-        <span>${brand.charAt(0).toUpperCase() + brand.slice(1)}</span>
-      `;
-      brandContainer.appendChild(card);
-    });
-  }
-
-  updateModelOptions(type, brand) {
-    const modelContainer = this.element.querySelector('.model-options');
-    modelContainer.innerHTML = '';
-    
-    const models = this.vehicleData[type]?.[brand] || [];
-    models.forEach(model => {
-      const card = document.createElement('div');
-      card.className = 'option-card';
-      card.dataset.value = model;
-      card.dataset.action = 'click->popup#handleSingleSelect';
-      card.innerHTML = `
-        <i class="fas fa-car"></i>
-        <span>${model}</span>
-      `;
-      modelContainer.appendChild(card);
-    });
-  }
-
   updateSummary() {
     const hasSelections = this.selections.websites.length > 0 || 
                          this.selections.cities.length > 0 || 
                          this.selections.type || 
                          this.selections.brand || 
-                         this.selections.model;
+                         this.selections.model ||
+                         this.selections.serial;
     
     if (hasSelections) {
       this.summaryTarget.style.display = 'block';
@@ -224,9 +283,22 @@ export default class extends Controller {
         this.element.querySelector('.city-selection').textContent = 
           `Şehirler: ${this.selections.cities.includes('all') ? 'Tüm Türkiye' : this.selections.cities.join(', ')}`;
       }
-      if (this.selections.type) this.element.querySelector('.type-selection').textContent = `Araç Tipi: ${this.selections.type}`;
-      if (this.selections.brand) this.element.querySelector('.brand-selection').textContent = `Marka: ${this.selections.brand}`;
-      if (this.selections.model) this.element.querySelector('.model-selection').textContent = `Model: ${this.selections.model}`;
+      if (this.selections.type) {
+        this.element.querySelector('.type-selection').textContent = 
+          `Araç Tipi: ${this.selections.type_name}`;
+      }
+      if (this.selections.brand) {
+        this.element.querySelector('.brand-selection').textContent = 
+          `Marka: ${this.selections.brand_name}`;
+      }
+      if (this.selections.model) {
+        this.element.querySelector('.model-selection').textContent = 
+          `Model: ${this.selections.model_name}`;
+      }
+      if (this.selections.serial) {
+        this.element.querySelector('.serial-selection').textContent = 
+          `Seri: ${this.selections.serial_name}`;
+      }
     } else {
       this.summaryTarget.style.display = 'none';
     }
@@ -238,8 +310,13 @@ export default class extends Controller {
       websites: [],
       cities: [],
       type: '',
+      type_name: '',
       brand: '',
-      model: ''
+      brand_name: '',
+      model: '',
+      model_name: '',
+      serial: '',
+      serial_name: ''
     };
     
     this.element.querySelectorAll('.option-card').forEach(card => {

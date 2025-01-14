@@ -146,6 +146,8 @@
             <div class="step-dot" data-popup-target="stepDot" data-step="4"></div>
             <div class="step-line"></div>
             <div class="step-dot" data-popup-target="stepDot" data-step="5"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-popup-target="stepDot" data-step="6"></div>
           </div>
         </div>
 
@@ -156,6 +158,7 @@
           <p class="type-selection"></p>
           <p class="brand-selection"></p>
           <p class="model-selection"></p>
+          <p class="serial-selection"></p>
         </div>
 
         <div class="popup-content">
@@ -198,18 +201,12 @@
           <!-- Step 3: Vehicle Type Selection -->
           <div class="step-content" data-popup-target="stepContent" data-step="3">
             <div class="type-options">
-              <div class="option-card" data-value="otomobil" data-action="click->popup#handleSingleSelect">
-                <i class="fas fa-car"></i>
-                <span>Otomobil</span>
-              </div>
-              <div class="option-card" data-value="suv" data-action="click->popup#handleSingleSelect">
-                <i class="fas fa-truck"></i>
-                <span>SUV</span>
-              </div>
-              <div class="option-card" data-value="ticari" data-action="click->popup#handleSingleSelect">
-                <i class="fas fa-shuttle-van"></i>
-                <span>Ticari</span>
-              </div>
+              <% Category.where(company_id: 2).each do |category| %>
+                <div class="option-card" data-value="<%= category.id %>" data-action="click->popup#handleSingleSelect">
+                  <i class="fas fa-car"></i>
+                  <span><%= category.name %></span>
+                </div>
+              <% end %>
             </div>
           </div>
 
@@ -223,6 +220,13 @@
           <!-- Step 5: Model Selection -->
           <div class="step-content" data-popup-target="stepContent" data-step="5">
             <div class="model-options">
+              <!-- Dinamik olarak doldurulacak -->
+            </div>
+          </div>
+
+          <!-- Step 6: Serial Selection -->
+          <div class="step-content" data-popup-target="stepContent" data-step="6">
+            <div class="serial-options">
               <!-- Dinamik olarak doldurulacak -->
             </div>
           </div>
