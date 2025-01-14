@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_13_225238) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_14_185143) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_13_225238) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "brands", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "category_id", null: false
+    t.index ["category_id"], name: "index_brands_on_category_id"
   end
 
   create_table "car_scrapes", force: :cascade do |t|
@@ -128,6 +136,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_13_225238) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_companies_on_category_id"
+  end
+
+  create_table "models", force: :cascade do |t|
+    t.string "name"
+    t.bigint "brand_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["brand_id"], name: "index_models_on_brand_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -221,6 +237,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_13_225238) do
     t.index ["url"], name: "index_scrap_issues_on_url"
   end
 
+  create_table "serials", force: :cascade do |t|
+    t.string "name"
+    t.string "engine_size"
+    t.bigint "model_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["model_id"], name: "index_serials_on_model_id"
+  end
+
   create_table "sprints", force: :cascade do |t|
     t.bigint "company_id", null: false
     t.string "domain"
@@ -307,10 +332,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_13_225238) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "brands", "categories"
   add_foreign_key "car_scrapes", "sprints"
   add_foreign_key "car_tracking_preferences", "users"
   add_foreign_key "cars", "vehicles"
   add_foreign_key "companies", "categories"
+  add_foreign_key "models", "brands"
   add_foreign_key "notifications", "users"
   add_foreign_key "properties", "users"
   add_foreign_key "property_filters", "users"
@@ -318,6 +345,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_13_225238) do
   add_foreign_key "property_scrapes", "properties"
   add_foreign_key "property_scrapes", "sprints"
   add_foreign_key "scrap_issues", "sprints"
+  add_foreign_key "serials", "models"
   add_foreign_key "sprints", "companies"
   add_foreign_key "vehicle_filters", "users"
   add_foreign_key "vehicles", "companies"
