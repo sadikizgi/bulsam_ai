@@ -1,4 +1,5 @@
 class Category < ApplicationRecord
+  belongs_to :company
   has_many :brands, dependent: :destroy
   has_many :models, through: :brands
   has_many :serials, through: :models

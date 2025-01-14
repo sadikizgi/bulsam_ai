@@ -1,5 +1,5 @@
 class Company < ApplicationRecord
-  belongs_to :category
+  has_many :categories
   has_many :sprints
   
   validates :name, presence: true, uniqueness: true
