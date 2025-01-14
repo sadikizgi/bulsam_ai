@@ -30,7 +30,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
     page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
     page_html.css(".category-facet")[0].css("ul")[0].css("li").each do |item|
       category_name = item.css("a").text.strip.split("\r").first
-      category_url = "https://www.arabam.com" + URI.encode_www_form_component(item.css("a").first["href"])
+      category_url = "https://www.arabam.com" + item.css("a").first["href"]
       category = Category.find_or_create_by(name: category_name, category_url: category_url, company_id: @company.id)
       category.save
       Rails.logger.info "Created/Found category: #{category.id}"
@@ -41,7 +41,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
       if category_page_html.css(".category-facet").css("ul").last.css("li").count > 0
         category_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
           brand_name = item.css("a").text.strip.split("\r").first
-          brand_url = "https://www.arabam.com" + URI.encode_www_form_component(item.css("a").first["href"])
+          brand_url = "https://www.arabam.com" + item.css("a").first["href"]
           brand = Brand.find_or_create_by(name: brand_name, brand_url: brand_url, category_id: category.id)
           brand.save
           Rails.logger.info "Created/Found brand: #{brand.id}"
@@ -52,7 +52,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
           if model_page_html.css(".category-facet").css("ul").last.css("li").count > 0
             model_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
               model_name = item.css("a").text.strip.split("\r").first
-              model_url = "https://www.arabam.com" + URI.encode_www_form_component(item.css("a").first["href"])
+              model_url = "https://www.arabam.com" + item.css("a").first["href"]
               model = Model.find_or_create_by(name: model_name, model_url: model_url, brand_id: brand.id)
               model.save
               Rails.logger.info "Created/Found model: #{model.id}"
@@ -63,7 +63,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
               if serials_page_html.css(".category-facet").css("ul").last.css("li").count > 0
                 serials_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
                   serial_name = item.css("a").text.strip.split("\r").first
-                  serial_url = "https://www.arabam.com" + URI.encode_www_form_component(item.css("a").first["href"])
+                  serial_url = "https://www.arabam.com" + item.css("a").first["href"]
                   serial = Serial.find_or_create_by(name: serial_name, serial_url: serial_url, model_id: model.id, engine_size: serial_name)
                   serial.save
                   Rails.logger.info "Created/Found serial: #{serial.id}"

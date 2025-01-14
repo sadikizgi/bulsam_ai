@@ -214,6 +214,37 @@ export default class extends Controller {
     }
   }
 
+  async createTracking() {
+    try {
+      const response = await fetch('/cars', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          tracking: {
+            websites: this.selections.websites,
+            cities: this.selections.cities,
+            category_id: this.selections.type,
+            brand_id: this.selections.brand,
+            model_id: this.selections.model,
+            serial_id: this.selections.serial
+          }
+        })
+      });
+
+      if (response.ok) {
+        // Sayfayı yeniden yüklemek yerine Turbo ile güncelleyelim
+        Turbo.visit(window.location.href, { action: "replace" });
+      } else {
+        console.error('Error creating tracking');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
   next() {
     const currentContent = this.stepContentTargets[this.currentStep - 1];
     
@@ -238,8 +269,9 @@ export default class extends Controller {
       this.currentStep++;
       this.updateStepDisplay();
     } else {
-      console.log('Final selections:', this.selections);
-      this.close();
+      this.createTracking().then(() => {
+        this.close();
+      });
     }
   }
 

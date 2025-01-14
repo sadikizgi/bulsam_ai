@@ -71,3 +71,6 @@ gem 'httparty'
 gem 'mechanize'
 gem 'sidekiq'
 gem 'faker' # For rotating user agents
+
+# Pagination
+gem 'kaminari'

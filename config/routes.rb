@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   
   get 'dashboard', to: 'dashboard#index'
   
-  resources :cars, only: [:index, :show]
+  resources :cars, only: [:index, :create, :destroy]
   resources :properties, only: [:index, :show]
   
   # Sidekiq Web UI

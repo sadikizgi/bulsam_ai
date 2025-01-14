@@ -1,30 +1,34 @@
 class CarsController < ApplicationController
-  include ActionView::Helpers::NumberHelper
-  include Paginatable
-  
   before_action :authenticate_user!
-  before_action :set_car, only: [:show]
 
   def index
-    @car_scrapes = paginate(
-      CarScrape.joins(:sprint)
-               .order(created_at: :desc)
-    )
-    
-    @total_count = CarScrape.count
-    @total_pages = (@total_count.to_f / per_page).ceil
-  rescue
-    @car_scrapes = []
-    @total_count = 0
-    @total_pages = 0
+    @car_trackings = current_user.car_trackings
+                                .includes(:category, :brand, :model, :serial)
+                                .order(created_at: :desc)
+                                .page(params[:page])
+                                .per(10)
   end
 
-  def show
+  def create
+    @tracking = current_user.car_trackings.build(tracking_params)
+    
+    if @tracking.save
+      render json: @tracking, status: :created
+    else
+      render json: { errors: @tracking.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @tracking = current_user.car_trackings.find(params[:id])
+    @tracking.destroy
+    redirect_to cars_path, notice: 'Araç takibi silindi.'
   end
 
   private
 
-  def set_car
-    @car = Car.find(params[:id])
+  def tracking_params
+    params.require(:tracking).permit(:category_id, :brand_id, :model_id, :serial_id, 
+                                   websites: [], cities: [])
   end
 end
