@@ -36,7 +36,7 @@
   </div>
 
   <!-- Main Content Area -->
-  <div class="main-content">
+  <div class="main-content" data-controller="popup">
     <div class="content-header">
       <div class="header-left">
         <h1>Emlak Takibi</h1>
@@ -47,7 +47,7 @@
         <input type="text" placeholder="Emlak ara..." />
         <button class="search-btn"><i class="fas fa-search"></i></button>
         <button class="filter-btn"><i class="fas fa-filter"></i></button>
-        <button class="btn-add-tracking">
+        <button class="btn-add-tracking" data-action="click->popup#open">
           <i class="fas fa-plus"></i>
           Yeni Emlak Takibi Ekle
         </button>
@@ -125,470 +125,132 @@
       <% end %>
     </div>
 
-    <!-- Add New Tracking Button -->
-    <div class="add-new-tracking">
-      <button class="btn-add-tracking">
-        <i class="fas fa-plus"></i>
-        Yeni Emlak Takibi Ekle
-      </button>
+    <div class="popup-overlay" data-popup-target="overlay" data-action="click->popup#closeIfOverlay">
+      <div class="tracking-popup">
+        <div class="popup-header">
+          <h2>Yeni Emlak Takibi</h2>
+          <p>Adım adım emlak takibi oluşturun</p>
+        </div>
+
+        <div class="popup-steps">
+          <div class="step-indicator">
+            <div class="step-dot active" data-popup-target="stepDot" data-step="1"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-popup-target="stepDot" data-step="2"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-popup-target="stepDot" data-step="3"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-popup-target="stepDot" data-step="4"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-popup-target="stepDot" data-step="5"></div>
+          </div>
+        </div>
+
+        <div class="selection-summary" data-popup-target="summary" style="display: none;">
+          <h4>Seçimleriniz</h4>
+          <p class="website-selection"></p>
+          <p class="city-selection"></p>
+          <p class="type-selection"></p>
+          <p class="category-selection"></p>
+          <p class="room-selection"></p>
+        </div>
+
+        <div class="popup-content">
+          <!-- Step 1: Website Selection -->
+          <div class="step-content active" data-popup-target="stepContent" data-step="1">
+            <div class="website-options">
+              <div class="option-card multi-select" data-value="sahibinden" data-action="click->popup#handleMultiSelect">
+                <img src="https://www.sahibinden.com/assets/images/logo.svg" alt="Sahibinden.com">
+                <span>Sahibinden.com</span>
+              </div>
+              <div class="option-card multi-select" data-value="hepsiemlak" data-action="click->popup#handleMultiSelect">
+                <img src="https://www.hepsiemlak.com/assets/images/logo.svg" alt="Hepsiemlak.com">
+                <span>Hepsiemlak.com</span>
+              </div>
+              <div class="option-card multi-select" data-value="emlakjet" data-action="click->popup#handleMultiSelect">
+                <img src="https://www.emlakjet.com/assets/images/logo.svg" alt="Emlakjet">
+                <span>Emlakjet</span>
+              </div>
+              <div class="option-card multi-select" data-value="zingat" data-action="click->popup#handleMultiSelect">
+                <img src="https://www.zingat.com/assets/images/logo.png" alt="Zingat">
+                <span>Zingat</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: City Selection -->
+          <div class="step-content" data-popup-target="stepContent" data-step="2">
+            <div class="city-options">
+              <div class="option-card multi-select special-option" data-value="all" data-action="click->popup#handleMultiSelect">
+                <i class="fas fa-globe-europe"></i>
+                <span>Tüm Türkiye</span>
+              </div>
+              <div class="option-card multi-select" data-value="istanbul" data-action="click->popup#handleMultiSelect">
+                <i class="fas fa-city"></i>
+                <span>İstanbul</span>
+              </div>
+              <div class="option-card multi-select" data-value="ankara" data-action="click->popup#handleMultiSelect">
+                <i class="fas fa-city"></i>
+                <span>Ankara</span>
+              </div>
+              <div class="option-card multi-select" data-value="izmir" data-action="click->popup#handleMultiSelect">
+                <i class="fas fa-city"></i>
+                <span>İzmir</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Property Type Selection -->
+          <div class="step-content" data-popup-target="stepContent" data-step="3">
+            <div class="type-options">
+              <div class="option-card" data-value="konut" data-action="click->popup#handleSingleSelect">
+                <i class="fas fa-home"></i>
+                <span>Konut</span>
+              </div>
+              <div class="option-card" data-value="isyeri" data-action="click->popup#handleSingleSelect">
+                <i class="fas fa-building"></i>
+                <span>İş Yeri</span>
+              </div>
+              <div class="option-card" data-value="arsa" data-action="click->popup#handleSingleSelect">
+                <i class="fas fa-map"></i>
+                <span>Arsa</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Category Selection -->
+          <div class="step-content" data-popup-target="stepContent" data-step="4">
+            <div class="category-options">
+              <!-- Dinamik olarak doldurulacak -->
+            </div>
+          </div>
+
+          <!-- Step 5: Room Selection -->
+          <div class="step-content" data-popup-target="stepContent" data-step="5">
+            <div class="room-options">
+              <!-- Dinamik olarak doldurulacak -->
+            </div>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button class="btn-prev" data-popup-target="prevButton" data-action="click->popup#prev" style="display: none;">Geri</button>
+          <button class="btn-cancel" data-action="popup#close">İptal</button>
+          <button class="btn-next" data-popup-target="nextButton" data-action="click->popup#next">Devam Et</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-<div class="popup-overlay" id="trackingPopup">
-  <div class="tracking-popup">
-    <div class="popup-header">
-      <h2>Yeni Emlak Takibi</h2>
-      <p>Adım adım emlak takibi oluşturun</p>
-    </div>
-
-    <div class="popup-steps">
-      <div class="step-indicator">
-        <div class="step-dot active" data-step="1"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="2"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="3"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="4"></div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="5"></div>
-      </div>
-    </div>
-
-    <div class="selection-summary" style="display: none;">
-      <h4>Seçimleriniz</h4>
-      <p class="website-selection"></p>
-      <p class="city-selection"></p>
-      <p class="type-selection"></p>
-      <p class="category-selection"></p>
-      <p class="room-selection"></p>
-    </div>
-
-    <div class="popup-content">
-      <!-- Step 1: Website Selection -->
-      <div class="step-content active" data-step="1">
-        <div class="website-options">
-          <div class="option-card multi-select" data-value="sahibinden">
-            <img src="https://www.sahibinden.com/assets/images/logo.svg" alt="Sahibinden.com">
-            <span>Sahibinden.com</span>
-          </div>
-          <div class="option-card multi-select" data-value="hepsiemlak">
-            <img src="https://www.hepsiemlak.com/assets/images/logo.svg" alt="Hepsiemlak.com">
-            <span>Hepsiemlak.com</span>
-          </div>
-          <div class="option-card multi-select" data-value="emlakjet">
-            <img src="https://www.emlakjet.com/assets/images/logo.svg" alt="Emlakjet">
-            <span>Emlakjet</span>
-          </div>
-          <div class="option-card multi-select" data-value="zingat">
-            <img src="https://www.zingat.com/assets/images/logo.png" alt="Zingat">
-            <span>Zingat</span>
-          </div>
-          <div class="option-card multi-select" data-value="hurriyet">
-            <img src="https://www.hurriyetemlak.com/assets/images/logo.svg" alt="Hürriyet Emlak">
-            <span>Hürriyet Emlak</span>
-          </div>
-          <div class="option-card multi-select" data-value="milliyetemlak">
-            <img src="https://www.milliyetemlak.com/assets/images/logo.svg" alt="Milliyet Emlak">
-            <span>Milliyet Emlak</span>
-          </div>
-          <div class="option-card multi-select" data-value="remax">
-            <img src="https://www.remax.com.tr/assets/images/logo.svg" alt="RE/MAX">
-            <span>RE/MAX</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2: City Selection -->
-      <div class="step-content" data-step="2">
-        <div class="city-options">
-          <div class="option-card multi-select special-option" data-value="all">
-            <i class="fas fa-globe-europe"></i>
-            <span>Tüm Türkiye</span>
-          </div>
-          <div class="option-card multi-select" data-value="istanbul">
-            <i class="fas fa-city"></i>
-            <span>İstanbul</span>
-          </div>
-          <div class="option-card multi-select" data-value="ankara">
-            <i class="fas fa-city"></i>
-            <span>Ankara</span>
-          </div>
-          <div class="option-card multi-select" data-value="izmir">
-            <i class="fas fa-city"></i>
-            <span>İzmir</span>
-          </div>
-          <div class="option-card multi-select" data-value="antalya">
-            <i class="fas fa-city"></i>
-            <span>Antalya</span>
-          </div>
-          <div class="option-card multi-select" data-value="bursa">
-            <i class="fas fa-city"></i>
-            <span>Bursa</span>
-          </div>
-          <div class="option-card multi-select" data-value="adana">
-            <i class="fas fa-city"></i>
-            <span>Adana</span>
-          </div>
-          <div class="option-card multi-select" data-value="mersin">
-            <i class="fas fa-city"></i>
-            <span>Mersin</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3: Property Type Selection -->
-      <div class="step-content" data-step="3">
-        <div class="type-options">
-          <div class="option-card" data-value="konut">
-            <i class="fas fa-home"></i>
-            <span>Konut</span>
-          </div>
-          <div class="option-card" data-value="isyeri">
-            <i class="fas fa-building"></i>
-            <span>İş Yeri</span>
-          </div>
-          <div class="option-card" data-value="arsa">
-            <i class="fas fa-map"></i>
-            <span>Arsa</span>
-          </div>
-          <div class="option-card" data-value="turistik">
-            <i class="fas fa-hotel"></i>
-            <span>Turistik Tesis</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: Category Selection -->
-      <div class="step-content" data-step="4">
-        <div class="category-options">
-          <!-- Dinamik olarak doldurulacak -->
-        </div>
-      </div>
-
-      <!-- Step 5: Room Selection -->
-      <div class="step-content" data-step="5">
-        <div class="room-options">
-          <!-- Dinamik olarak doldurulacak -->
-        </div>
-      </div>
-    </div>
-
-    <div class="popup-actions">
-      <button class="btn-prev" style="display: none;">Geri</button>
-      <button class="btn-cancel" onclick="closePopup()">İptal</button>
-      <button class="btn-next">Devam Et</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let currentStep = 1;
-const totalSteps = 5;
-let selections = {
-  websites: [],
-  cities: [],
-  type: '',
-  category: '',
-  room: ''
-};
-
-// Kategori ve oda sayısı verileri (örnek)
-const propertyData = {
-  konut: {
-    daire: ['1+0', '1+1', '2+1', '3+1', '4+1', '5+1'],
-    villa: ['3+1', '4+1', '5+1', '6+1', '7+1'],
-    mustakil: ['2+1', '3+1', '4+1', '5+1']
-  },
-  isyeri: {
-    dukkan: ['50m²', '100m²', '150m²', '200m²'],
-    ofis: ['50m²', '100m²', '150m²', '200m²'],
-    depo: ['100m²', '200m²', '500m²', '1000m²']
-  }
-};
-
-document.querySelector('.btn-add-tracking').addEventListener('click', function(e) {
-  e.preventDefault();
-  document.getElementById('trackingPopup').classList.add('active');
-  updateSummary();
-});
-
-function closePopup() {
-  document.getElementById('trackingPopup').classList.remove('active');
-  resetPopup();
-}
-
-document.getElementById('trackingPopup').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closePopup();
-  }
-});
-
-// Option card click handler for multi-select
-document.querySelectorAll('.option-card.multi-select').forEach(card => {
-  card.addEventListener('click', function() {
-    const step = this.closest('.step-content').dataset.step;
-    const value = this.dataset.value;
-    
-    // Toggle selection
-    this.classList.toggle('selected');
-    
-    // Store selection
-    switch(step) {
-      case '1':
-        if (this.classList.contains('selected')) {
-          selections.websites.push(value);
-        } else {
-          selections.websites = selections.websites.filter(w => w !== value);
-        }
-        break;
-      case '2':
-        if (value === 'all') {
-          // If "Tüm Türkiye" is selected, clear other selections
-          if (this.classList.contains('selected')) {
-            document.querySelectorAll('.city-options .option-card').forEach(city => {
-              if (city !== this) {
-                city.classList.remove('selected');
-              }
-            });
-            selections.cities = ['all'];
-          } else {
-            selections.cities = [];
-          }
-        } else {
-          // If other city is selected, unselect "Tüm Türkiye"
-          const allOption = document.querySelector('.city-options .special-option');
-          allOption.classList.remove('selected');
-          selections.cities = selections.cities.filter(c => c !== 'all');
-          
-          if (this.classList.contains('selected')) {
-            selections.cities.push(value);
-          } else {
-            selections.cities = selections.cities.filter(c => c !== value);
-          }
-        }
-        break;
-    }
-    
-    updateSummary();
-  });
-});
-
-// Option card click handler for single-select
-document.querySelectorAll('.type-options .option-card, .category-options .option-card, .room-options .option-card').forEach(card => {
-  card.addEventListener('click', function() {
-    const step = this.closest('.step-content').dataset.step;
-    const value = this.dataset.value;
-    
-    // Remove previous selection in this step
-    this.closest('.step-content').querySelectorAll('.option-card').forEach(c => {
-      c.classList.remove('selected');
-    });
-    
-    // Add selection to clicked card
-    this.classList.add('selected');
-    
-    // Store selection
-    switch(step) {
-      case '3':
-        selections.type = value;
-        updateCategoryOptions(value);
-        break;
-      case '4':
-        selections.category = value;
-        updateRoomOptions(selections.type, value);
-        break;
-      case '5':
-        selections.room = value;
-        break;
-    }
-    
-    updateSummary();
-  });
-});
-
-// Next button click handler
-document.querySelector('.btn-next').addEventListener('click', function() {
-  const currentContent = document.querySelector(`.step-content[data-step="${currentStep}"]`);
-  
-  // Check for multi-select steps
-  if (currentStep === 1 && selections.websites.length === 0) {
-    alert('Lütfen en az bir web sitesi seçin');
-    return;
-  }
-  if (currentStep === 2 && selections.cities.length === 0) {
-    alert('Lütfen en az bir şehir seçin');
-    return;
-  }
-  
-  // Check for single-select steps
-  if (currentStep > 2) {
-    const selected = currentContent.querySelector('.option-card.selected');
-    if (!selected) {
-      alert('Lütfen bir seçim yapın');
-      return;
-    }
-  }
-  
-  if (currentStep < totalSteps) {
-    currentStep++;
-    updateStepDisplay();
-  } else {
-    // Form submission
-    console.log('Final selections:', selections);
-    // TODO: Add AJAX call to submit data
-  }
-});
-
-// Previous button click handler
-document.querySelector('.btn-prev').addEventListener('click', function() {
-  if (currentStep > 1) {
-    currentStep--;
-    updateStepDisplay();
-  }
-});
-
-function updateStepDisplay() {
-  // Update step dots
-  document.querySelectorAll('.step-dot').forEach(dot => {
-    const step = parseInt(dot.dataset.step);
-    dot.classList.toggle('active', step <= currentStep);
-  });
-  
-  // Update content visibility
-  document.querySelectorAll('.step-content').forEach(content => {
-    content.classList.toggle('active', parseInt(content.dataset.step) === currentStep);
-  });
-  
-  // Update buttons
-  document.querySelector('.btn-prev').style.display = currentStep > 1 ? 'block' : 'none';
-  document.querySelector('.btn-next').textContent = currentStep === totalSteps ? 'Tamamla' : 'Devam Et';
-  
-  updateSummary();
-}
-
-function updateCategoryOptions(type) {
-  const categoryContainer = document.querySelector('.category-options');
-  categoryContainer.innerHTML = '';
-  
-  const categories = Object.keys(propertyData[type] || {});
-  categories.forEach(category => {
-    const card = document.createElement('div');
-    card.className = 'option-card';
-    card.dataset.value = category;
-    card.innerHTML = `
-      <i class="fas fa-building"></i>
-      <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
-    `;
-    categoryContainer.appendChild(card);
-  });
-  
-  // Reattach click handlers for single-select
-  categoryContainer.querySelectorAll('.option-card').forEach(card => {
-    card.addEventListener('click', function() {
-      const value = this.dataset.value;
-      
-      // Remove previous selection
-      categoryContainer.querySelectorAll('.option-card').forEach(c => {
-        c.classList.remove('selected');
-      });
-      
-      // Add selection to clicked card
-      this.classList.add('selected');
-      
-      // Store selection and update rooms
-      selections.category = value;
-      updateRoomOptions(selections.type, value);
-      
-      updateSummary();
-    });
-  });
-}
-
-function updateRoomOptions(type, category) {
-  const roomContainer = document.querySelector('.room-options');
-  roomContainer.innerHTML = '';
-  
-  const rooms = propertyData[type]?.[category] || [];
-  rooms.forEach(room => {
-    const card = document.createElement('div');
-    card.className = 'option-card';
-    card.dataset.value = room;
-    card.innerHTML = `
-      <i class="fas fa-door-open"></i>
-      <span>${room}</span>
-    `;
-    roomContainer.appendChild(card);
-  });
-  
-  // Reattach click handlers for single-select
-  roomContainer.querySelectorAll('.option-card').forEach(card => {
-    card.addEventListener('click', function() {
-      const value = this.dataset.value;
-      
-      // Remove previous selection
-      roomContainer.querySelectorAll('.option-card').forEach(c => {
-        c.classList.remove('selected');
-      });
-      
-      // Add selection to clicked card
-      this.classList.add('selected');
-      
-      // Store selection
-      selections.room = value;
-      
-      updateSummary();
-    });
-  });
-}
-
-function updateSummary() {
-  const summary = document.querySelector('.selection-summary');
-  const hasSelections = selections.websites.length > 0 || 
-                       selections.cities.length > 0 || 
-                       selections.type || 
-                       selections.category || 
-                       selections.room;
-  
-  if (hasSelections) {
-    summary.style.display = 'block';
-    if (selections.websites.length > 0) {
-      document.querySelector('.website-selection').textContent = 
-        `Web Siteleri: ${selections.websites.join(', ')}`;
-    }
-    if (selections.cities.length > 0) {
-      document.querySelector('.city-selection').textContent = 
-        `Şehirler: ${selections.cities.includes('all') ? 'Tüm Türkiye' : selections.cities.join(', ')}`;
-    }
-    if (selections.type) document.querySelector('.type-selection').textContent = `Emlak Tipi: ${selections.type}`;
-    if (selections.category) document.querySelector('.category-selection').textContent = `Kategori: ${selections.category}`;
-    if (selections.room) document.querySelector('.room-selection').textContent = `Büyüklük: ${selections.room}`;
-  } else {
-    summary.style.display = 'none';
-  }
-}
-
-function resetPopup() {
-  currentStep = 1;
-  selections = {
-    websites: [],
-    cities: [],
-    type: '',
-    category: '',
-    room: ''
-  };
-  
-  document.querySelectorAll('.option-card').forEach(card => {
-    card.classList.remove('selected');
-  });
-  
-  updateStepDisplay();
-  document.querySelector('.selection-summary').style.display = 'none';
-}
-</script>
 
 <style>
+/* Main Layout Styles */
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
 .no-items {
   text-align: center;
   padding: 2rem;
@@ -708,6 +370,35 @@ function resetPopup() {
     padding: 0.4rem 0.8rem;
     font-size: 0.9rem;
   }
+}
+
+/* Tracking Popup Styles */
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-overlay.active {
+  display: flex !important;
+}
+
+.tracking-popup {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>
 
