@@ -2,15 +2,17 @@ class ScrapeCategoryArabamComJob < ApplicationJob
   queue_as :default
 
   def perform(*args)
-    require 'open-uri'
-    require 'nokogiri'
+   
     require 'webrick/httputils'
+    require 'addressable/uri'
+    require 'nokogiri'
     require 'net/http'
+    require 'open-uri'
     require 'uri'
 
     Rails.logger.info "Starting ScrapeCategoryArabamComJob"
 
-    @company = Company.find 2
+    @company = Company.find 1
     @sprint =  @company.sprints.new
     @sprint.domain = "arabam.com"
     @sprint.sidekiq_name = "ScrapeCategoryArabamComJob"
@@ -23,6 +25,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36", 
                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0"]
     agent = @user_agent[rand(@user_agent.count)]
+    
 
     products = []
     link = "https://www.arabam.com/ikinci-el"
@@ -36,9 +39,8 @@ class ScrapeCategoryArabamComJob < ApplicationJob
       Rails.logger.info "Created/Found category: #{category.id}"
 
       #category is brand
-      doc = URI.open(category_url, 'User-Agent' => agent, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)
-      category_page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
-      if category_page_html.css(".category-facet").css("ul").last.css("li").count > 0
+      category_page_html = fetch_html(category_url, agent)
+      if category_page_html.css(".category-facet").present? && category_page_html.css(".category-facet").css("ul").last.css("li").count > 0
         category_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
           brand_name = item.css("a").text.strip.split("\r").first
           brand_url = "https://www.arabam.com" + item.css("a").first["href"]
@@ -47,8 +49,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
           Rails.logger.info "Created/Found brand: #{brand.id}"
 
           #brand is model
-          doc = URI.open(brand_url, 'User-Agent' => agent, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)
-          model_page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
+          model_page_html = fetch_html(brand_url, agent)
           if model_page_html.css(".category-facet").css("ul").last.css("li").count > 0
             model_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
               model_name = item.css("a").text.strip.split("\r").first
@@ -58,8 +59,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
               Rails.logger.info "Created/Found model: #{model.id}"
 
               #model is series
-              doc = URI.open(model_url, 'User-Agent' => agent, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)
-              serials_page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
+              serials_page_html = fetch_html(model_url, agent)
               if serials_page_html.css(".category-facet").css("ul").last.css("li").count > 0
                 serials_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
                   serial_name = item.css("a").text.strip.split("\r").first
@@ -75,5 +75,27 @@ class ScrapeCategoryArabamComJob < ApplicationJob
       end
     end
     Rails.logger.info "Found #{products.count} categories"
+  end
+
+  def fetch_html(url, agent, retries = 3)
+    attempts = 0
+    begin
+      attempts += 1
+      doc = URI.open(
+        normalize_uri(url),
+        'User-Agent' => agent,
+        ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE
+      )
+      Nokogiri::HTML(doc.read, nil, "UTF-8")
+    rescue => e
+      puts "Hata: #{e.message} (Deneme: #{attempts})"
+      retry if attempts < retries
+      nil
+    end
+  end
+
+  def normalize_uri(uri)
+    uri = uri.to_s
+    Addressable::URI.parse(uri).normalize.to_s
   end
 end

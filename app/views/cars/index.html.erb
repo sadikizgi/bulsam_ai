@@ -168,7 +168,7 @@
           <!-- Step 3: Vehicle Type Selection -->
           <div class="step-content" data-popup-target="stepContent" data-step="3">
             <div class="type-options">
-              <% Category.where(company_id: 2).each do |category| %>
+              <% Category.where(company_id: 1).each do |category| %>
                 <div class="option-card" data-value="<%= category.id %>" data-action="click->popup#handleSingleSelect">
                   <i class="fas fa-car"></i>
                   <span><%= category.name %></span>
