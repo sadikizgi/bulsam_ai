@@ -36,7 +36,7 @@
   </div>
 
   <!-- Main Content Area -->
-  <div class="main-content" data-controller="popup">
+  <div class="main-content" data-controller="popup features">
     <div class="content-header">
       <div class="header-left">
         <h1>Araç Takibi</h1>
@@ -91,7 +91,7 @@
                   <span>Takibi Bırak</span>
                 <% end %>
                 
-                <button class="btn-action btn-add-features" data-action="click->popup#openFeatures" data-tracking-id="<%= tracking.id %>">
+                <button class="btn-action btn-add-features" data-action="click->features#open" data-tracking-id="<%= tracking.id %>">
                   <i class="fas fa-sliders-h"></i>
                   <span>Özellik Ekle</span>
                 </button>
@@ -232,110 +232,60 @@
     </div>
 
     <!-- Features Popup -->
-    <div class="popup-overlay features-popup" data-popup-target="featuresOverlay" data-action="click->popup#closeIfOverlay">
-      <div class="tracking-popup">
+    <div class="features-popup" data-controller="features">
+      <div class="popup-content">
         <div class="popup-header">
-          <h2>Takip Özellikleri</h2>
-          <p>Araç takibiniz için özel kriterler belirleyin</p>
+          <h3>Takip Özellikleri</h3>
+          <button class="close-button" data-action="click->features#close">&times;</button>
         </div>
-
-        <div class="popup-content">
-          <div class="features-form">
-            <!-- Renk Seçimi -->
-            <div class="feature-group">
-              <label>Renk</label>
-              <div class="color-options">
-                <label class="color-option">
-                  <input type="checkbox" name="colors[]" value="beyaz">
-                  <span class="color-box" style="background: #ffffff; border: 1px solid #ddd;"></span>
-                  <span class="color-name">Beyaz</span>
-                </label>
-                <label class="color-option">
-                  <input type="checkbox" name="colors[]" value="siyah">
-                  <span class="color-box" style="background: #000000;"></span>
-                  <span class="color-name">Siyah</span>
-                </label>
-                <label class="color-option">
-                  <input type="checkbox" name="colors[]" value="gri">
-                  <span class="color-box" style="background: #808080;"></span>
-                  <span class="color-name">Gri</span>
-                </label>
-                <label class="color-option">
-                  <input type="checkbox" name="colors[]" value="kirmizi">
-                  <span class="color-box" style="background: #ff0000;"></span>
-                  <span class="color-name">Kırmızı</span>
-                </label>
-                <label class="color-option">
-                  <input type="checkbox" name="colors[]" value="mavi">
-                  <span class="color-box" style="background: #0000ff;"></span>
-                  <span class="color-name">Mavi</span>
-                </label>
-              </div>
+        <div class="popup-body">
+          <div class="feature-group">
+            <h4>Renk</h4>
+            <div class="color-options">
+              <label><input type="checkbox" name="colors[]" value="Beyaz"> Beyaz</label>
+              <label><input type="checkbox" name="colors[]" value="Siyah"> Siyah</label>
+              <label><input type="checkbox" name="colors[]" value="Gri"> Gri</label>
+              <label><input type="checkbox" name="colors[]" value="Kırmızı"> Kırmızı</label>
+              <label><input type="checkbox" name="colors[]" value="Mavi"> Mavi</label>
             </div>
+          </div>
 
-            <!-- Kilometre Aralığı -->
-            <div class="feature-group">
-              <label>Kilometre Aralığı</label>
-              <div class="range-inputs">
-                <input type="number" placeholder="Min km" class="form-input">
-                <span>-</span>
-                <input type="number" placeholder="Max km" class="form-input">
-              </div>
+          <div class="feature-group">
+            <h4>Kilometre</h4>
+            <div class="range-inputs">
+              <input type="number" placeholder="Min km" min="0">
+              <input type="number" placeholder="Max km" min="0">
             </div>
+          </div>
 
-            <!-- Fiyat Aralığı -->
-            <div class="feature-group">
-              <label>Fiyat Aralığı</label>
-              <div class="range-inputs">
-                <input type="number" placeholder="Min ₺" class="form-input">
-                <span>-</span>
-                <input type="number" placeholder="Max ₺" class="form-input">
-              </div>
+          <div class="feature-group">
+            <h4>Fiyat</h4>
+            <div class="range-inputs">
+              <input type="number" placeholder="Min fiyat" min="0">
+              <input type="number" placeholder="Max fiyat" min="0">
             </div>
+          </div>
 
-            <!-- Kimden -->
-            <div class="feature-group">
-              <label>Kimden</label>
-              <div class="seller-options">
-                <label class="seller-option">
-                  <input type="checkbox" name="seller_type[]" value="sahibinden">
-                  <span>Sahibinden</span>
-                </label>
-                <label class="seller-option">
-                  <input type="checkbox" name="seller_type[]" value="galeriden">
-                  <span>Galeriden</span>
-                </label>
-                <label class="seller-option">
-                  <input type="checkbox" name="seller_type[]" value="yetkili_bayiden">
-                  <span>Yetkili Bayiden</span>
-                </label>
-              </div>
+          <div class="feature-group">
+            <h4>Satıcı</h4>
+            <div class="seller-options">
+              <label><input type="checkbox" name="seller_type[]" value="Sahibinden"> Sahibinden</label>
+              <label><input type="checkbox" name="seller_type[]" value="Galeriden"> Galeriden</label>
+              <label><input type="checkbox" name="seller_type[]" value="Yetkili Bayiden"> Yetkili Bayiden</label>
             </div>
+          </div>
 
-            <!-- Vites Tipi -->
-            <div class="feature-group">
-              <label>Vites</label>
-              <div class="transmission-options">
-                <label class="transmission-option">
-                  <input type="checkbox" name="transmission[]" value="manuel">
-                  <span>Manuel</span>
-                </label>
-                <label class="transmission-option">
-                  <input type="checkbox" name="transmission[]" value="otomatik">
-                  <span>Otomatik</span>
-                </label>
-                <label class="transmission-option">
-                  <input type="checkbox" name="transmission[]" value="yari_otomatik">
-                  <span>Yarı Otomatik</span>
-                </label>
-              </div>
+          <div class="feature-group">
+            <h4>Vites</h4>
+            <div class="transmission-options">
+              <label><input type="checkbox" name="transmission[]" value="Manuel"> Manuel</label>
+              <label><input type="checkbox" name="transmission[]" value="Otomatik"> Otomatik</label>
+              <label><input type="checkbox" name="transmission[]" value="Yarı Otomatik"> Yarı Otomatik</label>
             </div>
           </div>
         </div>
-
-        <div class="popup-actions">
-          <button class="btn-cancel" data-action="click->popup#closeFeatures">İptal</button>
-          <button class="btn-save" data-action="click->popup#saveFeatures">Kaydet</button>
+        <div class="popup-footer">
+          <button class="btn btn-primary" data-action="click->features#save">Kaydet</button>
         </div>
       </div>
     </div>
@@ -1112,7 +1062,6 @@
 .feature-group label {
   display: block;
   margin-bottom: 1rem;
-  font-size: 1.1rem;
   font-weight: 500;
   color: #333;
 }
