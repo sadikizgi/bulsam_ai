@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  car_tracking: one
+  colors: MyText
+  kilometer_min: 1
+  kilometer_max: 1
+  price_min: 9.99
+  price_max: 9.99
+  seller_types: MyText
+  transmission_types: MyText
+
+two:
+  car_tracking: two
+  colors: MyText
+  kilometer_min: 1
+  kilometer_max: 1
+  price_min: 9.99
+  price_max: 9.99
+  seller_types: MyText
+  transmission_types: MyText

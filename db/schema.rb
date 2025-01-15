@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_14_220848) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_15_205232) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,12 +65,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_14_220848) do
     t.index ["sprint_id"], name: "index_car_scrapes_on_sprint_id"
   end
 
+  create_table "car_tracking_features", force: :cascade do |t|
+    t.bigint "car_tracking_id", null: false
+    t.text "colors", default: [], array: true
+    t.integer "kilometer_min"
+    t.integer "kilometer_max"
+    t.decimal "price_min", precision: 12, scale: 2
+    t.decimal "price_max", precision: 12, scale: 2
+    t.text "seller_types", default: [], array: true
+    t.text "transmission_types", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["car_tracking_id"], name: "index_car_tracking_features_on_car_tracking_id"
+  end
+
   create_table "car_trackings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "category_id", null: false
     t.bigint "brand_id", null: false
-    t.bigint "model_id", null: false
-    t.bigint "serial_id", null: false
+    t.bigint "model_id"
+    t.bigint "serial_id"
     t.text "websites"
     t.text "cities"
     t.datetime "created_at", null: false
@@ -223,6 +237,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_14_220848) do
 
   add_foreign_key "brands", "categories"
   add_foreign_key "car_scrapes", "sprints"
+  add_foreign_key "car_tracking_features", "car_trackings"
   add_foreign_key "car_trackings", "brands"
   add_foreign_key "car_trackings", "categories"
   add_foreign_key "car_trackings", "models"

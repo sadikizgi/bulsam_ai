@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["overlay", "stepDot", "stepContent", "prevButton", "nextButton", "summary"]
+  static targets = ["overlay", "stepDot", "stepContent", "prevButton", "nextButton", "trackButton", "summary", "featuresOverlay"]
 
   connect() {
     this.currentStep = 1;
@@ -18,12 +18,14 @@ export default class extends Controller {
       serial: '',
       serial_name: ''
     };
+    this.currentTrackingId = null;
   }
 
   open(event) {
     event.preventDefault();
     console.log('Opening popup...');
     this.overlayTarget.classList.add('active');
+    this.updateStepDisplay();
     this.updateSummary();
   }
 
@@ -51,7 +53,6 @@ export default class extends Controller {
         if (card.classList.contains('selected')) {
           this.selections.websites.push(value);
           if (value === 'arabam') {
-            // arabam.com seçildiğinde diğer siteleri devre dışı bırak
             this.element.querySelectorAll('.website-options .option-card').forEach(site => {
               if (site !== card) {
                 site.classList.remove('selected');
@@ -59,7 +60,6 @@ export default class extends Controller {
               }
             });
           } else {
-            // başka site seçildiğinde arabam.com'u devre dışı bırak
             const arabamCard = this.element.querySelector('.website-options .option-card[data-value="arabam"]');
             if (arabamCard) {
               arabamCard.classList.remove('selected');
@@ -97,6 +97,7 @@ export default class extends Controller {
     }
     
     this.updateSummary();
+    this.updateTrackButton();
   }
 
   handleSingleSelect(event) {
@@ -140,6 +141,28 @@ export default class extends Controller {
     }
     
     this.updateSummary();
+    this.updateTrackButton();
+  }
+
+  updateTrackButton() {
+    const canTrack = this.currentStep >= 3 && 
+                    this.selections.websites.length > 0 && 
+                    this.selections.cities.length > 0 && 
+                    this.selections.type;
+
+    if (canTrack) {
+      this.trackButtonTarget.style.visibility = 'visible';
+      this.trackButtonTarget.style.opacity = '1';
+    } else {
+      this.trackButtonTarget.style.visibility = 'hidden';
+      this.trackButtonTarget.style.opacity = '0';
+    }
+  }
+
+  track() {
+    this.createTracking().then(() => {
+      this.close();
+    });
   }
 
   async loadArabamBrands(categoryId) {
@@ -216,6 +239,24 @@ export default class extends Controller {
 
   async createTracking() {
     try {
+      const trackingData = {
+        websites: this.selections.websites,
+        cities: this.selections.cities,
+        category_id: this.selections.type
+      };
+
+      if (this.selections.brand) {
+        trackingData.brand_id = this.selections.brand;
+      }
+      
+      if (this.selections.model) {
+        trackingData.model_id = this.selections.model;
+      }
+      
+      if (this.selections.serial) {
+        trackingData.serial_id = this.selections.serial;
+      }
+
       const response = await fetch('/cars', {
         method: 'POST',
         headers: {
@@ -223,25 +264,20 @@ export default class extends Controller {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
         },
         body: JSON.stringify({
-          tracking: {
-            websites: this.selections.websites,
-            cities: this.selections.cities,
-            category_id: this.selections.type,
-            brand_id: this.selections.brand,
-            model_id: this.selections.model,
-            serial_id: this.selections.serial
-          }
+          tracking: trackingData
         })
       });
 
       if (response.ok) {
-        // Sayfayı yeniden yüklemek yerine Turbo ile güncelleyelim
         Turbo.visit(window.location.href, { action: "replace" });
       } else {
-        console.error('Error creating tracking');
+        const errorData = await response.json();
+        console.error('Error creating tracking:', errorData.errors);
+        alert('Takip oluşturulurken bir hata oluştu: ' + errorData.errors.join(', '));
       }
     } catch (error) {
       console.error('Error:', error);
+      alert('Takip oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
     }
   }
 
@@ -295,6 +331,7 @@ export default class extends Controller {
     this.nextButtonTarget.textContent = this.currentStep === this.totalSteps ? 'Tamamla' : 'Devam Et';
     
     this.updateSummary();
+    this.updateTrackButton();
   }
 
   updateSummary() {
@@ -357,5 +394,114 @@ export default class extends Controller {
     
     this.updateStepDisplay();
     this.summaryTarget.style.display = 'none';
+    this.trackButtonTarget.style.visibility = 'hidden';
+    this.trackButtonTarget.style.opacity = '0';
+  }
+
+  openFeatures(event) {
+    event.preventDefault();
+    this.currentTrackingId = event.currentTarget.dataset.trackingId;
+    const popup = document.querySelector('.features-popup');
+    popup.classList.add('active');
+    this.loadCurrentFeatures();
+  }
+
+  closeFeatures() {
+    const popup = document.querySelector('.features-popup');
+    popup.classList.remove('active');
+    this.currentTrackingId = null;
+  }
+
+  async loadCurrentFeatures() {
+    try {
+      const response = await fetch(`/cars/${this.currentTrackingId}/features`);
+      const features = await response.json();
+      this.populateFeatures(features);
+    } catch (error) {
+      console.error('Error loading features:', error);
+    }
+  }
+
+  populateFeatures(features) {
+    // Renk seçimlerini doldur
+    if (features.colors) {
+      features.colors.forEach(color => {
+        const checkbox = this.element.querySelector(`input[name="colors[]"][value="${color}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
+    }
+
+    // Kilometre aralığını doldur
+    if (features.kilometer) {
+      const [minKm, maxKm] = this.element.querySelectorAll('.range-inputs input');
+      minKm.value = features.kilometer.min || '';
+      maxKm.value = features.kilometer.max || '';
+    }
+
+    // Fiyat aralığını doldur
+    if (features.price) {
+      const [minPrice, maxPrice] = this.element.querySelectorAll('.feature-group:nth-child(3) .range-inputs input');
+      minPrice.value = features.price.min || '';
+      maxPrice.value = features.price.max || '';
+    }
+
+    // Satıcı tiplerini doldur
+    if (features.seller_types) {
+      features.seller_types.forEach(type => {
+        const checkbox = this.element.querySelector(`input[name="seller_type[]"][value="${type}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
+    }
+
+    // Vites tiplerini doldur
+    if (features.transmission_types) {
+      features.transmission_types.forEach(type => {
+        const checkbox = this.element.querySelector(`input[name="transmission[]"][value="${type}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
+    }
+  }
+
+  async saveFeatures() {
+    const features = this.collectFeatures();
+    
+    try {
+      const response = await fetch(`/cars/${this.currentTrackingId}/features`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ features })
+      });
+
+      if (response.ok) {
+        this.closeFeatures();
+        // Sayfayı yenile
+        Turbo.visit(window.location.href, { action: "replace" });
+      } else {
+        const errorData = await response.json();
+        alert('Özellikler kaydedilirken bir hata oluştu: ' + errorData.errors.join(', '));
+      }
+    } catch (error) {
+      console.error('Error saving features:', error);
+      alert('Özellikler kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
+    }
+  }
+
+  collectFeatures() {
+    return {
+      colors: Array.from(this.element.querySelectorAll('input[name="colors[]"]:checked')).map(input => input.value),
+      kilometer: {
+        min: this.element.querySelector('.feature-group:nth-child(2) .range-inputs input:first-child').value,
+        max: this.element.querySelector('.feature-group:nth-child(2) .range-inputs input:last-child').value
+      },
+      price: {
+        min: this.element.querySelector('.feature-group:nth-child(3) .range-inputs input:first-child').value,
+        max: this.element.querySelector('.feature-group:nth-child(3) .range-inputs input:last-child').value
+      },
+      seller_types: Array.from(this.element.querySelectorAll('input[name="seller_type[]"]:checked')).map(input => input.value),
+      transmission_types: Array.from(this.element.querySelectorAll('input[name="transmission[]"]:checked')).map(input => input.value)
+    };
   }
 } 

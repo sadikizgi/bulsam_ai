@@ -29,8 +29,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
 
     products = []
     link = "https://www.arabam.com/ikinci-el"
-    doc = URI.open(link, 'User-Agent' => agent, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)
-    page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
+    page_html = fetch_html(link, agent)
     page_html.css(".category-facet")[0].css("ul")[0].css("li").each do |item|
       category_name = item.css("a").text.strip.split("\r").first
       category_url = "https://www.arabam.com" + item.css("a").first["href"]
@@ -50,7 +49,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
 
           #brand is model
           model_page_html = fetch_html(brand_url, agent)
-          if model_page_html.css(".category-facet").css("ul").last.css("li").count > 0
+          if model_page_html.css(".category-facet").present? && model_page_html.css(".category-facet").css("ul").last.css("li").count > 0
             model_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
               model_name = item.css("a").text.strip.split("\r").first
               model_url = "https://www.arabam.com" + item.css("a").first["href"]
@@ -60,7 +59,7 @@ class ScrapeCategoryArabamComJob < ApplicationJob
 
               #model is series
               serials_page_html = fetch_html(model_url, agent)
-              if serials_page_html.css(".category-facet").css("ul").last.css("li").count > 0
+              if serials_page_html.css(".category-facet").present? && serials_page_html.css(".category-facet").css("ul").last.css("li").count > 0
                 serials_page_html.css(".category-facet").css("ul").last.css("li").each do |item|
                   serial_name = item.css("a").text.strip.split("\r").first
                   serial_url = "https://www.arabam.com" + item.css("a").first["href"]

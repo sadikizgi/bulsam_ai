@@ -61,7 +61,12 @@
           <div class="tracked-item">
             <div class="item-details">
               <div class="item-header">
-                <h3><%= tracking.category.name %> - <%= tracking.brand.name %> <%= tracking.model.name %> <%= tracking.serial.name %></h3>
+                <h3>
+                  <%= tracking.category.name %>
+                  <%= "- #{tracking.brand.name}" if tracking.brand.present? %>
+                  <%= "#{tracking.model.name}" if tracking.model.present? %>
+                  <%= "#{tracking.serial.name}" if tracking.serial.present? %>
+                </h3>
               </div>
               <div class="item-specs">
                 <span><i class="fas fa-globe"></i> <%= tracking.websites.join(', ') %></span>
@@ -74,7 +79,23 @@
               </div>
             </div>
             <div class="item-actions">
-              <%= button_to "Takibi Bırak", car_path(tracking), method: :delete, class: "btn-stop-tracking", data: { confirm: "Bu takibi silmek istediğinize emin misiniz?" } %>
+              <div class="action-buttons">
+                <%= button_to car_path(tracking), 
+                    method: :delete, 
+                    class: "btn-action btn-stop-tracking", 
+                    data: { 
+                      confirm: "Bu takibi silmek istediğinize emin misiniz?",
+                      turbo: false
+                    } do %>
+                  <i class="fas fa-trash-alt"></i>
+                  <span>Takibi Bırak</span>
+                <% end %>
+                
+                <button class="btn-action btn-add-features" data-action="click->popup#openFeatures" data-tracking-id="<%= tracking.id %>">
+                  <i class="fas fa-sliders-h"></i>
+                  <span>Özellik Ekle</span>
+                </button>
+              </div>
             </div>
           </div>
         <% end %>
@@ -201,8 +222,120 @@
 
         <div class="popup-actions">
           <button class="btn-prev" data-popup-target="prevButton" data-action="click->popup#prev" style="display: none;">Geri</button>
-          <button class="btn-cancel" data-action="popup#close">İptal</button>
-          <button class="btn-next" data-popup-target="nextButton" data-action="click->popup#next">Devam Et</button>
+          <div>
+            <button class="btn-cancel" data-action="popup#close">İptal</button>
+            <button class="btn-track" data-popup-target="trackButton" data-action="click->popup#track">Takip Et</button>
+            <button class="btn-next" data-popup-target="nextButton" data-action="click->popup#next">Devam Et</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Popup -->
+    <div class="popup-overlay features-popup" data-popup-target="featuresOverlay" data-action="click->popup#closeIfOverlay">
+      <div class="tracking-popup">
+        <div class="popup-header">
+          <h2>Takip Özellikleri</h2>
+          <p>Araç takibiniz için özel kriterler belirleyin</p>
+        </div>
+
+        <div class="popup-content">
+          <div class="features-form">
+            <!-- Renk Seçimi -->
+            <div class="feature-group">
+              <label>Renk</label>
+              <div class="color-options">
+                <label class="color-option">
+                  <input type="checkbox" name="colors[]" value="beyaz">
+                  <span class="color-box" style="background: #ffffff; border: 1px solid #ddd;"></span>
+                  <span class="color-name">Beyaz</span>
+                </label>
+                <label class="color-option">
+                  <input type="checkbox" name="colors[]" value="siyah">
+                  <span class="color-box" style="background: #000000;"></span>
+                  <span class="color-name">Siyah</span>
+                </label>
+                <label class="color-option">
+                  <input type="checkbox" name="colors[]" value="gri">
+                  <span class="color-box" style="background: #808080;"></span>
+                  <span class="color-name">Gri</span>
+                </label>
+                <label class="color-option">
+                  <input type="checkbox" name="colors[]" value="kirmizi">
+                  <span class="color-box" style="background: #ff0000;"></span>
+                  <span class="color-name">Kırmızı</span>
+                </label>
+                <label class="color-option">
+                  <input type="checkbox" name="colors[]" value="mavi">
+                  <span class="color-box" style="background: #0000ff;"></span>
+                  <span class="color-name">Mavi</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Kilometre Aralığı -->
+            <div class="feature-group">
+              <label>Kilometre Aralığı</label>
+              <div class="range-inputs">
+                <input type="number" placeholder="Min km" class="form-input">
+                <span>-</span>
+                <input type="number" placeholder="Max km" class="form-input">
+              </div>
+            </div>
+
+            <!-- Fiyat Aralığı -->
+            <div class="feature-group">
+              <label>Fiyat Aralığı</label>
+              <div class="range-inputs">
+                <input type="number" placeholder="Min ₺" class="form-input">
+                <span>-</span>
+                <input type="number" placeholder="Max ₺" class="form-input">
+              </div>
+            </div>
+
+            <!-- Kimden -->
+            <div class="feature-group">
+              <label>Kimden</label>
+              <div class="seller-options">
+                <label class="seller-option">
+                  <input type="checkbox" name="seller_type[]" value="sahibinden">
+                  <span>Sahibinden</span>
+                </label>
+                <label class="seller-option">
+                  <input type="checkbox" name="seller_type[]" value="galeriden">
+                  <span>Galeriden</span>
+                </label>
+                <label class="seller-option">
+                  <input type="checkbox" name="seller_type[]" value="yetkili_bayiden">
+                  <span>Yetkili Bayiden</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Vites Tipi -->
+            <div class="feature-group">
+              <label>Vites</label>
+              <div class="transmission-options">
+                <label class="transmission-option">
+                  <input type="checkbox" name="transmission[]" value="manuel">
+                  <span>Manuel</span>
+                </label>
+                <label class="transmission-option">
+                  <input type="checkbox" name="transmission[]" value="otomatik">
+                  <span>Otomatik</span>
+                </label>
+                <label class="transmission-option">
+                  <input type="checkbox" name="transmission[]" value="yari_otomatik">
+                  <span>Yarı Otomatik</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="popup-actions">
+          <button class="btn-cancel" data-action="click->popup#closeFeatures">İptal</button>
+          <button class="btn-save" data-action="click->popup#saveFeatures">Kaydet</button>
         </div>
       </div>
     </div>
@@ -786,6 +919,236 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
+}
+
+.btn-track {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #007bff;
+  color: white;
+  margin-right: 0.5rem;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.3s linear;
+}
+
+.btn-track:hover {
+  background: #0056b3;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.popup-actions > div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 150px;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  text-align: center;
+}
+
+.btn-stop-tracking {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-stop-tracking:hover {
+  background: #c82333;
+}
+
+.btn-add-features {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-add-features:hover {
+  background: #5a6268;
+}
+
+/* Features Popup Styles */
+.features-popup .tracking-popup {
+  width: 600px;
+}
+
+.features-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.feature-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.feature-group label {
+  font-weight: 500;
+  color: #333;
+}
+
+.color-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+
+.color-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.color-option:hover {
+  background: #f8f9fa;
+}
+
+.color-option input:checked ~ .color-name {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.color-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.seller-option,
+.transmission-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: white;
+}
+
+.seller-option input,
+.transmission-option input {
+  display: none;
+}
+
+.seller-option:hover,
+.transmission-option:hover {
+  background: #f8f9fa;
+}
+
+.seller-option input:checked + span,
+.transmission-option input:checked + span {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.range-inputs span {
+  color: #666;
+  font-weight: 500;
+}
+
+.feature-group {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.feature-group label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .features-popup .tracking-popup {
+    width: 90%;
+  }
+  
+  .range-inputs {
+    flex-direction: column;
+  }
+  
+  .range-inputs span {
+    display: none;
+  }
+}
+
+/* Features Popup Styles */
+.features-popup .popup-content {
+  display: block;
+}
+
+.features-popup .features-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Tracking Popup Styles */
+.tracking-popup .popup-content > div {
+  display: none;
+}
+
+.tracking-popup .popup-content > div.active {
+  display: block;
 }
 </style>
 

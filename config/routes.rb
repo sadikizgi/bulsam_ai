@@ -32,4 +32,11 @@ Rails.application.routes.draw do
       resources :serials, only: [:index]
     end
   end
+  
+  resources :cars do
+    member do
+      get 'features'
+      put 'features', to: 'cars#update_features'
+    end
+  end
 end
