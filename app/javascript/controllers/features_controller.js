@@ -1,28 +1,23 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+  static targets = ["popup", "form", "trackingId"]
+
   connect() {
     console.log("Features controller connected");
-    // Sayfa yüklendiğinde popup'ı kapat
-    const popup = document.querySelector('.features-popup');
-    if (popup) {
-      popup.classList.remove('active');
-    }
   }
 
   open(event) {
     event.preventDefault();
-    console.log("Opening features popup", event.currentTarget.dataset.trackingId);
-    
     const trackingId = event.currentTarget.dataset.trackingId;
-    const popup = document.querySelector('.features-popup');
+    console.log("Opening features popup for tracking ID:", trackingId);
     
-    if (popup) {
-      this.currentTrackingId = trackingId;
-      popup.classList.add('active');
-      this.loadCurrentFeatures();
+    if (trackingId) {
+      this.trackingIdTarget.value = trackingId;
+      this.popupTarget.classList.add('active');
+      this.loadCurrentFeatures(trackingId);
     } else {
-      console.error("Features popup element not found");
+      console.error("No tracking ID provided");
     }
   }
 
@@ -31,11 +26,8 @@ export default class extends Controller {
       event.preventDefault();
     }
     console.log("Closing features popup");
-    const popup = document.querySelector('.features-popup');
-    if (popup) {
-      popup.classList.remove('active');
-      this.currentTrackingId = null;
-    }
+    this.popupTarget.classList.remove('active');
+    this.resetForm();
   }
 
   closeIfOverlay(event) {
@@ -44,15 +36,10 @@ export default class extends Controller {
     }
   }
 
-  async loadCurrentFeatures() {
-    if (!this.currentTrackingId) {
-      console.error("No tracking ID available");
-      return;
-    }
-
+  async loadCurrentFeatures(trackingId) {
     try {
-      console.log("Loading features for tracking ID:", this.currentTrackingId);
-      const response = await fetch(`/cars/${this.currentTrackingId}/features`);
+      console.log("Loading features for tracking ID:", trackingId);
+      const response = await fetch(`/cars/${trackingId}/features`);
       const features = await response.json();
       this.populateFeatures(features);
     } catch (error) {
@@ -62,56 +49,91 @@ export default class extends Controller {
 
   populateFeatures(features) {
     console.log("Populating features:", features);
+    this.resetForm();
+
     // Renk seçimlerini doldur
-    if (features.colors) {
+    if (features.colors && features.colors.length > 0) {
       features.colors.forEach(color => {
-        const checkbox = document.querySelector(`input[name="colors[]"][value="${color}"]`);
+        const checkbox = this.formTarget.querySelector(`input[name="colors[]"][value="${color}"]`);
         if (checkbox) checkbox.checked = true;
       });
+    }
+
+    // Yıl aralığını doldur
+    if (features.year_min) {
+      this.formTarget.querySelector('input[name="year_min"]').value = features.year_min;
+    }
+    if (features.year_max) {
+      this.formTarget.querySelector('input[name="year_max"]').value = features.year_max;
     }
 
     // Kilometre aralığını doldur
-    if (features.kilometer) {
-      const [minKm, maxKm] = document.querySelectorAll('.range-inputs input');
-      if (minKm) minKm.value = features.kilometer.min || '';
-      if (maxKm) maxKm.value = features.kilometer.max || '';
+    if (features.kilometer_min) {
+      this.formTarget.querySelector('input[name="kilometer_min"]').value = features.kilometer_min;
+    }
+    if (features.kilometer_max) {
+      this.formTarget.querySelector('input[name="kilometer_max"]').value = features.kilometer_max;
     }
 
     // Fiyat aralığını doldur
-    if (features.price) {
-      const [minPrice, maxPrice] = document.querySelectorAll('.feature-group:nth-child(3) .range-inputs input');
-      if (minPrice) minPrice.value = features.price.min || '';
-      if (maxPrice) maxPrice.value = features.price.max || '';
+    if (features.price_min) {
+      this.formTarget.querySelector('input[name="price_min"]').value = features.price_min;
     }
-
-    // Satıcı tiplerini doldur
-    if (features.seller_types) {
-      features.seller_types.forEach(type => {
-        const checkbox = document.querySelector(`input[name="seller_type[]"][value="${type}"]`);
-        if (checkbox) checkbox.checked = true;
-      });
-    }
-
-    // Vites tiplerini doldur
-    if (features.transmission_types) {
-      features.transmission_types.forEach(type => {
-        const checkbox = document.querySelector(`input[name="transmission[]"][value="${type}"]`);
-        if (checkbox) checkbox.checked = true;
-      });
+    if (features.price_max) {
+      this.formTarget.querySelector('input[name="price_max"]').value = features.price_max;
     }
   }
 
-  async save() {
-    if (!this.currentTrackingId) {
+  resetForm() {
+    // Renk seçimlerini sıfırla
+    this.formTarget.querySelectorAll('input[name="colors[]"]').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+
+    // Yıl aralığını sıfırla
+    this.formTarget.querySelector('input[name="year_min"]').value = '';
+    this.formTarget.querySelector('input[name="year_max"]').value = '';
+
+    // Kilometre aralığını sıfırla
+    this.formTarget.querySelector('input[name="kilometer_min"]').value = '';
+    this.formTarget.querySelector('input[name="kilometer_max"]').value = '';
+
+    // Fiyat aralığını sıfırla
+    this.formTarget.querySelector('input[name="price_min"]').value = '';
+    this.formTarget.querySelector('input[name="price_max"]').value = '';
+  }
+
+  async save(event) {
+    event.preventDefault();
+    
+    const trackingId = this.trackingIdTarget.value;
+    if (!trackingId) {
       console.error("No tracking ID available");
       return;
     }
 
-    const features = this.collectFeatures();
+    // Form verilerini topla
+    const features = {
+      colors: Array.from(this.formTarget.querySelectorAll('input[name="colors[]"]:checked')).map(input => input.value),
+      year_min: this.formTarget.querySelector('input[name="year_min"]').value || null,
+      year_max: this.formTarget.querySelector('input[name="year_max"]').value || null,
+      kilometer_min: this.formTarget.querySelector('input[name="kilometer_min"]').value || null,
+      kilometer_max: this.formTarget.querySelector('input[name="kilometer_max"]').value || null,
+      price_min: this.formTarget.querySelector('input[name="price_min"]').value || null,
+      price_max: this.formTarget.querySelector('input[name="price_max"]').value || null
+    };
+
+    // Boş değerleri temizle
+    Object.keys(features).forEach(key => {
+      if (features[key] === '') {
+        features[key] = null;
+      }
+    });
+
     console.log("Saving features:", features);
-    
+
     try {
-      const response = await fetch(`/cars/${this.currentTrackingId}/features`, {
+      const response = await fetch(`/cars/${trackingId}/features`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +144,6 @@ export default class extends Controller {
 
       if (response.ok) {
         this.close();
-        // Sayfayı yenile
         window.location.reload();
       } else {
         const errorData = await response.json();
@@ -132,21 +153,5 @@ export default class extends Controller {
       console.error('Error saving features:', error);
       alert('Özellikler kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
     }
-  }
-
-  collectFeatures() {
-    return {
-      colors: Array.from(document.querySelectorAll('input[name="colors[]"]:checked')).map(input => input.value),
-      kilometer: {
-        min: document.querySelector('.feature-group:nth-child(2) .range-inputs input:first-child').value,
-        max: document.querySelector('.feature-group:nth-child(2) .range-inputs input:last-child').value
-      },
-      price: {
-        min: document.querySelector('.feature-group:nth-child(3) .range-inputs input:first-child').value,
-        max: document.querySelector('.feature-group:nth-child(3) .range-inputs input:last-child').value
-      },
-      seller_types: Array.from(document.querySelectorAll('input[name="seller_type[]"]:checked')).map(input => input.value),
-      transmission_types: Array.from(document.querySelectorAll('input[name="transmission[]"]:checked')).map(input => input.value)
-    };
   }
 } 

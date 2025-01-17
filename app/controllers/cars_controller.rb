@@ -35,23 +35,25 @@ class CarsController < ApplicationController
 
   def update_features
     feature_params = params.require(:features).permit(
-      colors: [],
-      kilometer: [:min, :max],
-      price: [:min, :max],
-      seller_types: [],
-      transmission_types: []
+      :year_min,
+      :year_max,
+      :kilometer_min,
+      :kilometer_max,
+      :price_min,
+      :price_max,
+      colors: []
     )
 
     @tracking.feature&.destroy
 
     @feature = @tracking.build_feature(
       colors: feature_params[:colors],
-      kilometer_min: feature_params.dig(:kilometer, :min),
-      kilometer_max: feature_params.dig(:kilometer, :max),
-      price_min: feature_params.dig(:price, :min),
-      price_max: feature_params.dig(:price, :max),
-      seller_types: feature_params[:seller_types],
-      transmission_types: feature_params[:transmission_types]
+      year_min: feature_params[:year_min],
+      year_max: feature_params[:year_max],
+      kilometer_min: feature_params[:kilometer_min],
+      kilometer_max: feature_params[:kilometer_max],
+      price_min: feature_params[:price_min],
+      price_max: feature_params[:price_max]
     )
 
     if @feature.save

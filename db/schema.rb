@@ -67,13 +67,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_15_205232) do
 
   create_table "car_tracking_features", force: :cascade do |t|
     t.bigint "car_tracking_id", null: false
-    t.text "colors", default: [], array: true
+    t.string "colors"
     t.integer "kilometer_min"
     t.integer "kilometer_max"
-    t.decimal "price_min", precision: 12, scale: 2
-    t.decimal "price_max", precision: 12, scale: 2
-    t.text "seller_types", default: [], array: true
-    t.text "transmission_types", default: [], array: true
+    t.integer "price_min"
+    t.integer "price_max"
+    t.integer "year_min"
+    t.integer "year_max"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["car_tracking_id"], name: "index_car_tracking_features_on_car_tracking_id"

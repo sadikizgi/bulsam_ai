@@ -30,8 +30,10 @@ class CarTracking < ApplicationRecord
   end
 
   def feature_attributes
-    feature&.attributes&.slice(
+    attrs = feature&.attributes&.slice(
       'colors',
+      'year_min',
+      'year_max',
       'kilometer_min',
       'kilometer_max',
       'price_min',
@@ -39,10 +41,54 @@ class CarTracking < ApplicationRecord
       'seller_types',
       'transmission_types'
     ) || {}
+
+    if attrs['colors'].present?
+      attrs['colors'] = feature.colors
+    end
+
+    attrs
   end
 
   def recent_scrapes(page = 1)
-    car_scrapes.order(created_at: :desc).page(page).per(5)
+    filtered_scrapes.page(page).per(5)
+  end
+
+  def filtered_scrapes
+    scope = car_scrapes.order(created_at: :desc)
+    
+    return scope unless feature.present?
+
+    if feature.colors.present? && feature.colors.any?
+      color_conditions = feature.colors.map { |color| "LOWER(color) LIKE ?" }
+      color_values = feature.colors.map { |color| "%#{color.downcase}%" }
+      scope = scope.where(color_conditions.join(' OR '), *color_values)
+    end
+
+    if feature.year_min.present?
+      scope = scope.where('year >= ?', feature.year_min.to_i)
+    end
+
+    if feature.year_max.present?
+      scope = scope.where('year <= ?', feature.year_max.to_i)
+    end
+
+    if feature.kilometer_min.present?
+      scope = scope.where('km >= ?', feature.kilometer_min.to_i)
+    end
+
+    if feature.kilometer_max.present?
+      scope = scope.where('km <= ?', feature.kilometer_max.to_i)
+    end
+
+    if feature.price_min.present?
+      scope = scope.where('price >= ?', feature.price_min.to_i)
+    end
+
+    if feature.price_max.present?
+      scope = scope.where('price <= ?', feature.price_max.to_i)
+    end
+
+    scope
   end
 
   private

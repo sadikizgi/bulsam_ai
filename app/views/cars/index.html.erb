@@ -317,60 +317,72 @@
     </div>
 
     <!-- Features Popup -->
-    <div class="features-popup" data-controller="features">
+    <div class="features-popup" data-features-target="popup" data-action="click->features#closeIfOverlay">
       <div class="popup-content">
         <div class="popup-header">
           <h3>Takip Özellikleri</h3>
           <button class="close-button" data-action="click->features#close">&times;</button>
         </div>
-        <div class="popup-body">
+        <div class="popup-body" data-features-target="form">
+          <input type="hidden" data-features-target="trackingId">
           <div class="feature-group">
             <h4>Renk</h4>
             <div class="color-options">
-              <label><input type="checkbox" name="colors[]" value="Beyaz"> Beyaz</label>
-              <label><input type="checkbox" name="colors[]" value="Siyah"> Siyah</label>
-              <label><input type="checkbox" name="colors[]" value="Gri"> Gri</label>
-              <label><input type="checkbox" name="colors[]" value="Kırmızı"> Kırmızı</label>
-              <label><input type="checkbox" name="colors[]" value="Mavi"> Mavi</label>
+              <% %w[Beyaz Siyah Gri Gümüş Kırmızı Mavi Yeşil Kahverengi Bej].each do |color| %>
+                <label class="color-option">
+                  <input type="checkbox" name="colors[]" value="<%= color %>">
+                  <span class="color-name"><%= color %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="feature-group">
+            <h4>Yıl</h4>
+            <div class="range-inputs">
+              <div class="input-group">
+                <input type="number" name="year_min" placeholder="Min yıl" min="1900" max="<%= Time.current.year %>" class="year-input">
+                <span class="unit">yıl</span>
+              </div>
+              <div class="input-group">
+                <input type="number" name="year_max" placeholder="Max yıl" min="1900" max="<%= Time.current.year %>" class="year-input">
+                <span class="unit">yıl</span>
+              </div>
             </div>
           </div>
 
           <div class="feature-group">
             <h4>Kilometre</h4>
             <div class="range-inputs">
-              <input type="number" placeholder="Min km" min="0">
-              <input type="number" placeholder="Max km" min="0">
+              <div class="input-group">
+                <input type="number" name="kilometer_min" placeholder="Min km" min="0" step="1000">
+                <span class="unit">km</span>
+              </div>
+              <div class="input-group">
+                <input type="number" name="kilometer_max" placeholder="Max km" min="0" step="1000">
+                <span class="unit">km</span>
+              </div>
             </div>
           </div>
 
           <div class="feature-group">
             <h4>Fiyat</h4>
             <div class="range-inputs">
-              <input type="number" placeholder="Min fiyat" min="0">
-              <input type="number" placeholder="Max fiyat" min="0">
+              <div class="input-group">
+                <input type="number" name="price_min" placeholder="Min fiyat" min="0" step="1000">
+                <span class="unit">₺</span>
+              </div>
+              <div class="input-group">
+                <input type="number" name="price_max" placeholder="Max fiyat" min="0" step="1000">
+                <span class="unit">₺</span>
+              </div>
             </div>
           </div>
 
-          <div class="feature-group">
-            <h4>Satıcı</h4>
-            <div class="seller-options">
-              <label><input type="checkbox" name="seller_type[]" value="Sahibinden"> Sahibinden</label>
-              <label><input type="checkbox" name="seller_type[]" value="Galeriden"> Galeriden</label>
-              <label><input type="checkbox" name="seller_type[]" value="Yetkili Bayiden"> Yetkili Bayiden</label>
-            </div>
+          <div class="feature-actions">
+            <button class="btn-cancel" data-action="click->features#close">İptal</button>
+            <button class="btn-save" data-action="click->features#save">Kaydet</button>
           </div>
-
-          <div class="feature-group">
-            <h4>Vites</h4>
-            <div class="transmission-options">
-              <label><input type="checkbox" name="transmission[]" value="Manuel"> Manuel</label>
-              <label><input type="checkbox" name="transmission[]" value="Otomatik"> Otomatik</label>
-              <label><input type="checkbox" name="transmission[]" value="Yarı Otomatik"> Yarı Otomatik</label>
-            </div>
-          </div>
-        </div>
-        <div class="popup-footer">
-          <button class="btn btn-primary" data-action="click->features#save">Kaydet</button>
         </div>
       </div>
     </div>
@@ -1028,11 +1040,55 @@
 }
 
 /* Features Popup Styles */
-.features-popup .tracking-popup {
-  width: 600px;
+.features-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
 }
 
-.features-form {
+.features-popup.active {
+  display: flex;
+}
+
+.popup-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.popup-body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1041,148 +1097,151 @@
 .feature-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
-.feature-group label {
-  font-weight: 500;
+.feature-group h4 {
+  margin: 0;
+  font-size: 1.1rem;
   color: #333;
 }
 
 .color-options {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
 }
 
 .color-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  cursor: pointer;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 0.5rem;
-  transition: all 0.3s;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .color-option:hover {
   background: #f8f9fa;
 }
 
-.color-option input:checked ~ .color-name {
-  color: #007bff;
-  font-weight: 500;
-}
-
-.color-box {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.seller-option,
-.transmission-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  background: white;
-}
-
-.seller-option input,
-.transmission-option input {
-  display: none;
-}
-
-.seller-option:hover,
-.transmission-option:hover {
-  background: #f8f9fa;
-}
-
-.seller-option input:checked + span,
-.transmission-option input:checked + span {
-  color: #007bff;
-  font-weight: 500;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: all 0.3s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+.color-option input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
 }
 
 .range-inputs {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.range-inputs span {
+.input-group {
+  position: relative;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.5rem;
+  padding-right: 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.input-group .unit {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: #666;
-  font-weight: 500;
 }
 
-.feature-group {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.feature-group label {
-  display: block;
-  margin-bottom: 1rem;
-  font-weight: 500;
-  color: #333;
-}
-
-@media (max-width: 768px) {
-  .features-popup .tracking-popup {
-    width: 90%;
-  }
-  
-  .range-inputs {
-    flex-direction: column;
-  }
-  
-  .range-inputs span {
-    display: none;
-  }
-}
-
-/* Features Popup Styles */
-.features-popup .popup-content {
-  display: block;
-}
-
-.features-popup .features-form {
+.feature-actions {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-/* Tracking Popup Styles */
-.tracking-popup .popup-content > div {
-  display: none;
+.btn-save {
+  padding: 0.5rem 1.5rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.tracking-popup .popup-content > div.active {
-  display: block;
+.btn-save:hover {
+  background: #218838;
+}
+
+.btn-cancel {
+  padding: 0.5rem 1.5rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+}
+
+/* Active Filters Display */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: #e9ecef;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.filter-tag .remove {
+  cursor: pointer;
+  color: #dc3545;
+}
+
+.year-input {
+  width: 100% !important;
+  padding: 0.75rem !important;
+  font-size: 1rem !important;
+}
+
+.range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.input-group {
+  width: 100%;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  padding-right: 3rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  font-size: 1rem;
 }
 </style>
 
