@@ -3,6 +3,7 @@ class Category < ApplicationRecord
   has_many :brands, dependent: :destroy
   has_many :models, through: :brands
   has_many :serials, through: :models
+  has_many :sprints, through: :company
 
   validates :name, presence: true, uniqueness: true
 

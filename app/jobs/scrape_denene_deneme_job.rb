@@ -9,7 +9,7 @@ class ScrapeDeneneDenemeJob < ApplicationJob
 
     Rails.logger.info "Starting ScrapeDeneneDenemeJob"
 
-    @company = Company.find 2
+    @company = Company.find 1
     @sprint =  @company.sprints.new
     @sprint.domain = "arabam.com"
     @sprint.sidekiq_name = "ScrapeDeneneDenemeJob"
