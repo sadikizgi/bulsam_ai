@@ -387,6 +387,8 @@ GEM
     rubyntlm (0.6.5)
       base64
     rubyzip (2.4.1)
+    rufus-scheduler (3.9.2)
+      fugit (~> 1.1, >= 1.11.1)
     securerandom (0.4.1)
     selenium-webdriver (4.27.0)
       base64 (~> 0.2)
@@ -492,6 +494,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 8.0.0)
   rubocop-rails-omakase
+  rufus-scheduler
   selenium-webdriver
   sidekiq
   solid_cable

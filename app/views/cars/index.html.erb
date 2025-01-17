@@ -67,6 +67,25 @@
                     <%= "- #{tracking.brand.name}" if tracking.brand.present? %>
                     <%= "#{tracking.model.name}" if tracking.model.present? %>
                     <%= "#{tracking.serial.name}" if tracking.serial.present? %>
+                    <% if tracking.car_tracking_feature.present? %>
+                      <span class="active-filters-summary">
+                        <% feature = tracking.car_tracking_feature %>
+                        <% filters = [] %>
+                        <% filters << "Renk: #{feature.colors.join(', ')}" if feature.colors.present? %>
+                        <% if feature.year_min.present? || feature.year_max.present? %>
+                          <% filters << "Yıl: #{feature.year_min}-#{feature.year_max}" %>
+                        <% end %>
+                        <% if feature.kilometer_min.present? || feature.kilometer_max.present? %>
+                          <% filters << "KM: #{number_with_delimiter(feature.kilometer_min)}-#{number_with_delimiter(feature.kilometer_max)}" %>
+                        <% end %>
+                        <% if feature.price_min.present? || feature.price_max.present? %>
+                          <% filters << "Fiyat: #{number_to_currency(feature.price_min, unit: '₺', format: '%n %u', precision: 0)}-#{number_to_currency(feature.price_max, unit: '₺', format: '%n %u', precision: 0)}" %>
+                        <% end %>
+                        <% if filters.any? %>
+                          <small>(Filtreler: <%= filters.join(' | ') %>)</small>
+                        <% end %>
+                      </span>
+                    <% end %>
                   </h3>
                   <div class="expand-icon">
                     <i class="fas fa-chevron-down" data-accordion-target="icon"></i>
@@ -112,9 +131,12 @@
               <div class="scrape-results-list">
                 <div class="accordion-content" data-accordion-target="content">
                   <% tracking.recent_scrapes(params[:scrape_page]).each do |scrape| %>
-                    <div class="scraped-car">
+                    <div class="scraped-car <%= 'new-car' if scrape.is_new %>">
                       <div class="car-image">
                         <img src="<%= scrape.image_url %>" alt="<%= scrape.title %>">
+                        <% if scrape.is_new %>
+                          <div class="new-badge">Yeni!</div>
+                        <% end %>
                       </div>
                       <div class="car-details">
                         <h5><%= scrape.title %></h5>
@@ -1242,6 +1264,42 @@
   border: 1px solid #ddd;
   border-radius: 0.5rem;
   font-size: 1rem;
+}
+
+.new-car {
+  position: relative;
+  border: 2px solid #28a745;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.2);
+}
+
+.new-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #28a745;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.active-filters-summary {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-left: 0.75rem;
+  font-weight: normal;
+}
+
+.active-filters-summary small {
+  background-color: #f8f9fa;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  display: inline-block;
+  margin-top: 0.25rem;
 }
 </style>
 

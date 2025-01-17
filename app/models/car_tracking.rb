@@ -9,6 +9,7 @@ class CarTracking < ApplicationRecord
   has_one :feature, class_name: 'CarTrackingFeature', dependent: :destroy
   has_many :sprints, through: :category
   has_many :car_scrapes, through: :sprints
+  has_one :car_tracking_feature, dependent: :destroy
 
   validates :websites, presence: true
   validates :cities, presence: true
