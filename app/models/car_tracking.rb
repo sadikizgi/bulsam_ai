@@ -54,7 +54,7 @@ class CarTracking < ApplicationRecord
   end
 
   def filtered_scrapes
-    scope = car_scrapes.order(created_at: :desc)
+    scope = car_scrapes.order('car_scrapes.created_at DESC')
     
     return scope unless feature.present?
 
@@ -89,6 +89,58 @@ class CarTracking < ApplicationRecord
     end
 
     scope
+  end
+
+  def last_scrape_time
+    car_scrapes.maximum('car_scrapes.created_at')
+  end
+
+  def scrape_count_since_last_check
+    return 0 unless feature&.notification_frequency.present?
+    
+    frequency = case feature.notification_frequency
+      when '30m' then 30.minutes
+      when '1h' then 1.hour
+      when '5h' then 5.hours
+      when '12h' then 12.hours
+      when '1d' then 1.day
+      when '3d' then 3.days
+      when '1w' then 1.week
+    end
+
+    car_scrapes.where('car_scrapes.created_at > ?', frequency.ago).count
+  end
+
+  def total_scrape_count
+    car_scrapes.count
+  end
+
+  def last_job_run
+    sprint = car_scrapes.joins(:sprint)
+                       .select('sprints.*')
+                       .order('sprints.completed_at DESC NULLS LAST, sprints.created_at DESC')
+                       .first
+
+    return nil unless sprint
+
+    # Eğer sprint tamamlanmışsa completed_at'i, değilse created_at'i döndür
+    sprint.completed_at || sprint.created_at
+  end
+
+  def daily_job_runs
+    # Son 24 saat içinde tamamlanan sprint'leri say
+    car_scrapes.joins(:sprint)
+               .where('sprints.completed_at > ? OR (sprints.completed_at IS NULL AND sprints.created_at > ?)', 
+                     24.hours.ago, 24.hours.ago)
+               .select('DISTINCT sprints.id')
+               .count
+  end
+
+  def total_job_runs
+    # Bu category için toplam sprint sayısı
+    car_scrapes.joins(:sprint)
+               .select('DISTINCT sprints.id')
+               .count
   end
 
   private

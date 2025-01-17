@@ -23,10 +23,10 @@
         <span>Emlak Takibi</span>
       <% end %>
       
-      <a href="#" class="nav-item">
+      <%= link_to notifications_path, class: "nav-item #{controller_name == 'notifications' ? 'active' : ''}", data: { turbo: false } do %>
         <i class="fas fa-bell"></i>
         <span>Bildirimler</span>
-      </a>
+      <% end %>
       
       <a href="#" class="nav-item">
         <i class="fas fa-cog"></i>

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   root 'home#index'
   
   get 'dashboard', to: 'dashboard#index'
+  get 'notifications', to: 'notifications#index', as: :notifications
   
   resources :cars, only: [:index, :create, :destroy]
   resources :properties, only: [:index, :show]

@@ -23,10 +23,10 @@
         <span>Emlak Takibi</span>
       <% end %>
       
-      <a href="#" class="nav-item">
+      <%= link_to notifications_path, class: "nav-item #{controller_name == 'notifications' ? 'active' : ''}", data: { turbo: false } do %>
         <i class="fas fa-bell"></i>
         <span>Bildirimler</span>
-      </a>
+      <% end %>
       
       <a href="#" class="nav-item">
         <i class="fas fa-cog"></i>
@@ -111,6 +111,19 @@
                   <span class="tracking-date">
                     <%= time_ago_in_words(tracking.created_at) %> önce eklendi
                   </span>
+                  <% if tracking.last_job_run.present? %>
+                    <span class="tracking-stats">
+                      <span class="last-run">
+                        <i class="fas fa-clock"></i> Son tarama: <%= time_ago_in_words(tracking.last_job_run) %> önce
+                      </span>
+                      <span class="scrape-count">
+                        <i class="fas fa-sync"></i> Bugün <%= pluralize(tracking.daily_job_runs, 'tarama') %> yapıldı
+                      </span>
+                      <span class="total-scrapes">
+                        <i class="fas fa-chart-line"></i> Toplam <%= pluralize(tracking.total_job_runs, 'tarama') %> yapıldı
+                      </span>
+                    </span>
+                  <% end %>
                 </div>
               </div>
               <div class="item-actions">
@@ -709,10 +722,9 @@
 
 .item-tracking {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #666;
-  font-size: 0.9rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .item-actions {
@@ -1421,6 +1433,29 @@
 .frequency-name {
   font-size: 0.9rem;
   color: #495057;
+}
+
+.tracking-stats {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+  align-items: center;
+}
+
+.tracking-stats i {
+  margin-right: 0.25rem;
+  color: #28a745;
+}
+
+.last-run, .scrape-count, .total-scrapes {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: #f8f9fa;
+  border-radius: 0.25rem;
 }
 </style>
 
