@@ -132,11 +132,11 @@
                     </div>
                   <% end %>
                   
-                  <% if tracking.car_scrapes.count > 5 %>
+                  <% if tracking.filtered_scrapes.count > 5 %>
                     <div class="pagination">
                       <div class="pagination-info">
-                        Toplam <%= tracking.car_scrapes.count %> sonuç, 
-                        Sayfa <%= params[:scrape_page] || 1 %> / <%= (tracking.car_scrapes.count.to_f / 5).ceil %>
+                        Toplam <%= tracking.filtered_scrapes.count %> sonuç, 
+                        Sayfa <%= params[:scrape_page] || 1 %> / <%= (tracking.filtered_scrapes.count.to_f / 5).ceil %>
                       </div>
                       <div class="pagination-links">
                         <% if (params[:scrape_page].to_i || 1) > 1 %>
@@ -148,7 +148,7 @@
                               class: "pagination-link" %>
                         <% end %>
                         
-                        <% total_pages = (tracking.car_scrapes.count.to_f / 5).ceil %>
+                        <% total_pages = (tracking.filtered_scrapes.count.to_f / 5).ceil %>
                         <% current_page = (params[:scrape_page].to_i || 1) %>
                         
                         <% (1..total_pages).each do |p| %>
