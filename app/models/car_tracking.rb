@@ -39,8 +39,7 @@ class CarTracking < ApplicationRecord
       'kilometer_max',
       'price_min',
       'price_max',
-      'seller_types',
-      'transmission_types'
+      'notification_frequency'
     ) || {}
 
     if attrs['colors'].present?
