@@ -58,43 +58,132 @@
     <div class="tracked-items">
       <% if @car_trackings.any? %>
         <% @car_trackings.each do |tracking| %>
-          <div class="tracked-item">
-            <div class="item-details">
-              <div class="item-header">
-                <h3>
-                  <%= tracking.category.name %>
-                  <%= "- #{tracking.brand.name}" if tracking.brand.present? %>
-                  <%= "#{tracking.model.name}" if tracking.model.present? %>
-                  <%= "#{tracking.serial.name}" if tracking.serial.present? %>
-                </h3>
+          <div class="tracked-item" data-controller="accordion">
+            <div class="item-main">
+              <div class="item-details" data-action="click->accordion#toggle">
+                <div class="item-header">
+                  <h3>
+                    <%= tracking.category.name %>
+                    <%= "- #{tracking.brand.name}" if tracking.brand.present? %>
+                    <%= "#{tracking.model.name}" if tracking.model.present? %>
+                    <%= "#{tracking.serial.name}" if tracking.serial.present? %>
+                  </h3>
+                  <div class="expand-icon">
+                    <i class="fas fa-chevron-down" data-accordion-target="icon"></i>
+                  </div>
+                </div>
+                <div class="item-specs">
+                  <span><i class="fas fa-globe"></i> <%= tracking.websites.join(', ') %></span>
+                  <span><i class="fas fa-map-marker-alt"></i> <%= tracking.cities.include?('all') ? 'Tüm Türkiye' : tracking.cities.join(', ') %></span>
+                </div>
+                <div class="item-tracking">
+                  <span class="tracking-date">
+                    <%= time_ago_in_words(tracking.created_at) %> önce eklendi
+                  </span>
+                </div>
               </div>
-              <div class="item-specs">
-                <span><i class="fas fa-globe"></i> <%= tracking.websites.join(', ') %></span>
-                <span><i class="fas fa-map-marker-alt"></i> <%= tracking.cities.include?('all') ? 'Tüm Türkiye' : tracking.cities.join(', ') %></span>
-              </div>
-              <div class="item-tracking">
-                <span class="tracking-date">
-                  <%= time_ago_in_words(tracking.created_at) %> önce eklendi
-                </span>
+              <div class="item-actions">
+                <div class="action-buttons">
+                  <%= button_to car_path(tracking), 
+                      method: :delete, 
+                      class: "btn-action btn-stop-tracking", 
+                      data: { 
+                        confirm: "Bu takibi silmek istediğinize emin misiniz?",
+                        turbo: false
+                      } do %>
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Takibi Bırak</span>
+                  <% end %>
+                  
+                  <button class="btn-action btn-add-features" data-action="click->features#open" data-tracking-id="<%= tracking.id %>">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Özellik Ekle</span>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="item-actions">
-              <div class="action-buttons">
-                <%= button_to car_path(tracking), 
-                    method: :delete, 
-                    class: "btn-action btn-stop-tracking", 
-                    data: { 
-                      confirm: "Bu takibi silmek istediğinize emin misiniz?",
-                      turbo: false
-                    } do %>
-                  <i class="fas fa-trash-alt"></i>
-                  <span>Takibi Bırak</span>
-                <% end %>
-                
-                <button class="btn-action btn-add-features" data-action="click->features#open" data-tracking-id="<%= tracking.id %>">
-                  <i class="fas fa-sliders-h"></i>
-                  <span>Özellik Ekle</span>
-                </button>
+            
+            <!-- Scrape Results Section -->
+            <div class="scrape-results" data-accordion-target="content">
+              <div class="scrape-results-header">
+                <h4>Bulunan Araçlar</h4>
+                <span class="last-update">Son güncelleme: 5 dakika önce</span>
+              </div>
+              <div class="scrape-results-list">
+                <!-- Example scraped car items -->
+                <div class="scraped-car">
+                  <div class="car-image">
+                    <img src="https://placehold.co/200x150" alt="Car">
+                  </div>
+                  <div class="car-details">
+                    <h5>2018 Volkswagen Passat 1.6 TDI BlueMotion</h5>
+                    <div class="car-specs">
+                      <span><i class="fas fa-tachometer-alt"></i> 78.000 km</span>
+                      <span><i class="fas fa-cog"></i> Otomatik</span>
+                      <span><i class="fas fa-gas-pump"></i> Dizel</span>
+                    </div>
+                    <div class="car-price">
+                      <span class="price">785.000 TL</span>
+                      <a href="#" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="scraped-car">
+                  <div class="car-image">
+                    <img src="https://placehold.co/200x150" alt="Car">
+                  </div>
+                  <div class="car-details">
+                    <h5>2020 Volkswagen Passat 1.5 TSI Business</h5>
+                    <div class="car-specs">
+                      <span><i class="fas fa-tachometer-alt"></i> 45.000 km</span>
+                      <span><i class="fas fa-cog"></i> Otomatik</span>
+                      <span><i class="fas fa-gas-pump"></i> Benzin</span>
+                    </div>
+                    <div class="car-price">
+                      <span class="price">1.250.000 TL</span>
+                      <a href="#" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="scraped-car">
+                  <div class="car-image">
+                    <img src="https://placehold.co/200x150" alt="Car">
+                  </div>
+                  <div class="car-details">
+                    <h5>2021 Volkswagen Passat 2.0 TDI Elegance</h5>
+                    <div class="car-specs">
+                      <span><i class="fas fa-tachometer-alt"></i> 22.500 km</span>
+                      <span><i class="fas fa-cog"></i> Otomatik</span>
+                      <span><i class="fas fa-gas-pump"></i> Dizel</span>
+                      <span><i class="fas fa-user"></i> Sahibinden</span>
+                    </div>
+                    <div class="car-price">
+                      <span class="price">1.685.000 TL</span>
+                      <a href="#" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="scraped-car">
+                  <div class="car-image">
+                    <img src="https://placehold.co/200x150" alt="Car">
+                  </div>
+                  <div class="car-details">
+                    <h5>2019 Volkswagen Passat 1.6 TDI Highline</h5>
+                    <div class="car-specs">
+                      <span><i class="fas fa-tachometer-alt"></i> 92.000 km</span>
+                      <span><i class="fas fa-cog"></i> Yarı Otomatik</span>
+                      <span><i class="fas fa-gas-pump"></i> Dizel</span>
+                      <span><i class="fas fa-building"></i> Galeriden</span>
+                    </div>
+                    <div class="car-price">
+                      <span class="price">950.000 TL</span>
+                      <a href="#" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
