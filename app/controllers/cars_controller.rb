@@ -34,26 +34,17 @@ class CarsController < ApplicationController
   end
 
   def update_features
-    feature_params = params.require(:features).permit(
-      :year_min,
-      :year_max,
-      :kilometer_min,
-      :kilometer_max,
-      :price_min,
-      :price_max,
-      colors: []
-    )
-
     @tracking.feature&.destroy
 
     @feature = @tracking.build_feature(
-      colors: feature_params[:colors],
-      year_min: feature_params[:year_min],
-      year_max: feature_params[:year_max],
-      kilometer_min: feature_params[:kilometer_min],
-      kilometer_max: feature_params[:kilometer_max],
-      price_min: feature_params[:price_min],
-      price_max: feature_params[:price_max]
+      colors: params[:colors],
+      year_min: params[:year_min],
+      year_max: params[:year_max],
+      kilometer_min: params[:kilometer_min],
+      kilometer_max: params[:kilometer_max],
+      price_min: params[:price_min],
+      price_max: params[:price_max],
+      notification_frequency: params[:notification_frequency]
     )
 
     if @feature.save
@@ -72,5 +63,15 @@ class CarsController < ApplicationController
   def tracking_params
     params.require(:tracking).permit(:category_id, :brand_id, :model_id, :serial_id, 
                                    websites: [], cities: [])
+  end
+
+  def feature_params
+    params.permit(
+      :year_min, :year_max,
+      :kilometer_min, :kilometer_max,
+      :price_min, :price_max,
+      :notification_frequency,
+      colors: []
+    )
   end
 end

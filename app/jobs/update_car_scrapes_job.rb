@@ -4,9 +4,11 @@ class UpdateCarScrapesJob < ApplicationJob
   def perform
     # Her bir takip için kontrol et
     CarTracking.find_each do |tracking|
-      # Son 1 saat içinde eklenen ve filtrelere uyan araçları bul
+      next unless should_check?(tracking)
+
+      # Son kontrol zamanından sonra eklenen ve filtrelere uyan araçları bul
       new_scrapes = tracking.car_scrapes
-                           .where('created_at > ?', 1.hour.ago)
+                           .where('created_at > ?', last_check_time(tracking))
                            .where(is_new: false)
 
       # Filtrelere uyan araçları işaretle
@@ -19,6 +21,33 @@ class UpdateCarScrapesJob < ApplicationJob
   end
 
   private
+
+  def should_check?(tracking)
+    return true unless tracking.car_tracking_feature&.notification_frequency
+
+    last_check = tracking.car_scrapes.maximum(:created_at) || tracking.created_at
+    frequency = parse_frequency(tracking.car_tracking_feature.notification_frequency)
+    
+    Time.current - last_check >= frequency
+  end
+
+  def last_check_time(tracking)
+    frequency = parse_frequency(tracking.car_tracking_feature&.notification_frequency || '1h')
+    frequency.ago
+  end
+
+  def parse_frequency(frequency)
+    value = frequency[0..-2].to_i
+    unit = frequency[-1]
+    
+    case unit
+    when 'm' then value.minutes
+    when 'h' then value.hours
+    when 'd' then value.days
+    when 'w' then value.weeks
+    else 1.hour # varsayılan
+    end
+  end
 
   def matches_filters?(tracking, scrape)
     feature = tracking.car_tracking_feature

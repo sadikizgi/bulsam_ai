@@ -81,6 +81,18 @@
                         <% if feature.price_min.present? || feature.price_max.present? %>
                           <% filters << "Fiyat: #{number_to_currency(feature.price_min, unit: '₺', format: '%n %u', precision: 0)}-#{number_to_currency(feature.price_max, unit: '₺', format: '%n %u', precision: 0)}" %>
                         <% end %>
+                        <% if feature.notification_frequency.present? %>
+                          <% frequency_text = case feature.notification_frequency
+                             when '30m' then '30 Dakika'
+                             when '1h' then '1 Saat'
+                             when '5h' then '5 Saat'
+                             when '12h' then '12 Saat'
+                             when '1d' then '1 Gün'
+                             when '3d' then '3 Gün'
+                             when '1w' then '1 Hafta'
+                             end %>
+                          <% filters << "Bildirim: #{frequency_text}" %>
+                        <% end %>
                         <% if filters.any? %>
                           <small>(Filtreler: <%= filters.join(' | ') %>)</small>
                         <% end %>
@@ -325,6 +337,45 @@
               <!-- Dinamik olarak doldurulacak -->
             </div>
           </div>
+
+          <div class="feature-group">
+            <h4>Bildirim Sıklığı</h4>
+            <div class="frequency-options">
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="30m">
+                <span class="frequency-name">30 Dakika</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="1h">
+                <span class="frequency-name">1 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="5h">
+                <span class="frequency-name">5 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="12h">
+                <span class="frequency-name">12 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="1d">
+                <span class="frequency-name">1 Gün</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="3d">
+                <span class="frequency-name">3 Gün</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="1w">
+                <span class="frequency-name">1 Hafta</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="feature-actions">
+            <button class="btn-cancel" data-action="click->features#close">İptal</button>
+            <button class="btn-save" data-action="click->features#save">Kaydet</button>
+          </div>
         </div>
 
         <div class="popup-actions">
@@ -398,6 +449,40 @@
                 <input type="number" name="price_max" placeholder="Max fiyat" min="0" step="1000">
                 <span class="unit">₺</span>
               </div>
+            </div>
+          </div>
+
+          <div class="feature-group">
+            <h4>Bildirim Sıklığı</h4>
+            <div class="frequency-options">
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="30m">
+                <span class="frequency-name">30 Dakika</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="1h">
+                <span class="frequency-name">1 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="5h">
+                <span class="frequency-name">5 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="12h">
+                <span class="frequency-name">12 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="1d">
+                <span class="frequency-name">1 Gün</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="3d">
+                <span class="frequency-name">3 Gün</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="1w">
+                <span class="frequency-name">1 Hafta</span>
+              </label>
             </div>
           </div>
 
@@ -1300,6 +1385,42 @@
   white-space: nowrap;
   display: inline-block;
   margin-top: 0.25rem;
+}
+
+.frequency-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.frequency-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.frequency-option:hover {
+  background: #f8f9fa;
+}
+
+.frequency-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+}
+
+.frequency-option input[type="radio"]:checked + .frequency-name {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.frequency-name {
+  font-size: 0.9rem;
+  color: #495057;
 }
 </style>
 
