@@ -41,8 +41,8 @@ class CarTracking < ApplicationRecord
     ) || {}
   end
 
-  def recent_scrapes
-    car_scrapes.order(created_at: :desc).limit(10)
+  def recent_scrapes(page = 1)
+    car_scrapes.order(created_at: :desc).page(page).per(5)
   end
 
   private
