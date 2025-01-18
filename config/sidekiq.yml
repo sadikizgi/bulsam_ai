@@ -1,0 +1,37 @@
+:verbose: false
+:concurrency: 5
+:timeout: 30
+
+:queues:
+  - default
+  - mailers
+
+:scheduler:
+  :schedule:
+    scrape_30m_categories:
+      cron: '*/30 * * * *'  # Her 30 dakikada bir
+      class: ScrapeCategoryJob
+      queue: default
+      args: ['30m']
+      description: "30 dakikalık kategorileri tara"
+
+    scrape_1h_categories:
+      cron: '0 * * * *'     # Her saatte bir
+      class: ScrapeCategoryJob
+      queue: default
+      args: ['1h']
+      description: "1 saatlik kategorileri tara"
+
+    scrape_2h_categories:
+      cron: '0 */2 * * *'   # Her 2 saatte bir
+      class: ScrapeCategoryJob
+      queue: default
+      args: ['2h']
+      description: "2 saatlik kategorileri tara"
+
+    scrape_5h_categories:
+      cron: '0 */5 * * *'   # Her 5 saatte bir
+      class: ScrapeCategoryJob
+      queue: default
+      args: ['5h']
+      description: "5 saatlik kategorileri tara" 

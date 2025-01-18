@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_17_214138) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_18_222023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -91,6 +91,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_17_214138) do
     t.text "cities"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "daily_scrape_count"
+    t.integer "total_scrape_count"
+    t.datetime "last_scrape_at"
     t.index ["brand_id"], name: "index_car_trackings_on_brand_id"
     t.index ["category_id"], name: "index_car_trackings_on_category_id"
     t.index ["model_id"], name: "index_car_trackings_on_model_id"
@@ -212,6 +215,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_17_214138) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "car_tracking_id"
     t.index ["company_id"], name: "index_sprints_on_company_id"
   end
 

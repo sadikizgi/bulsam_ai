@@ -1,8 +1,7 @@
 class ScrapeArabamMainJob < ApplicationJob
   queue_as :default
 
-  
-  def perform(links)
+  def perform(links, sprint_id)
     require 'open-uri'
     require 'nokogiri'
     require 'webrick/httputils'
@@ -10,13 +9,10 @@ class ScrapeArabamMainJob < ApplicationJob
 
     Rails.logger.info "Starting ScrapeArabamMainJob"
 
-    @company = Company.find 1
-    @sprint =  @company.sprints.new
-    @sprint.domain = "arabam.com"
-    @sprint.sidekiq_name = "ScrapeArabamMainJob"
-    @sprint.save
+    @sprint = Sprint.find(sprint_id)
+    @company = @sprint.company
 
-    Rails.logger.info "Created/Found sprint: #{@sprint.id}"
+    Rails.logger.info "Using sprint: #{@sprint.id}"
 
     @user_agent = ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3080.30 Safari/537.36", 
                    "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.62 Safari/537.36", 

@@ -3,11 +3,15 @@ class CarsController < ApplicationController
   before_action :set_tracking, only: [:destroy, :features, :update_features]
 
   def index
-    @car_trackings = current_user.car_trackings
-                                .includes(:category, :brand, :model, :serial, :feature)
-                                .order(created_at: :desc)
-                                .page(params[:page])
-                                .per(10)
+    @car_trackings = if user_signed_in?
+      current_user.car_trackings
+                  .includes(:category, :brand, :model, :serial, :car_tracking_feature)
+                  .order(created_at: :desc)
+                  .page(params[:page])
+                  .per(10)
+    else
+      CarTracking.none
+    end
   end
 
   def create
@@ -30,22 +34,26 @@ class CarsController < ApplicationController
   end
 
   def features
-    render json: @tracking.feature_attributes
+    if @tracking.car_tracking_feature.present?
+      render json: {
+        colors: @tracking.car_tracking_feature.colors,
+        year_min: @tracking.car_tracking_feature.year_min,
+        year_max: @tracking.car_tracking_feature.year_max,
+        kilometer_min: @tracking.car_tracking_feature.kilometer_min,
+        kilometer_max: @tracking.car_tracking_feature.kilometer_max,
+        price_min: @tracking.car_tracking_feature.price_min,
+        price_max: @tracking.car_tracking_feature.price_max,
+        notification_frequency: @tracking.car_tracking_feature.notification_frequency
+      }
+    else
+      render json: {}
+    end
   end
 
   def update_features
-    @tracking.feature&.destroy
+    @tracking.car_tracking_feature&.destroy
 
-    @feature = @tracking.build_feature(
-      colors: params[:colors],
-      year_min: params[:year_min],
-      year_max: params[:year_max],
-      kilometer_min: params[:kilometer_min],
-      kilometer_max: params[:kilometer_max],
-      price_min: params[:price_min],
-      price_max: params[:price_max],
-      notification_frequency: params[:notification_frequency]
-    )
+    @feature = @tracking.build_car_tracking_feature(feature_params)
 
     if @feature.save
       render json: @feature, status: :ok

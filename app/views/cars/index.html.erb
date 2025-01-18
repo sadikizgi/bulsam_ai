@@ -69,20 +69,19 @@
                     <%= "#{tracking.serial.name}" if tracking.serial.present? %>
                     <% if tracking.car_tracking_feature.present? %>
                       <span class="active-filters-summary">
-                        <% feature = tracking.car_tracking_feature %>
                         <% filters = [] %>
-                        <% filters << "Renk: #{feature.colors.join(', ')}" if feature.colors.present? %>
-                        <% if feature.year_min.present? || feature.year_max.present? %>
-                          <% filters << "Yıl: #{feature.year_min}-#{feature.year_max}" %>
+                        <% filters << "Renk: #{tracking.colors.join(', ')}" if tracking.colors.present? %>
+                        <% if tracking.year_min.present? || tracking.year_max.present? %>
+                          <% filters << "Yıl: #{tracking.year_min}-#{tracking.year_max}" %>
                         <% end %>
-                        <% if feature.kilometer_min.present? || feature.kilometer_max.present? %>
-                          <% filters << "KM: #{number_with_delimiter(feature.kilometer_min)}-#{number_with_delimiter(feature.kilometer_max)}" %>
+                        <% if tracking.kilometer_min.present? || tracking.kilometer_max.present? %>
+                          <% filters << "KM: #{number_with_delimiter(tracking.kilometer_min)}-#{number_with_delimiter(tracking.kilometer_max)}" %>
                         <% end %>
-                        <% if feature.price_min.present? || feature.price_max.present? %>
-                          <% filters << "Fiyat: #{number_to_currency(feature.price_min, unit: '₺', format: '%n %u', precision: 0)}-#{number_to_currency(feature.price_max, unit: '₺', format: '%n %u', precision: 0)}" %>
+                        <% if tracking.price_min.present? || tracking.price_max.present? %>
+                          <% filters << "Fiyat: #{number_to_currency(tracking.price_min, unit: '₺', format: '%n %u', precision: 0)}-#{number_to_currency(tracking.price_max, unit: '₺', format: '%n %u', precision: 0)}" %>
                         <% end %>
-                        <% if feature.notification_frequency.present? %>
-                          <% frequency_text = case feature.notification_frequency
+                        <% if tracking.notification_frequency.present? %>
+                          <% frequency_text = case tracking.notification_frequency
                              when '30m' then '30 Dakika'
                              when '1h' then '1 Saat'
                              when '5h' then '5 Saat'
@@ -111,16 +110,16 @@
                   <span class="tracking-date">
                     <%= time_ago_in_words(tracking.created_at) %> önce eklendi
                   </span>
-                  <% if tracking.last_job_run.present? %>
+                  <% if tracking.last_scrape_at.present? %>
                     <span class="tracking-stats">
                       <span class="last-run">
-                        <i class="fas fa-clock"></i> Son tarama: <%= time_ago_in_words(tracking.last_job_run) %> önce
+                        <i class="fas fa-clock"></i> Son tarama: <%= time_ago_in_words(tracking.last_scrape_at) if tracking.last_scrape_at.present? %> önce
                       </span>
                       <span class="scrape-count">
-                        <i class="fas fa-sync"></i> Bugün <%= pluralize(tracking.daily_job_runs, 'tarama') %> yapıldı
+                        <i class="fas fa-sync"></i> Bugün <%= tracking.daily_scrape_count %> kez tarandı
                       </span>
                       <span class="total-scrapes">
-                        <i class="fas fa-chart-line"></i> Toplam <%= pluralize(tracking.total_job_runs, 'tarama') %> yapıldı
+                        <i class="fas fa-chart-line"></i> Toplam <%= tracking.total_scrape_count %> kez tarandı
                       </span>
                     </span>
                   <% end %>
@@ -155,7 +154,7 @@
               </div>
               <div class="scrape-results-list">
                 <div class="accordion-content" data-accordion-target="content">
-                  <% tracking.recent_scrapes(params[:scrape_page]).each do |scrape| %>
+                  <% tracking.recent_scrapes(params["scrape_page_#{tracking.id}"].to_i.zero? ? 1 : params["scrape_page_#{tracking.id}"].to_i).each do |scrape| %>
                     <div class="scraped-car <%= 'new-car' if scrape.is_new %>">
                       <div class="car-image">
                         <img src="<%= scrape.image_url %>" alt="<%= scrape.title %>">
@@ -183,20 +182,21 @@
                     <div class="pagination">
                       <div class="pagination-info">
                         Toplam <%= tracking.filtered_scrapes.count %> sonuç, 
-                        Sayfa <%= params[:scrape_page] || 1 %> / <%= (tracking.filtered_scrapes.count.to_f / 5).ceil %>
+                        Sayfa <%= params["scrape_page_#{tracking.id}"] || 1 %> / <%= (tracking.filtered_scrapes.count.to_f / 5).ceil %>
                       </div>
                       <div class="pagination-links">
-                        <% if (params[:scrape_page].to_i || 1) > 1 %>
+                        <% if (params["scrape_page_#{tracking.id}"].to_i || 1) > 1 %>
                           <%= link_to "← Önceki", 
                               cars_path(
-                                scrape_page: (params[:scrape_page].to_i || 1) - 1,
-                                open_accordion: params[:open_accordion]
+                                "scrape_page_#{tracking.id}" => (params["scrape_page_#{tracking.id}"].to_i || 1) - 1,
+                                open_accordion: tracking.id
                               ), 
-                              class: "pagination-link" %>
+                              class: "pagination-link",
+                              data: { turbo_frame: "_top", tracking_scroll: tracking.id } %>
                         <% end %>
                         
                         <% total_pages = (tracking.filtered_scrapes.count.to_f / 5).ceil %>
-                        <% current_page = (params[:scrape_page].to_i || 1) %>
+                        <% current_page = (params["scrape_page_#{tracking.id}"].to_i || 1) %>
                         
                         <% (1..total_pages).each do |p| %>
                           <% if p <= 3 || p == total_pages || (p - current_page).abs <= 1 %>
@@ -205,10 +205,11 @@
                             <% else %>
                               <%= link_to p, 
                                   cars_path(
-                                    scrape_page: p,
-                                    open_accordion: params[:open_accordion]
+                                    "scrape_page_#{tracking.id}" => p,
+                                    open_accordion: tracking.id
                                   ), 
-                                  class: "pagination-link" %>
+                                  class: "pagination-link",
+                                  data: { turbo_frame: "_top", tracking_scroll: tracking.id } %>
                             <% end %>
                           <% elsif p == 4 && total_pages > 5 %>
                             <span class="pagination-ellipsis">...</span>
@@ -218,10 +219,11 @@
                         <% if current_page < total_pages %>
                           <%= link_to "Sonraki →", 
                               cars_path(
-                                scrape_page: current_page + 1,
-                                open_accordion: params[:open_accordion]
+                                "scrape_page_#{tracking.id}" => current_page + 1,
+                                open_accordion: tracking.id
                               ), 
-                              class: "pagination-link" %>
+                              class: "pagination-link",
+                              data: { turbo_frame: "_top", tracking_scroll: tracking.id } %>
                         <% end %>
                       </div>
                     </div>
@@ -363,6 +365,10 @@
                 <span class="frequency-name">1 Saat</span>
               </label>
               <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="2h">
+                <span class="frequency-name">2 Saat</span>
+              </label>
+              <label class="frequency-option">
                 <input type="radio" name="notification_frequency" value="5h">
                 <span class="frequency-name">5 Saat</span>
               </label>
@@ -475,6 +481,10 @@
               <label class="frequency-option">
                 <input type="radio" name="notification_frequency" value="1h">
                 <span class="frequency-name">1 Saat</span>
+              </label>
+              <label class="frequency-option">
+                <input type="radio" name="notification_frequency" value="2h">
+                <span class="frequency-name">2 Saat</span>
               </label>
               <label class="frequency-option">
                 <input type="radio" name="notification_frequency" value="5h">
@@ -1460,3 +1470,17 @@
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<script>
+document.addEventListener('turbo:load', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const trackingId = urlParams.get('open_accordion');
+  
+  if (trackingId) {
+    const trackingElement = document.querySelector(`[data-tracking-id="${trackingId}"]`);
+    if (trackingElement) {
+      trackingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+});
+</script>
