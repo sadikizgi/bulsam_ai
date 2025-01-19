@@ -8,27 +8,35 @@ export default class extends Controller {
     const openAccordions = this.getOpenAccordions()
     
     if (openAccordions.includes(accordionId)) {
-      this.contentTarget.style.display = "block"
-      this.iconTarget.style.transform = "rotate(180deg)"
+      this.open()
     } else {
-      this.contentTarget.style.display = "none"
-      this.iconTarget.style.transform = "rotate(0deg)"
+      this.close()
     }
   }
 
   toggle() {
-    const isExpanded = this.contentTarget.style.display === "block"
+    const isExpanded = this.contentTarget.classList.contains('open')
     const accordionId = this.getAccordionId()
     
     if (!isExpanded) {
-      this.contentTarget.style.display = "block"
-      this.iconTarget.style.transform = "rotate(180deg)"
+      this.open()
       this.addToOpenAccordions(accordionId)
     } else {
-      this.contentTarget.style.display = "none"
-      this.iconTarget.style.transform = "rotate(0deg)"
+      this.close()
       this.removeFromOpenAccordions(accordionId)
     }
+  }
+
+  open() {
+    this.contentTarget.classList.add('open')
+    this.iconTarget.classList.add('open')
+    this.contentTarget.style.display = 'block'
+  }
+
+  close() {
+    this.contentTarget.classList.remove('open')
+    this.iconTarget.classList.remove('open')
+    this.contentTarget.style.display = 'none'
   }
 
   getAccordionId() {
