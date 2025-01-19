@@ -1194,18 +1194,38 @@ body {
 .car-specs {
   display: flex;
   gap: 1rem;
+  color: #4b5563;
+  font-size: 0.9rem;
 }
 
 .car-specs span {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #4b5563;
-  font-size: 0.9rem;
+  gap: 0.25rem;
 }
 
-.car-specs i {
+.car-dates {
+  display: flex;
+  gap: 1rem;
   color: #6b7280;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.car-dates span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.car-dates i {
+  color: #3b82f6;
+}
+
+.listing-date, .added-date {
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
 }
 
 .car-price {

@@ -1,6 +1,9 @@
 class ScrapeArabamMainJob < ApplicationJob
   queue_as :default
 
+  SITE = 'arabam.com'
+  MAX_RETRIES = 3
+
   def perform(links, sprint_id)
     require 'open-uri'
     require 'nokogiri'
@@ -11,6 +14,8 @@ class ScrapeArabamMainJob < ApplicationJob
 
     @sprint = Sprint.find(sprint_id)
     @company = @sprint.company
+    @retry_count = 0
+    @current_proxy = nil
 
     Rails.logger.info "Using sprint: #{@sprint.id}"
 
@@ -23,34 +28,8 @@ class ScrapeArabamMainJob < ApplicationJob
     products = []
 
     links.each do |link|
-      Rails.logger.info "Processing link: #{link}"
-      begin
-        doc = URI.open(link, 'User-Agent' => agent, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)
-        page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
-        page_count = (page_html.css("#top-bar").css("#js-hook-for-advert-count").text.to_i/20)+1
-
-        Rails.logger.info "Found #{page_count} pages to process"
-
-        page_html.css("#main-listing").css(".listing-list-item").each do |item|
-          product = parse_product(item)
-          products << product if product
-        end
-
-        (2..page_count).each do |paginate|
-          page_url = link + "?page=" + paginate.to_s
-          Rails.logger.info "Processing page: #{page_url}"
-          
-          doc = URI.open(page_url, 'User-Agent' => agent, ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE)
-          page_html = Nokogiri::HTML(doc.read, nil, "UTF-8")
-          
-          page_html.css("#main-listing").css(".listing-list-item").each do |item|
-            product = parse_product(item)
-            products << product if product
-          end
-        end
-      rescue StandardError => e
-        Rails.logger.error "Error processing link #{link}: #{e.message}"
-        create_issue(e.message, link)
+      with_proxy_retry do
+        process_link(link)
       end
     end
 
@@ -75,6 +54,87 @@ class ScrapeArabamMainJob < ApplicationJob
 
   private
 
+  def with_proxy_retry
+    begin
+      @current_proxy = Proxy.get_next_available(site: SITE, proxy_type: 'datacenter')
+      raise 'No proxy available' unless @current_proxy
+      
+      start_time = Time.current
+      yield
+      response_time = ((Time.current - start_time) * 1000).to_i # ms cinsinden
+      
+      @current_proxy.record_success!(response_time)
+      @current_proxy.mark_site_as_working!(SITE)
+      @current_proxy.mark_as_used!
+      
+    rescue Selenium::WebDriver::Error::WebDriverError => e
+      handle_proxy_error(e)
+      retry if should_retry?
+      raise
+    rescue StandardError => e
+      handle_proxy_error(e)
+      retry if should_retry?
+      raise
+    end
+  end
+
+  def handle_proxy_error(error)
+    if @current_proxy
+      @current_proxy.record_error!(error.message)
+      @current_proxy.mark_site_as_blocked!(SITE) if blocked_error?(error)
+    end
+    @retry_count += 1
+  end
+
+  def should_retry?
+    @retry_count < MAX_RETRIES
+  end
+
+  def blocked_error?(error)
+    error.message.include?('blocked') || 
+    error.message.include?('captcha') || 
+    error.message.include?('rate limit')
+  end
+
+  def process_link(link)
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--proxy-server=#{@current_proxy.url}") if @current_proxy
+    
+    driver = Selenium::WebDriver.for :chrome, options: options
+    
+    begin
+      driver.get(link)
+      doc = Nokogiri::HTML(driver.page_source, nil, "UTF-8")
+      page_count = (doc.css("#top-bar").css("#js-hook-for-advert-count").text.to_i/20)+1
+
+      Rails.logger.info "Found #{page_count} pages to process"
+
+      doc.css("#main-listing").css(".listing-list-item").each do |item|
+        product = parse_product(item)
+        products << product if product
+      end
+
+      (2..page_count).each do |paginate|
+        page_url = link + "?page=" + paginate.to_s
+        Rails.logger.info "Processing page: #{page_url}"
+        
+        driver.get(page_url)
+        doc = Nokogiri::HTML(driver.page_source, nil, "UTF-8")
+        
+        doc.css("#main-listing").css(".listing-list-item").each do |item|
+          product = parse_product(item)
+          products << product if product
+        end
+      end
+    ensure
+      driver.quit
+    end
+  end
+
   def parse_product(item)
     {
       link: "https://www.arabam.com/" + item.css("td")[0].css("a").first["href"],
@@ -94,28 +154,27 @@ class ScrapeArabamMainJob < ApplicationJob
   end
 
   def save_scrap(product)
-    @scrap = @sprint.car_scrapes.new
+    existing_scrape = CarScrape.find_by(
+      product_url: product[:link],
+      sprint: @sprint
+    )
     
-    @scrap.product_url = product[:link]
-    @scrap.currency = "₺"
-    @scrap.domain = "arabam.com"
-    @scrap.price = product[:price].gsub(".", "").to_i
-    @scrap.year = product[:year].gsub(".", "").to_i
-    @scrap.km = product[:km].gsub(".", "").to_i
-    @scrap.color = product[:color]
-    @scrap.name = product[:name]
-    @scrap.title = product[:description]
-    @scrap.image_url = product[:img]
-    @scrap.city = product[:city]
-    @scrap.public_date = product[:public_date]
+    @scrap = existing_scrape || @sprint.car_scrapes.new
+    @scrap.is_new = !existing_scrape
     
-    unless @scrap.save
-      Rails.logger.error "Save error: #{@scrap.errors.full_messages}"
-      raise "Failed to save scrap: #{@scrap.errors.full_messages}"
-    end
-
-    Rails.logger.info "Saved scrap: #{@scrap.id}"
-    remove_instance_variable(:@scrap) if @scrap.present?
+    @scrap.assign_attributes(
+      title: product[:description],
+      price: product[:price],
+      km: product[:km],
+      year: product[:year],
+      color: product[:color],
+      city: product[:city],
+      image_url: product[:img],
+      product_url: product[:link],
+      public_date: product[:public_date]
+    )
+    
+    @scrap.save!
   end
 
   def create_issue(message, url)

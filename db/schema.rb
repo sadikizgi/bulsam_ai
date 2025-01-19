@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_18_222023) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_19_105149) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -174,6 +174,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_18_222023) do
     t.index ["product_url", "sprint_id"], name: "index_property_scrapes_on_product_url_and_sprint_id", unique: true
     t.index ["property_id"], name: "index_property_scrapes_on_property_id"
     t.index ["sprint_id"], name: "index_property_scrapes_on_sprint_id"
+  end
+
+  create_table "proxies", force: :cascade do |t|
+    t.string "ip", null: false
+    t.integer "port", null: false
+    t.string "username"
+    t.string "password"
+    t.string "proxy_type", null: false
+    t.string "status", default: "active"
+    t.datetime "last_used_at"
+    t.datetime "last_check_at"
+    t.integer "response_time"
+    t.integer "error_count", default: 0
+    t.text "notes"
+    t.json "supported_sites", default: {}
+    t.json "performance_metrics", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ip", "port"], name: "index_proxies_on_ip_and_port", unique: true
+    t.index ["last_used_at"], name: "index_proxies_on_last_used_at"
+    t.index ["proxy_type"], name: "index_proxies_on_proxy_type"
+    t.index ["status"], name: "index_proxies_on_status"
   end
 
   create_table "scrap_images", force: :cascade do |t|

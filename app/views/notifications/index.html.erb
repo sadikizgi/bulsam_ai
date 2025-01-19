@@ -45,30 +45,57 @@
 
     <!-- Notifications List -->
     <div class="notifications-list">
-      <% if @new_cars.any? %>
-        <% @new_cars.each do |car| %>
-          <div class="notification-item">
-            <div class="notification-content">
-              <div class="notification-image">
-                <img src="<%= car.image_url %>" alt="<%= car.title %>">
-                <div class="new-badge">Yeni!</div>
-              </div>
-              <div class="notification-details">
-                <div class="notification-header">
-                  <h3><%= car.title %></h3>
-                  <span class="notification-time"><%= time_ago_in_words(car.created_at) %> önce</span>
+      <% if @notifications_by_category.any? %>
+        <% @notifications_by_category.each do |category, cars| %>
+          <div class="tracked-item" data-controller="accordion" data-tracking-id="<%= category.id %>">
+            <div class="item-main">
+              <div class="item-details" data-action="click->accordion#toggle">
+                <div class="item-header">
+                  <h3><%= category.name %></h3>
+                  <div class="item-stats">
+                    <span class="stat">
+                      <i class="fas fa-car"></i>
+                      <%= cars.count %> yeni araç
+                    </span>
+                    <span class="stat">
+                      <i class="fas fa-clock"></i>
+                      Son güncelleme: <%= time_ago_in_words(cars.first.created_at) %> önce
+                    </span>
+                  </div>
                 </div>
-                <div class="car-specs">
-                  <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(car.km) %> km</span>
-                  <span><i class="fas fa-calendar"></i> <%= car.year %></span>
-                  <span><i class="fas fa-palette"></i> <%= car.color %></span>
-                  <span><i class="fas fa-map-marker-alt"></i> <%= car.city %></span>
-                </div>
-                <div class="car-price">
-                  <span class="price"><%= number_to_currency(car.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %></span>
-                  <a href="<%= car.product_url %>" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+                <div class="toggle-icon" data-accordion-target="icon">
+                  <i class="fas fa-chevron-down"></i>
                 </div>
               </div>
+            </div>
+
+            <div class="scrape-results" data-accordion-target="content">
+              <% cars.each do |car| %>
+                <div class="notification-item">
+                  <div class="notification-content">
+                    <div class="notification-image">
+                      <img src="<%= car.image_url %>" alt="<%= car.title %>">
+                      <div class="new-badge">Yeni!</div>
+                    </div>
+                    <div class="notification-details">
+                      <div class="notification-header">
+                        <h3><%= car.title %></h3>
+                        <span class="notification-time"><%= time_ago_in_words(car.created_at) %> önce</span>
+                      </div>
+                      <div class="car-specs">
+                        <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(car.km) %> km</span>
+                        <span><i class="fas fa-calendar"></i> <%= car.year %></span>
+                        <span><i class="fas fa-palette"></i> <%= car.color %></span>
+                        <span><i class="fas fa-map-marker-alt"></i> <%= car.city %></span>
+                      </div>
+                      <div class="car-price">
+                        <span class="price"><%= number_to_currency(car.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %></span>
+                        <a href="<%= car.product_url %>" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
             </div>
           </div>
         <% end %>
@@ -92,17 +119,77 @@
   gap: 1rem;
 }
 
-.notification-item {
+.tracked-item {
   background: white;
   border-radius: 1rem;
-  padding: 1.5rem;
+  overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
 }
 
-.notification-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.item-main {
+  padding: 1.5rem;
+}
+
+.item-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.item-header {
+  flex: 1;
+}
+
+.item-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.item-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.stat i {
+  color: #007bff;
+}
+
+.toggle-icon {
+  margin-left: 1rem;
+  transition: transform 0.3s;
+}
+
+.toggle-icon i {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.scrape-results {
+  border-top: 1px solid #eee;
+  padding: 1.5rem;
+  display: none;
+}
+
+.notification-item {
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.notification-item:last-child {
+  margin-bottom: 0;
 }
 
 .notification-content {
@@ -124,6 +211,18 @@
   border-radius: 0.5rem;
 }
 
+.new-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #28a745;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
 .notification-details {
   flex: 1;
   display: flex;
@@ -138,7 +237,7 @@
 }
 
 .notification-header h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #333;
   margin: 0;
 }
@@ -168,7 +267,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.5rem;
 }
 
 .price {
@@ -193,45 +291,26 @@
   background: #0056b3;
 }
 
-.no-notifications {
-  background: white;
-  border-radius: 1rem;
-  padding: 3rem;
-  text-align: center;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  color: #6c757d;
-}
-
-.empty-state h3 {
-  margin: 0;
-  color: #333;
-}
-
-.empty-state p {
-  color: #666;
-  margin: 0;
-}
-
-.new-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #28a745;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: bold;
+@media (max-width: 1024px) {
+  .notification-content {
+    flex-direction: column;
+  }
+  
+  .notification-image {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .car-specs {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .car-price {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
 }
 </style>
 

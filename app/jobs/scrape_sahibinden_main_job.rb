@@ -1,14 +1,8 @@
 class ScrapeSahibindenMainJob < ApplicationJob
   queue_as :default
   
-  PROXY_LIST = [
-    # Ücretsiz proxy'ler - gerçek uygulamada ücretli proxy servisleri kullanılmalı
-    'http://185.162.231.167:80',
-    'http://91.241.217.58:9090',
-    'http://46.101.13.77:80',
-    'http://51.159.115.233:3128',
-    'http://178.128.200.87:80'
-  ]
+  SITE = 'sahibinden.com'
+  MAX_RETRIES = 3
 
   USER_AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -21,8 +15,9 @@ class ScrapeSahibindenMainJob < ApplicationJob
     @base_url = url
     @category = category
     @current_page = 1
-    @max_retries = 5 # Retry sayısını artırdık
-    @retry_delay = 10 # Bekleme süresini artırdık
+    @retry_count = 0
+    @current_proxy = nil
+    @retry_delay = 10
     @agent = setup_mechanize
     @cookies = {}
 
@@ -30,11 +25,49 @@ class ScrapeSahibindenMainJob < ApplicationJob
       scrape_all_pages
     rescue StandardError => e
       Rails.logger.error "Scraping error: #{e.message}"
-      retry_job wait: (@retry_delay * @current_page).seconds if @current_page < @max_retries
+      retry_job wait: (@retry_delay * @current_page).seconds if @current_page < MAX_RETRIES
     end
   end
 
   private
+
+  def with_proxy_retry
+    begin
+      @current_proxy = Proxy.get_next_available(site: SITE, proxy_type: 'datacenter')
+      raise 'No proxy available' unless @current_proxy
+      
+      start_time = Time.current
+      yield
+      response_time = ((Time.current - start_time) * 1000).to_i # ms cinsinden
+      
+      @current_proxy.record_success!(response_time)
+      @current_proxy.mark_site_as_working!(SITE)
+      @current_proxy.mark_as_used!
+      
+    rescue StandardError => e
+      handle_proxy_error(e)
+      retry if should_retry?
+      raise
+    end
+  end
+
+  def handle_proxy_error(error)
+    if @current_proxy
+      @current_proxy.record_error!(error.message)
+      @current_proxy.mark_site_as_blocked!(SITE) if blocked_error?(error)
+    end
+    @retry_count += 1
+  end
+
+  def should_retry?
+    @retry_count < MAX_RETRIES
+  end
+
+  def blocked_error?(error)
+    error.message.include?('blocked') || 
+    error.message.include?('captcha') || 
+    error.message.include?('rate limit')
+  end
 
   def setup_mechanize
     agent = Mechanize.new
@@ -47,9 +80,8 @@ class ScrapeSahibindenMainJob < ApplicationJob
     agent.read_timeout = 60
     
     # Proxy kullan
-    if PROXY_LIST.any?
-      proxy_uri = URI.parse(PROXY_LIST.sample)
-      agent.set_proxy(proxy_uri.host, proxy_uri.port)
+    if @current_proxy
+      agent.set_proxy(@current_proxy.ip, @current_proxy.port, @current_proxy.username, @current_proxy.password)
     end
     
     # Tarayıcı benzeri davranış
@@ -89,16 +121,18 @@ class ScrapeSahibindenMainJob < ApplicationJob
 
   def scrape_all_pages
     loop do
-      page_url = build_page_url
-      page_data = fetch_page(page_url)
-      
-      break unless page_data && has_items?(page_data)
-      
-      process_page(page_data)
-      @current_page += 1
-      
-      # Daha gerçekçi bekleme süreleri
-      sleep(rand(5..15))
+      with_proxy_retry do
+        page_url = build_page_url
+        page_data = fetch_page(page_url)
+        
+        break unless page_data && has_items?(page_data)
+        
+        process_page(page_data)
+        @current_page += 1
+        
+        # Daha gerçekçi bekleme süreleri
+        sleep(rand(5..15))
+      end
     end
   end
 
@@ -108,7 +142,6 @@ class ScrapeSahibindenMainJob < ApplicationJob
   end
 
   def fetch_page(url)
-    retries = 0
     begin
       # İlk sayfa için ekstra işlemler
       if @current_page == 1
@@ -138,16 +171,9 @@ class ScrapeSahibindenMainJob < ApplicationJob
         nil
       end
     rescue StandardError => e
-      retries += 1
-      if retries < @max_retries
-        # Her denemede farklı proxy ve user agent kullan
-        @agent = setup_mechanize
-        sleep(@retry_delay * retries + rand(1..5))
-        retry
-      else
-        Rails.logger.error "Max retries reached: #{e.message}"
-        nil
-      end
+      Rails.logger.error "Error fetching page: #{e.message}"
+      @agent = setup_mechanize
+      nil
     end
   end
 

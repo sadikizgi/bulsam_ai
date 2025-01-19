@@ -170,6 +170,14 @@
                           <span><i class="fas fa-palette"></i> <%= scrape.color %></span>
                           <span><i class="fas fa-map-marker-alt"></i> <%= scrape.city %></span>
                         </div>
+                        <div class="car-dates">
+                          <span class="listing-date">
+                            <i class="fas fa-calendar-alt"></i> İlan Tarihi: <%= l(scrape.public_date, format: :long) %>
+                          </span>
+                          <span class="added-date">
+                            <i class="fas fa-clock"></i> Eklenme: <%= time_ago_in_words(scrape.created_at) %> önce
+                          </span>
+                        </div>
                         <div class="car-price">
                           <span class="price"><%= number_to_currency(scrape.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %></span>
                           <a href="<%= scrape.product_url %>" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>

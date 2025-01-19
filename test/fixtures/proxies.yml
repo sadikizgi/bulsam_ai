@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ip: MyString
+  port: 1
+  username: MyString
+  password: MyString
+  proxy_type: MyString
+  status: MyString
+  last_used_at: 2025-01-19 13:51:49
+  last_check_at: 2025-01-19 13:51:49
+  response_time: 1
+  error_count: 1
+  notes: MyText
+
+two:
+  ip: MyString
+  port: 1
+  username: MyString
+  password: MyString
+  proxy_type: MyString
+  status: MyString
+  last_used_at: 2025-01-19 13:51:49
+  last_check_at: 2025-01-19 13:51:49
+  response_time: 1
+  error_count: 1
+  notes: MyText
