@@ -2,7 +2,7 @@ class ScrapeArabamMainJob < ApplicationJob
   queue_as :default
 
   SITE = 'arabam.com'
-  MAX_RETRIES = 3
+  MAX_RETRIES = 15
   MAX_PAGES = 15
 
   def perform(links, sprint_id)
@@ -14,6 +14,9 @@ class ScrapeArabamMainJob < ApplicationJob
     Rails.logger.info "Starting ScrapeArabamMainJob"
 
     @sprint = Sprint.find(sprint_id)
+    @sprint.update!(domain: 'arabam.com')
+    @sprint.update!(sidekiq_name: 'ScrapeArabamMainJob')
+    @sprint.save
     @company = @sprint.company
     proxies = Proxy.all
     # Her proxy kaydını uygun formata dönüştürüp bir diziye atıyoruz
@@ -31,7 +34,8 @@ class ScrapeArabamMainJob < ApplicationJob
     @user_agent = ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3080.30 Safari/537.36", 
                    "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.62 Safari/537.36", 
                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36", 
-                   "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0"]
+                   "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
+                   "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)", "YahooMailProxy; https://help.yahoo.com/kb/yahoo-mail-proxy-SLN28749.html", "check_http/v2.2.1.git (nagios-plugins 2.2.1)", "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "Mozilla/5.0 (compatible; MegaIndex.ru/2.0; +http://megaindex.com/crawler)", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 RuxitSynthetic/1.0", "Mozilla/5.0 (compatible; AhrefsBot/5.2; +http://ahrefs.com/robot/)", "python-requests/2.20.1", "Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)", "Apache/2.4.7 (Unix) OpenSSL/1.0.1e PHP/5.4.22 mod_perl/2.0.8-dev Perl/v5.16.3 (internal dummy connection)", "Mozilla/5.0 (X11; U; Linux Core i7-4980HQ; de; rv:32.0; compatible; JobboerseBot; http://www.jobboerse.com/bot.htm) Gecko/20100101 Firefox/38.0", "Mozilla/5.0 (compatible; SemrushBot/2~bl; +http://www.semrush.com/bot.html)", "LogicMonitor SiteMonitor/1.0", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.101 Safari/537.36 RuxitSynthetic/1.0", "Mozilla/5.0 (compatible; SemrushBot/1.2~bl; +http://www.semrush.com/bot.html)", "Xymon xymonnet/4.3.17", "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp)", "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)", "Mozilla/5.0 (compatible; AhrefsBot/5.0; +http://ahrefs.com/robot/)", "Mozilla/5.0 (compatible; seoscanners.net/1; +spider@seoscanners.net)", "Mozilla/5.0 (compatible; spbot/5.0.3; +http://OpenLinkProfiler.org/bot )", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b", "Mozilla/5.0 (compatible; SEOkicks-Robot; +http://www.seokicks.de/robot.html)", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.5195.125 Safari/537.36 RuxitSynthetic/1.0", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36 RuxitSynthetic/1.0", "HWCDN/GFS v1.80.995-4.38.2369.el7 CDS/DA2", "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1 RuxitSynthetic/1.0", "CheckMarkNetwork/1.0 (+http://www.checkmarknetwork.com/spider.html)", "Mozilla/5.0 (compatible; SeznamBot/3.2; +http://napoveda.seznam.cz/en/seznambot-intro/)", "Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0 DejaClick/2.9.7.2", "Mozilla/5.0 (compatible; AhrefsBot/5.1; +http://ahrefs.com/robot/)", "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)"]
 
     products = []
 
@@ -66,14 +70,21 @@ class ScrapeArabamMainJob < ApplicationJob
         while check
           agent = @user_agent[rand(@user_agent.count)]
           proxy = @proxies[rand(@count)]
-
+          puts "şuanki ilk proxy: #{proxy.to_s}"
           begin
             check = false
             sleep 2
             Rails.logger.info "Processing page #{paginate} of #{link}"
             
             page_url = fetch_page(link, paginate, agent, proxy)
-            
+            while page_url.text.include? "Gizliliği\r\n"
+              agent = @user_agent[rand(@user_agent.count)]
+              proxy = @proxies[rand(@count)]
+              puts "değişecek proxy: #{proxy.to_s}"
+              Rails.logger.info "Gizliliği sayfasına yönlendirildi. Yeniden deniyor..."
+              sleep 2
+              page_url = fetch_page(link, paginate, agent, proxy)
+            end
             if page_url.css("#main-listing").css(".listing-list-item").present?
               page_url.css("#main-listing").css(".listing-list-item").each do |item|
                 product = parse_product(item)
@@ -150,17 +161,41 @@ class ScrapeArabamMainJob < ApplicationJob
   end
 
   def save_scrap(product)
-    existing_scrape = CarScrape.find_by(
-      product_url: product[:link],
-      sprint: @sprint
-    )
+    # Önce URL'ye göre tüm sprint'lerde kontrol et
+    existing_scrape = CarScrape.find_by(product_url: product[:link])
     
-    @scrap = existing_scrape || @sprint.car_scrapes.new
-    @scrap.is_new = !existing_scrape
+    # URL ile bulunamadıysa, diğer özelliklere göre kontrol et
+    if !existing_scrape
+      # Sayısal değerleri temizle ve integer'a çevir
+      normalized_km = product[:km].gsub(".","").to_i
+      normalized_price = product[:price].gsub(".","").to_i
+      normalized_year = product[:year].to_i
+      
+      # Benzer araçları bul
+      existing_scrape = CarScrape.find_by(
+        "LOWER(title) = ? AND year = ? AND km = ? AND LOWER(color) = ? AND LOWER(city) = ? AND price = ?",
+        product[:description].downcase,
+        normalized_year,
+        normalized_km,
+        product[:color].downcase,
+        product[:city].downcase,
+        normalized_price
+      )
+    end
+    
+    # Eğer araç bulunduysa ve aynı sprint'te değilse, yeni sprint'e kopyala
+    if existing_scrape && existing_scrape.sprint_id != @sprint.id
+      @scrap = @sprint.car_scrapes.new(existing_scrape.attributes.except('id', 'created_at', 'updated_at', 'sprint_id'))
+      @scrap.is_new = false
+    else
+      @scrap = existing_scrape || @sprint.car_scrapes.new
+      # İlk tarama değilse ve yeni bir kayıtsa is_new true olsun
+      @scrap.is_new = !existing_scrape && !@sprint.car_tracking.sprints.one?
+    end
     
     @scrap.assign_attributes(
       title: product[:description],
-      price: product[:price].gsub(".","").to_i  ,
+      price: product[:price].gsub(".","").to_i,
       km: product[:km].gsub(".","").to_i,
       year: product[:year],
       color: product[:color],

@@ -78,3 +78,5 @@ gem 'kaminari'
 # Additional gem
 gem 'rufus-scheduler'
 gem 'sidekiq-scheduler'
+
+gem "whenever", "~> 1.0"

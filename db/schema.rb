@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_19_112407) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_20_095811) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_19_112407) do
     t.string "city"
     t.string "domain"
     t.boolean "is_new", default: false
+    t.boolean "notification_sent", default: false
+    t.datetime "notification_sent_at"
+    t.index ["notification_sent"], name: "index_car_scrapes_on_notification_sent"
+    t.index ["notification_sent_at"], name: "index_car_scrapes_on_notification_sent_at"
     t.index ["sprint_id"], name: "index_car_scrapes_on_sprint_id"
   end
 
@@ -79,6 +83,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_19_112407) do
     t.datetime "updated_at", null: false
     t.string "notification_frequency", default: "1h"
     t.index ["car_tracking_id"], name: "index_car_tracking_features_on_car_tracking_id"
+  end
+
+  create_table "car_tracking_sprints", force: :cascade do |t|
+    t.bigint "car_tracking_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["car_tracking_id"], name: "index_car_tracking_sprints_on_car_tracking_id"
   end
 
   create_table "car_trackings", force: :cascade do |t|
@@ -267,6 +278,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_19_112407) do
   add_foreign_key "brands", "categories"
   add_foreign_key "car_scrapes", "sprints"
   add_foreign_key "car_tracking_features", "car_trackings"
+  add_foreign_key "car_tracking_sprints", "car_trackings"
   add_foreign_key "car_trackings", "brands"
   add_foreign_key "car_trackings", "categories"
   add_foreign_key "car_trackings", "models"

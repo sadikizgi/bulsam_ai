@@ -4,39 +4,46 @@ export default class extends Controller {
   static targets = ["content", "icon"]
 
   connect() {
-    const accordionId = this.getAccordionId()
-    const openAccordions = this.getOpenAccordions()
-    
-    if (openAccordions.includes(accordionId)) {
-      this.open()
-    } else {
+    // Reset all accordions when entering notifications page
+    if (window.location.pathname === '/notifications') {
+      localStorage.removeItem('openAccordions')
       this.close()
+    } else {
+      const accordionId = this.getAccordionId()
+      const openAccordions = this.getStoredAccordions()
+      
+      if (openAccordions.includes(accordionId)) {
+        this.open()
+      } else {
+        this.close()
+      }
     }
   }
 
   toggle() {
-    const isExpanded = this.contentTarget.classList.contains('open')
-    const accordionId = this.getAccordionId()
-    
-    if (!isExpanded) {
-      this.open()
-      this.addToOpenAccordions(accordionId)
-    } else {
+    if (this.isOpen()) {
       this.close()
-      this.removeFromOpenAccordions(accordionId)
+      this.removeFromStorage()
+    } else {
+      this.open()
+      this.addToStorage()
     }
   }
 
   open() {
+    this.contentTarget.style.display = 'block'
     this.contentTarget.classList.add('open')
     this.iconTarget.classList.add('open')
-    this.contentTarget.style.display = 'block'
   }
 
   close() {
+    this.contentTarget.style.display = 'none'
     this.contentTarget.classList.remove('open')
     this.iconTarget.classList.remove('open')
-    this.contentTarget.style.display = 'none'
+  }
+
+  isOpen() {
+    return this.contentTarget.style.display === 'block'
   }
 
   getAccordionId() {
@@ -62,25 +69,27 @@ export default class extends Controller {
     return `accordion-${Math.random().toString(36).substr(2, 9)}`
   }
 
-  getOpenAccordions() {
-    const stored = sessionStorage.getItem('openAccordions')
+  getStoredAccordions() {
+    const stored = localStorage.getItem('openAccordions')
     return stored ? JSON.parse(stored) : []
   }
 
-  addToOpenAccordions(id) {
-    const openAccordions = this.getOpenAccordions()
-    if (!openAccordions.includes(id)) {
-      openAccordions.push(id)
-      sessionStorage.setItem('openAccordions', JSON.stringify(openAccordions))
+  addToStorage() {
+    const openAccordions = this.getStoredAccordions()
+    const accordionId = this.element.dataset.accordionId
+    if (!openAccordions.includes(accordionId)) {
+      openAccordions.push(accordionId)
+      localStorage.setItem('openAccordions', JSON.stringify(openAccordions))
     }
   }
 
-  removeFromOpenAccordions(id) {
-    const openAccordions = this.getOpenAccordions()
-    const index = openAccordions.indexOf(id)
+  removeFromStorage() {
+    const openAccordions = this.getStoredAccordions()
+    const accordionId = this.element.dataset.accordionId
+    const index = openAccordions.indexOf(accordionId)
     if (index > -1) {
       openAccordions.splice(index, 1)
-      sessionStorage.setItem('openAccordions', JSON.stringify(openAccordions))
+      localStorage.setItem('openAccordions', JSON.stringify(openAccordions))
     }
   }
 } 

@@ -25,7 +25,9 @@ class CarTracking < ApplicationRecord
     
     if car_tracking_feature.present?
       if car_tracking_feature.colors.present?
-        base_query = base_query.where('LOWER(color) IN (?)', car_tracking_feature.colors.map(&:downcase))
+        unless car_tracking_feature.colors.include?('Tüm Renkler')
+          base_query = base_query.where('LOWER(color) IN (?)', car_tracking_feature.colors.map(&:downcase))
+        end
       end
       
       if car_tracking_feature.year_min.present?

@@ -6,6 +6,35 @@ export default class extends Controller {
   connect() {
     // Popup kapalı olarak başlasın
     this.closePopup()
+    this.setupColorHandlers()
+  }
+
+  setupColorHandlers() {
+    const allColorsCheckbox = this.formTarget.querySelector('input[value="Tüm Renkler"]')
+    const otherColorCheckboxes = this.formTarget.querySelectorAll('input[name="colors[]"]:not([value="Tüm Renkler"])')
+
+    if (allColorsCheckbox) {
+      allColorsCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          otherColorCheckboxes.forEach(checkbox => {
+            checkbox.checked = false
+            checkbox.disabled = true
+          })
+        } else {
+          otherColorCheckboxes.forEach(checkbox => {
+            checkbox.disabled = false
+          })
+        }
+      })
+    }
+
+    otherColorCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked && allColorsCheckbox) {
+          allColorsCheckbox.checked = false
+        }
+      })
+    })
   }
 
   open(event) {
@@ -28,9 +57,20 @@ export default class extends Controller {
   populateFeatures(features) {
     // Renkleri doldur
     const colorInputs = this.formTarget.querySelectorAll('input[name="colors[]"]')
-    colorInputs.forEach(input => {
-      input.checked = features.colors && features.colors.includes(input.value)
-    })
+    const allColorsCheckbox = this.formTarget.querySelector('input[value="Tüm Renkler"]')
+    const otherColorCheckboxes = this.formTarget.querySelectorAll('input[name="colors[]"]:not([value="Tüm Renkler"])')
+
+    if (features.colors && features.colors.includes('Tüm Renkler')) {
+      allColorsCheckbox.checked = true
+      otherColorCheckboxes.forEach(checkbox => {
+        checkbox.checked = false
+        checkbox.disabled = true
+      })
+    } else {
+      colorInputs.forEach(input => {
+        input.checked = features.colors && features.colors.includes(input.value)
+      })
+    }
 
     // Yıl aralığını doldur
     this.formTarget.querySelector('input[name="year_min"]').value = features.year_min || ''

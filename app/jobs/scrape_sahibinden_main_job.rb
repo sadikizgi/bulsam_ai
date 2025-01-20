@@ -224,15 +224,33 @@ class ScrapeSahibindenMainJob < ApplicationJob
   end
 
   def save_or_update_car(data)
-    car = Car.find_or_initialize_by(external_id: data[:external_id])
+    # Önce external_id ile kontrol et
+    car = CarScrape.find_by(external_id: data[:external_id], sprint: @sprint)
+    
+    # Eğer external_id ile bulunamadıysa, diğer özelliklere göre kontrol et
+    if !car
+      car = @sprint.car_scrapes.find_by(
+        title: data[:title],
+        price: data[:price],
+        city: data[:location],
+        product_url: data[:details_url]
+      )
+    end
+    
+    # Eğer hala bulunamadıysa yeni kayıt oluştur
+    car ||= @sprint.car_scrapes.new
+    
+    # İlk tarama değilse ve yeni bir kayıtsa is_new true olsun
+    car.is_new = !car.persisted? && !@sprint.car_tracking.sprints.one?
     
     car.update!(
       title: data[:title],
       price: data[:price],
-      location: data[:location],
-      listing_date: data[:date_posted],
-      details_url: data[:details_url],
-      image_url: data[:image_url]
+      city: data[:location],
+      public_date: data[:date_posted],
+      product_url: data[:details_url],
+      image_url: data[:image_url],
+      external_id: data[:external_id]
     )
   end
 

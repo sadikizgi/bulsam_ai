@@ -41,630 +41,324 @@
         <h1>Bildirimler</h1>
         <p>Son 24 saat içinde bulunan yeni araçlar</p>
       </div>
+      
+      <div class="notification-filters">
+        <button class="filter-btn active">
+          <i class="fas fa-clock"></i>
+          Son 24 Saat
+        </button>
+        <button class="filter-btn">
+          <i class="fas fa-calendar"></i>
+          Son 7 Gün
+        </button>
+        <button class="filter-btn">
+          <i class="fas fa-filter"></i>
+          Tüm Bildirimler
+        </button>
+      </div>
     </div>
 
     <!-- Notifications List -->
-    <%= turbo_frame_tag "notifications_content" do %>
-      <div class="notifications-list" data-controller="notifications">
-        <% if @notifications_by_parent_category.any? %>
-          <% @notifications_by_parent_category.each do |parent_category, all_cars| %>
-            <div class="tracked-item" data-controller="accordion" data-accordion-id="category-<%= parent_category.id %>">
-              <div class="item-main">
-                <div class="item-details" data-action="click->accordion#toggle">
-                  <div class="item-header">
-                    <h3><%= parent_category.name %></h3>
-                    <div class="item-stats">
-                      <span class="stat">
-                        <i class="fas fa-car"></i>
-                        <%= all_cars.size %> yeni araç
-                      </span>
-                      <span class="stat">
-                        <i class="fas fa-clock"></i>
-                        Son güncelleme: <%= time_ago_in_words(all_cars.first.created_at) %> önce
-                      </span>
-                    </div>
-                  </div>
-                  <div class="toggle-icon" data-accordion-target="icon">
-                    <i class="fas fa-chevron-down"></i>
-                  </div>
+    <div class="notifications-list" data-controller="notifications">
+      <% if @notifications_by_parent_category.any? %>
+        <% @notifications_by_parent_category.each do |parent_category, all_cars| %>
+          <div class="category-section" data-controller="accordion" data-accordion-id="category-<%= parent_category.id %>">
+            <div class="category-header" data-action="click->accordion#toggle">
+              <div class="category-info">
+                <h2><%= parent_category.name %></h2>
+                <div class="category-stats">
+                  <span class="stat">
+                    <i class="fas fa-car"></i>
+                    <%= all_cars.values.flatten.size %> yeni araç
+                  </span>
+                  <span class="stat">
+                    <i class="fas fa-clock"></i>
+                    Son güncelleme: <%= time_ago_in_words(all_cars.values.flatten.max_by(&:created_at).created_at) %> önce
+                  </span>
                 </div>
               </div>
-
-              <div class="scrape-results" data-accordion-target="content">
-                <% paginated_cars = @paginated_notifications_by_parent[parent_category] %>
-                <% paginated_cars.group_by { |car| car.sprint.car_tracking.category }.each do |sub_category, cars| %>
-                  <% if sub_category != parent_category %>
-                    <div class="sub-category">
-                      <h4><%= sub_category.name %></h4>
-                      <div class="sub-category-stats">
-                        <span><%= @all_notifications_by_tracking[[parent_category, sub_category, nil]]&.size || 0 %> araç</span>
-                      </div>
-                    </div>
-                  <% end %>
-                  
-                  <% group_by_source(cars).each do |source, source_cars| %>
-                    <div class="source-group" data-controller="accordion" data-accordion-id="source-<%= source.parameterize %>-<%= parent_category.id %>">
-                      <div class="source-header" data-action="click->accordion#toggle">
-                        <div class="source-icon">
-                          <% case source %>
-                          <% when 'Arabam.com' %>
-                            <i class="fas fa-car"></i>
-                          <% when 'Sahibinden.com' %>
-                            <i class="fas fa-store"></i>
-                          <% else %>
-                            <i class="fas fa-globe"></i>
-                          <% end %>
-                        </div>
-                        <h5><%= source %></h5>
-                        <span class="source-count">
-                          <%= @all_notifications_by_source[[parent_category, source]]&.size || 0 %> araç
-                        </span>
-                        <div class="toggle-icon" data-accordion-target="icon">
-                          <i class="fas fa-chevron-down"></i>
-                        </div>
-                      </div>
-                      
-                      <div class="source-content" data-accordion-target="content">
-                        <% group_by_tracking(source_cars).each do |tracking_info, tracking_cars| %>
-                          <div class="tracking-group" data-controller="accordion" data-accordion-id="tracking-<%= tracking_info[:category].parameterize %>-<%= source.parameterize %>-<%= parent_category.id %>">
-                            <div class="tracking-header" data-action="click->accordion#toggle">
-                              <div class="tracking-info">
-                                <h6>
-                                  <%= tracking_info[:category] %>
-                                  <% if tracking_info[:brand].present? %>
-                                    <i class="fas fa-chevron-right"></i>
-                                    <%= tracking_info[:brand] %>
-                                  <% end %>
-                                  <% if tracking_info[:model].present? %>
-                                    <i class="fas fa-chevron-right"></i>
-                                    <%= tracking_info[:model] %>
-                                  <% end %>
-                                  <% if tracking_info[:serial].present? %>
-                                    <i class="fas fa-chevron-right"></i>
-                                    <%= tracking_info[:serial] %>
-                                  <% end %>
-                                </h6>
-                                <div class="tracking-header-right">
-                                  <span class="tracking-count">
-                                        <%= @all_notifications_by_source[[parent_category, source]]&.size || 0 %> araç
-                                  </span>
-                                  </span>
-                                  <div class="toggle-icon" data-accordion-target="icon">
-                                    <i class="fas fa-chevron-down"></i>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div class="tracking-content" data-accordion-target="content">
-                              <% tracking_cars.each do |car| %>
-                                <div class="notification-item">
-                                  <div class="notification-content">
-                                    <div class="notification-image">
-                                      <img src="<%= car.image_url %>" alt="<%= car.title %>">
-                                      <div class="new-badge">Yeni!</div>
-                                    </div>
-                                    <div class="notification-details">
-                                      <div class="notification-header">
-                                        <h3><%= car.title %></h3>
-                                        <span class="notification-time"><%= time_ago_in_words(car.created_at) %> önce</span>
-                                      </div>
-                                      <div class="car-specs">
-                                        <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(car.km) %> km</span>
-                                        <span><i class="fas fa-calendar"></i> <%= car.year %></span>
-                                        <span><i class="fas fa-palette"></i> <%= car.color %></span>
-                                        <span><i class="fas fa-map-marker-alt"></i> <%= car.city %></span>
-                                      </div>
-                                      <div class="car-price">
-                                        <span class="price"><%= number_to_currency(car.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %></span>
-                                        <a href="<%= car.product_url %>" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              <% end %>
-
-                              <!-- Category-specific Pagination -->
-                              <% if @total_pages_by_parent[parent_category.id] > 1 %>
-                                <div class="pagination">
-                                  <% current_page = @current_page_by_parent[parent_category.id] %>
-                                  <% total_pages = @total_pages_by_parent[parent_category.id] %>
-
-                                  <% if current_page > 1 %>
-                                    <%= link_to notifications_path("page_#{parent_category.id}" => current_page - 1), 
-                                        class: "page-link",
-                                        data: { 
-                                          turbo_frame: "notifications_content",
-                                          turbo_scroll: false
-                                        } do %>
-                                      <i class="fas fa-chevron-left"></i> Önceki
-                                    <% end %>
-                                  <% end %>
-
-                                  <div class="page-numbers">
-                                    <% if total_pages <= 5 %>
-                                      <% (1..total_pages).each do |page_num| %>
-                                        <%= link_to page_num, 
-                                            notifications_path("page_#{parent_category.id}" => page_num), 
-                                            class: "page-link #{current_page == page_num ? 'active' : ''}",
-                                            data: { 
-                                              turbo_frame: "notifications_content",
-                                              turbo_scroll: false
-                                            } %>
-                                      <% end %>
-                                    <% else %>
-                                      <% if current_page <= 3 %>
-                                        <% (1..3).each do |page_num| %>
-                                          <%= link_to page_num, 
-                                              notifications_path("page_#{parent_category.id}" => page_num), 
-                                              class: "page-link #{current_page == page_num ? 'active' : ''}",
-                                              data: { 
-                                                turbo_frame: "notifications_content",
-                                                turbo_scroll: false
-                                              } %>
-                                        <% end %>
-                                        <span class="ellipsis">...</span>
-                                        <%= link_to total_pages, 
-                                            notifications_path("page_#{parent_category.id}" => total_pages), 
-                                            class: "page-link",
-                                            data: { 
-                                              turbo_frame: "notifications_content",
-                                              turbo_scroll: false
-                                            } %>
-                                      <% elsif current_page >= total_pages - 2 %>
-                                        <%= link_to 1, 
-                                            notifications_path("page_#{parent_category.id}" => 1), 
-                                            class: "page-link",
-                                            data: { 
-                                              turbo_frame: "notifications_content",
-                                              turbo_scroll: false
-                                            } %>
-                                        <span class="ellipsis">...</span>
-                                        <% ((total_pages-2)..total_pages).each do |page_num| %>
-                                          <%= link_to page_num, 
-                                              notifications_path("page_#{parent_category.id}" => page_num), 
-                                              class: "page-link #{current_page == page_num ? 'active' : ''}",
-                                              data: { 
-                                                turbo_frame: "notifications_content",
-                                                turbo_scroll: false
-                                              } %>
-                                        <% end %>
-                                      <% else %>
-                                        <%= link_to 1, 
-                                            notifications_path("page_#{parent_category.id}" => 1), 
-                                            class: "page-link",
-                                            data: { 
-                                              turbo_frame: "notifications_content",
-                                              turbo_scroll: false
-                                            } %>
-                                        <span class="ellipsis">...</span>
-                                        <% (current_page-1..current_page+1).each do |page_num| %>
-                                          <%= link_to page_num, 
-                                              notifications_path("page_#{parent_category.id}" => page_num), 
-                                              class: "page-link #{current_page == page_num ? 'active' : ''}",
-                                              data: { 
-                                                turbo_frame: "notifications_content",
-                                                turbo_scroll: false
-                                              } %>
-                                        <% end %>
-                                        <span class="ellipsis">...</span>
-                                        <%= link_to total_pages, 
-                                            notifications_path("page_#{parent_category.id}" => total_pages), 
-                                            class: "page-link",
-                                            data: { 
-                                              turbo_frame: "notifications_content",
-                                              turbo_scroll: false
-                                            } %>
-                                      <% end %>
-                                    <% end %>
-                                  </div>
-
-                                  <% if current_page < total_pages %>
-                                    <%= link_to notifications_path("page_#{parent_category.id}" => current_page + 1), 
-                                        class: "page-link",
-                                        data: { 
-                                          turbo_frame: "notifications_content",
-                                          turbo_scroll: false
-                                        } do %>
-                                      Sonraki <i class="fas fa-chevron-right"></i>
-                                    <% end %>
-                                  <% end %>
-                                </div>
-                              <% end %>
-                            </div>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  <% end %>
-                <% end %>
+              <div class="toggle-icon" data-accordion-target="icon">
+                <i class="fas fa-chevron-down"></i>
               </div>
             </div>
-          <% end %>
-        <% else %>
-          <div class="no-notifications">
-            <div class="empty-state">
-              <i class="fas fa-bell-slash"></i>
-              <h3>Yeni Bildirim Yok</h3>
-              <p>Son 24 saat içinde bulunan yeni araç bulunmuyor.</p>
+
+            <div class="category-content" data-accordion-target="content">
+              <% @notifications_by_parent_category[parent_category].each do |brand_name, brand_cars| %>
+                <div class="brand-section" data-controller="accordion" data-accordion-id="brand-<%= parent_category.id %>-<%= brand_name %>">
+                  <div class="brand-header" data-action="click->accordion#toggle">
+                    <div class="brand-info">
+                      <h3><%= brand_name %></h3>
+                      <div class="brand-stats">
+                        <span class="stat">
+                          <i class="fas fa-car"></i>
+                          <%= brand_cars.size %> yeni araç
+                        </span>
+                      </div>
+                    </div>
+                    <div class="toggle-icon" data-accordion-target="icon">
+                      <i class="fas fa-chevron-down"></i>
+                    </div>
+                  </div>
+
+                  <div class="brand-content" data-accordion-target="content">
+                    <div class="notifications-grid">
+                      <% pagination_data = @paginated_notifications[parent_category][brand_name] %>
+                      <% pagination_data[:cars].each do |car| %>
+                        <div class="notification-card">
+                          <div class="card-image">
+                            <img src="<%= car.image_url %>" alt="<%= car.title %>">
+                            <div class="new-badge">Yeni!</div>
+                            <div class="source-badge">
+                              <% case extract_source_from_url(car.product_url) %>
+                              <% when 'Arabam.com' %>
+                                <i class="fas fa-car"></i>
+                              <% when 'Sahibinden.com' %>
+                                <i class="fas fa-store"></i>
+                              <% else %>
+                                <i class="fas fa-globe"></i>
+                              <% end %>
+                              <%= extract_source_from_url(car.product_url) %>
+                            </div>
+                          </div>
+                          
+                          <div class="card-content">
+                            <h3><%= car.title %></h3>
+                            
+                            <div class="car-specs">
+                              <span><i class="fas fa-tachometer-alt"></i> <%= number_with_delimiter(car.km) %> km</span>
+                              <span><i class="fas fa-calendar"></i> <%= car.year %></span>
+                              <span><i class="fas fa-palette"></i> <%= car.color %></span>
+                              <span><i class="fas fa-map-marker-alt"></i> <%= car.city %></span>
+                            </div>
+
+                            <div class="card-footer">
+                              <div class="price">
+                                <%= number_to_currency(car.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %>
+                              </div>
+                              <a href="<%= car.product_url %>" class="btn-view" target="_blank">
+                                İlana Git <i class="fas fa-external-link-alt"></i>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      <% end %>
+                    </div>
+
+                    <% if pagination_data[:total_pages] > 1 %>
+                      <div class="pagination">
+                        <% if pagination_data[:current_page] > 1 %>
+                          <%= link_to notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:current_page] - 1), 
+                              class: "page-link",
+                              data: { action: "click->notifications#paginate" } do %>
+                            <i class="fas fa-chevron-left"></i> Önceki
+                          <% end %>
+                        <% end %>
+
+                        <div class="page-numbers">
+                          <% if pagination_data[:total_pages] <= 5 %>
+                            <% (1..pagination_data[:total_pages]).each do |page_num| %>
+                              <%= link_to page_num, 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                  class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
+                                  data: { action: "click->notifications#paginate" } %>
+                            <% end %>
+                          <% else %>
+                            <% if pagination_data[:current_page] <= 3 %>
+                              <% (1..3).each do |page_num| %>
+                                <%= link_to page_num, 
+                                    notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                    class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
+                                    data: { action: "click->notifications#paginate" } %>
+                              <% end %>
+                              <span class="ellipsis">...</span>
+                              <%= link_to pagination_data[:total_pages], 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:total_pages]), 
+                                  class: "page-link",
+                                  data: { action: "click->notifications#paginate" } %>
+                            <% elsif pagination_data[:current_page] >= pagination_data[:total_pages] - 2 %>
+                              <%= link_to 1, 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => 1), 
+                                  class: "page-link",
+                                  data: { action: "click->notifications#paginate" } %>
+                              <span class="ellipsis">...</span>
+                              <% ((pagination_data[:total_pages]-2)..pagination_data[:total_pages]).each do |page_num| %>
+                                <%= link_to page_num, 
+                                    notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                    class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
+                                    data: { action: "click->notifications#paginate" } %>
+                              <% end %>
+                            <% else %>
+                              <%= link_to 1, 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => 1), 
+                                  class: "page-link",
+                                  data: { action: "click->notifications#paginate" } %>
+                              <span class="ellipsis">...</span>
+                              <% (pagination_data[:current_page]-1..pagination_data[:current_page]+1).each do |page_num| %>
+                                <%= link_to page_num, 
+                                    notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                    class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
+                                    data: { action: "click->notifications#paginate" } %>
+                              <% end %>
+                              <span class="ellipsis">...</span>
+                              <%= link_to pagination_data[:total_pages], 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:total_pages]), 
+                                  class: "page-link",
+                                  data: { action: "click->notifications#paginate" } %>
+                            <% end %>
+                          <% end %>
+                        </div>
+
+                        <% if pagination_data[:current_page] < pagination_data[:total_pages] %>
+                          <%= link_to notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:current_page] + 1), 
+                              class: "page-link",
+                              data: { action: "click->notifications#paginate" } do %>
+                            Sonraki <i class="fas fa-chevron-right"></i>
+                          <% end %>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
             </div>
           </div>
         <% end %>
-      </div>
-    <% end %>
+      <% else %>
+        <div class="no-notifications">
+          <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <h3>Yeni Bildirim Yok</h3>
+            <p>Son 24 saat içinde bulunan yeni araç bulunmuyor.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>
 
 <style>
-.notifications-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background: #f8f9fa;
 }
 
-.tracked-item {
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-left h1 {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.header-left p {
+  color: #718096;
+}
+
+/* Notification Filters */
+.notification-filters {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  color: #4a5568;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.filter-btn.active {
+  background: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+/* Category and Brand Sections */
+.category-section, .brand-section {
   background: white;
   border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.item-main {
-  padding: 1.5rem;
+.brand-section {
+  margin: 0.5rem 1rem;
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
 }
 
-.item-details {
+.category-header, .brand-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.item-header {
-  flex: 1;
+.brand-header {
+  padding: 1rem;
+  background: #f8fafc;
 }
 
-.item-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
+.category-header:hover, .brand-header:hover {
+  background-color: #f7fafc;
 }
 
-.item-stats {
+.brand-header:hover {
+  background-color: #f1f5f9;
+}
+
+.category-info h2, .brand-info h3 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.category-info h2 {
+  font-size: 1.25rem;
+}
+
+.brand-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.category-stats, .brand-stats {
   display: flex;
   gap: 1.5rem;
-  margin-top: 0.5rem;
 }
 
 .stat {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #666;
+  color: #718096;
   font-size: 0.9rem;
 }
 
 .stat i {
-  color: #007bff;
-}
-
-.toggle-icon {
-  margin-left: 1rem;
-  transition: transform 0.3s;
-}
-
-.toggle-icon i {
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.scrape-results {
-  border-top: 1px solid #eee;
-  padding: 0;
-  display: none;
-}
-
-.scrape-results.open {
-  display: block;
-  padding: 1.5rem;
-}
-
-.notification-item {
-  background: #f8f9fa;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.notification-item:last-child {
-  margin-bottom: 0;
-}
-
-.notification-content {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.notification-image {
-  position: relative;
-  width: 200px;
-  height: 150px;
-  flex-shrink: 0;
-}
-
-.notification-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 0.5rem;
-}
-
-.new-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #28a745;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-}
-
-.notification-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.notification-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.notification-header h3 {
-  font-size: 1.1rem;
-  color: #333;
-  margin: 0;
-}
-
-.notification-time {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.car-specs {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.car-specs span {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #666;
-}
-
-.car-specs i {
-  color: #007bff;
-}
-
-.car-price {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.price {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #28a745;
-}
-
-.btn-view {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  text-decoration: none;
-  border-radius: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s;
-}
-
-.btn-view:hover {
-  background: #0056b3;
-}
-
-@media (max-width: 1024px) {
-  .notification-content {
-    flex-direction: column;
-  }
-  
-  .notification-image {
-    width: 100%;
-    height: 200px;
-  }
-  
-  .car-specs {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .car-price {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-}
-
-.sub-category {
-  background: #f8f9fa;
-  padding: 1rem;
-  margin: 1rem 0;
-  border-radius: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sub-category h4 {
-  margin: 0;
-  color: #333;
-  font-size: 1.1rem;
-}
-
-.sub-category-stats {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.sub-category + .notification-item {
-  margin-top: 1rem;
-}
-
-.source-group {
-  margin: 2rem;
-  background: white;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.source-group:first-child {
-  margin-top: 0;
-}
-
-.source-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f0f4f8;
-  border-bottom: 1px solid #e2e8f0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.source-header:hover {
-  background: #e5e9f0;
-}
-
-.source-icon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #007bff;
-  color: white;
-  border-radius: 50%;
-}
-
-.source-icon i {
-  font-size: 1rem;
-}
-
-.source-header h5 {
-  margin: 0;
-  font-size: 1rem;
-  color: #2d3748;
-  flex: 1;
-}
-
-.source-count {
-  font-size: 0.875rem;
-  color: #718096;
-  background: #edf2f7;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-}
-
-.source-group .notification-item:first-child {
-  margin-top: 1rem;
-}
-
-.source-group .notification-item:last-child {
-  margin-bottom: 1rem;
-}
-
-.source-content {
-  display: none;
-  padding: 0;
-}
-
-.source-content.open {
-  display: block;
-  padding: 1rem;
-}
-
-.tracking-group {
-  margin: 1rem;
-  background: #f8fafc;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.tracking-header {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: #edf2f7;
-  border-bottom: 1px solid #e2e8f0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.tracking-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.tracking-header:hover {
-  background: #e2e8f0;
-}
-
-.tracking-header h6 {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #4a5568;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tracking-header i {
-  font-size: 0.7rem;
-  color: #718096;
-}
-
-.tracking-header-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.tracking-count {
-  font-size: 0.8rem;
-  color: #718096;
-  background: #e2e8f0;
-  padding: 0.2rem 0.5rem;
-  border-radius: 1rem;
-}
-
-.tracking-content {
-  display: none;
-  padding: 0;
-}
-
-.tracking-content.open {
-  display: block;
-  padding: 1rem;
+  color: #4299e1;
 }
 
 .toggle-icon {
@@ -675,15 +369,183 @@
   transform: rotate(180deg);
 }
 
-.pagination {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: #f8f9fa;
+.category-content, .brand-content {
+  display: none;
+  border-top: 1px solid #e2e8f0;
+}
+
+.category-content.open, .brand-content.open {
+  display: block;
+}
+
+.brand-content {
+  background: white;
+}
+
+/* Notifications Grid */
+.notifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Notification Card */
+.notification-card {
+  background: white;
   border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-image {
+  position: relative;
+  height: 150px;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.new-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: #48bb78;
+  color: white;
+  padding: 0.15rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.source-badge {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.card-content {
+  padding: 0.75rem;
+}
+
+.card-content h3 {
+  font-size: 0.9rem;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.8em;
+}
+
+.car-specs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.car-specs span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #718096;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.car-specs i {
+  color: #4299e1;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.btn-view {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background: #3182ce;
+  color: white;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.btn-view:hover {
+  background: #2c5282;
+}
+
+/* Empty State */
+.no-notifications {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-state {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #a0aec0;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+  color: #718096;
+}
+
+/* Pagination */
+.pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  padding: 1.5rem;
   border-top: 1px solid #e2e8f0;
 }
 
@@ -693,118 +555,65 @@
 }
 
 .page-link {
-  padding: 0.4rem 0.8rem;
-  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: 0.375rem;
+  background: white;
+  border: 1px solid #e2e8f0;
   color: #4a5568;
   text-decoration: none;
   transition: all 0.2s;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
 }
 
 .page-link:hover {
-  background: #edf2f7;
+  background: #f7fafc;
   border-color: #cbd5e0;
 }
 
 .page-link.active {
-  background: #007bff;
+  background: #3182ce;
   color: white;
-  border-color: #007bff;
+  border-color: #3182ce;
 }
 
 .ellipsis {
-  color: #718096;
-  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  color: #a0aec0;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-  .pagination {
-    flex-wrap: wrap;
-    padding: 0.5rem;
+  .content-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
-  
-  .page-numbers {
-    order: 2;
+
+  .notification-filters {
     width: 100%;
-    justify-content: center;
-    margin-top: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
   }
-  
-  .page-link {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
+
+  .filter-btn {
+    white-space: nowrap;
   }
-}
 
-.scrape-results, .source-content, .tracking-content {
-  display: none;
-}
+  .notifications-grid {
+    grid-template-columns: 1fr;
+  }
 
-.scrape-results.open, .source-content.open, .tracking-content.open {
-  display: block;
-}
-
-/* Preserve scroll position */
-html {
-  scroll-behavior: smooth;
-}
-
-.notifications-list {
-  position: relative;
-}
-
-[data-turbo-preserve-scroll] {
-  scroll-behavior: auto;
+  .car-specs {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-<script>
-document.addEventListener('turbo:before-cache', () => {
-  const openAccordions = document.querySelectorAll('[data-accordion-target="content"].open');
-  openAccordions.forEach(accordion => {
-    const id = accordion.closest('[data-accordion-id]').dataset.accordionId;
-    sessionStorage.setItem(`accordion-${id}`, 'open');
-  });
-});
-
-document.addEventListener('turbo:load', () => {
-  const accordions = document.querySelectorAll('[data-accordion-id]');
-  accordions.forEach(accordion => {
-    const id = accordion.dataset.accordionId;
-    const state = sessionStorage.getItem(`accordion-${id}`);
-    if (state === 'open') {
-      const content = accordion.querySelector('[data-accordion-target="content"]');
-      const icon = accordion.querySelector('[data-accordion-target="icon"]');
-      if (content) {
-        content.classList.add('open');
-        content.style.display = 'block';
-      }
-      if (icon) icon.classList.add('open');
-    }
-  });
-});
-
-document.addEventListener('turbo:frame-load', (event) => {
-  if (event.target.id === 'notifications_content') {
-    const scrollPosition = sessionStorage.getItem('notifications_scroll');
-    if (scrollPosition) {
-      window.scrollTo(0, parseInt(scrollPosition));
-      sessionStorage.removeItem('notifications_scroll');
-    }
-  }
-});
-
-document.addEventListener('click', (event) => {
-  const link = event.target.closest('a[data-turbo-frame="notifications_content"]');
-  if (link) {
-    sessionStorage.setItem('notifications_scroll', window.scrollY);
-  }
-});
-</script>

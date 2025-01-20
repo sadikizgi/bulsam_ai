@@ -428,6 +428,10 @@
           <div class="feature-group">
             <h4>Renk</h4>
             <div class="color-options">
+              <label class="color-option">
+                <input type="checkbox" name="colors[]" value="Tüm Renkler">
+                <span class="color-name">Tüm Renkler</span>
+              </label>
               <% %w[Beyaz Siyah Gri Gümüş Kırmızı Mavi Yeşil Kahverengi Bej].each do |color| %>
                 <label class="color-option">
                   <input type="checkbox" name="colors[]" value="<%= color %>">
