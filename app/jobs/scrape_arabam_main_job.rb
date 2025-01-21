@@ -76,7 +76,7 @@ class ScrapeArabamMainJob < ApplicationJob
             sleep 2
             Rails.logger.info "Processing page #{paginate} of #{link}"
             
-            page_url = fetch_page(link, paginate, agent, proxy)
+            page_url = fetch_page(link, paginate, agent)
             while page_url.text.include? "Gizliliği\r\n"
               agent = @user_agent[rand(@user_agent.count)]
               proxy = @proxies[rand(@count)]
@@ -129,14 +129,13 @@ class ScrapeArabamMainJob < ApplicationJob
     end
   end
 
-  def fetch_page(link, paginate, agent, proxy)
+  def fetch_page(link, paginate, agent)
     url = paginate == 1 ? link : "#{link}?page=#{paginate}"
     url = normalize_uri(url).to_s unless url_valid?(url)
     
     doc = URI.open(url, 
       'User-Agent' => agent,
-      ssl_verify_mode: OpenSSL::SSL::VERIFY_NONE,
-      proxy_http_basic_authentication: proxy
+      ssl_verify_mode: 0
     )
     
     Nokogiri::HTML(doc.read, nil, "UTF-8")

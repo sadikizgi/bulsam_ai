@@ -21,7 +21,9 @@ export default class extends Controller {
   }
 
   toggle() {
-    if (this.isOpen()) {
+    const isOpen = this.isOpen()
+    
+    if (isOpen) {
       this.close()
       this.removeFromStorage()
     } else {
@@ -30,20 +32,98 @@ export default class extends Controller {
     }
   }
 
+  sort(event) {
+    const sortValue = event.target.value
+    const trackingId = event.target.dataset.trackingId
+    
+    console.log('Sorting:', { sortValue, trackingId })
+    
+    // AJAX isteği gönder
+    fetch(`/cars/${trackingId}/sort_scrapes?sort=${sortValue}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => {
+      console.log('Response status:', response.status)
+      return response.json()
+    })
+    .then(data => {
+      console.log('Received data:', data)
+      // Sıralanmış araçları göster
+      const resultsList = this.element.querySelector('.scrape-results .scrape-results-list')
+      if (!resultsList) {
+        console.error('Results list element not found in:', this.element)
+        return
+      }
+      resultsList.innerHTML = this.formatScrapes(data.scrapes)
+    })
+    .catch(error => {
+      console.error('Error:', error)
+    })
+  }
+
+  formatScrapes(scrapes) {
+    return scrapes.map(scrape => `
+      <div class="scraped-car ${scrape.is_new ? 'new-car' : ''}">
+        <div class="car-image">
+          <img src="${scrape.image_url}" alt="${scrape.title}">
+          ${scrape.is_new ? '<div class="new-badge">Yeni!</div>' : ''}
+        </div>
+        <div class="car-details">
+          <h5>${scrape.title}</h5>
+          <div class="car-specs">
+            <span><i class="fas fa-tachometer-alt"></i> ${this.formatNumber(scrape.km)} km</span>
+            <span><i class="fas fa-calendar"></i> ${scrape.year}</span>
+            <span><i class="fas fa-palette"></i> ${scrape.color}</span>
+            <span><i class="fas fa-map-marker-alt"></i> ${scrape.city}</span>
+          </div>
+          <div class="car-dates">
+            <span class="listing-date">
+              <i class="fas fa-calendar-alt"></i> İlan Tarihi: ${scrape.public_date}
+            </span>
+            <span class="added-date">
+              <i class="fas fa-clock"></i> Eklenme: ${scrape.created_at_ago} önce
+            </span>
+          </div>
+          <div class="car-price">
+            <span class="price">${this.formatCurrency(scrape.price)}</span>
+            <a href="${scrape.product_url}" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+          </div>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  formatNumber(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+  }
+
+  formatCurrency(price) {
+    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price)
+  }
+
   open() {
-    this.contentTarget.style.display = 'block'
-    this.contentTarget.classList.add('open')
-    this.iconTarget.classList.add('open')
+    this.contentTargets.forEach(target => {
+      target.style.display = 'block'
+    })
+    this.iconTargets.forEach(target => {
+      target.style.transform = 'rotate(180deg)'
+    })
   }
 
   close() {
-    this.contentTarget.style.display = 'none'
-    this.contentTarget.classList.remove('open')
-    this.iconTarget.classList.remove('open')
+    this.contentTargets.forEach(target => {
+      target.style.display = 'none'
+    })
+    this.iconTargets.forEach(target => {
+      target.style.transform = 'rotate(0deg)'
+    })
   }
 
   isOpen() {
-    return this.contentTarget.style.display === 'block'
+    return this.contentTargets[0].style.display === 'block'
   }
 
   getAccordionId() {
@@ -75,8 +155,9 @@ export default class extends Controller {
   }
 
   addToStorage() {
-    const openAccordions = this.getStoredAccordions()
     const accordionId = this.element.dataset.accordionId
+    const openAccordions = this.getStoredAccordions()
+    
     if (!openAccordions.includes(accordionId)) {
       openAccordions.push(accordionId)
       localStorage.setItem('openAccordions', JSON.stringify(openAccordions))
@@ -84,8 +165,9 @@ export default class extends Controller {
   }
 
   removeFromStorage() {
-    const openAccordions = this.getStoredAccordions()
     const accordionId = this.element.dataset.accordionId
+    const openAccordions = this.getStoredAccordions()
+    
     const index = openAccordions.indexOf(accordionId)
     if (index > -1) {
       openAccordions.splice(index, 1)

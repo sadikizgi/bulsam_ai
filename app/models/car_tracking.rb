@@ -55,11 +55,11 @@ class CarTracking < ApplicationRecord
       end
     end
     
-    base_query.order(created_at: :desc)
+    base_query
   end
 
   def recent_scrapes(page = 1)
-    filtered_scrapes.page(page).per(5)
+    filtered_scrapes.order(created_at: :desc).page(page).per(5)
   end
 
   private

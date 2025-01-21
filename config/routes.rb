@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     member do
       get 'features'
       put 'features', to: 'cars#update_features'
+      get 'sort_scrapes'
     end
   end
 end

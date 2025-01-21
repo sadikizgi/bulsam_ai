@@ -1,4 +1,6 @@
 class CarsController < ApplicationController
+  include ActionView::Helpers::DateHelper
+
   before_action :authenticate_user!
   before_action :set_tracking, only: [:destroy, :features, :update_features]
 
@@ -60,6 +62,50 @@ class CarsController < ApplicationController
     else
       render json: { errors: @feature.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def sort_scrapes
+    @car_tracking = CarTracking.find(params[:id])
+
+    @scrapes = case params[:sort]
+      when 'newest'
+        @car_tracking.filtered_scrapes.order(public_date: :desc)
+      when 'oldest'
+        @car_tracking.filtered_scrapes.order(public_date: :asc)
+      when 'price_asc'
+        @car_tracking.filtered_scrapes.order(price: :asc)
+      when 'price_desc'
+        @car_tracking.filtered_scrapes.order(price: :desc)
+      when 'km_asc'
+        @car_tracking.filtered_scrapes.order(km: :asc)
+      when 'km_desc'
+        @car_tracking.filtered_scrapes.order(km: :desc)
+      when 'year_desc'
+        @car_tracking.filtered_scrapes.order(year: :desc)
+      when 'year_asc'
+        @car_tracking.filtered_scrapes.order(year: :asc)
+      else
+        @car_tracking.filtered_scrapes.order(created_at: :desc)
+      end
+      
+      render json: {
+        scrapes: @scrapes.map { |scrape|
+          {
+            id: scrape.id,
+            title: scrape.title,
+            price: scrape.price,
+            km: scrape.km,
+            year: scrape.year,
+            color: scrape.color,
+            city: scrape.city,
+            image_url: scrape.image_url,
+            product_url: scrape.product_url,
+            public_date: I18n.l(scrape.public_date, format: :long),
+            created_at_ago: time_ago_in_words(scrape.created_at),
+            is_new: scrape.is_new
+          }
+        }
+      }
   end
 
   private
