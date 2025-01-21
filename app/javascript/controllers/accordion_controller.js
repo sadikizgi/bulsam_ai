@@ -97,11 +97,17 @@ export default class extends Controller {
   }
 
   formatNumber(number) {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+    // Sayıyı nokta ile formatlama (1234567 -> 1.234.567)
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
   formatCurrency(price) {
-    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price)
+    // Fiyatı formatlama (₺ işareti sonda)
+    const formattedPrice = new Intl.NumberFormat('tr-TR', { 
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+    return `${formattedPrice} ₺`;
   }
 
   open() {
