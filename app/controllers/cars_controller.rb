@@ -66,6 +66,7 @@ class CarsController < ApplicationController
 
   def sort_scrapes
     @car_tracking = CarTracking.find(params[:id])
+    page = params[:page] || 1
 
     @scrapes = case params[:sort]
       when 'newest'
@@ -86,26 +87,36 @@ class CarsController < ApplicationController
         @car_tracking.filtered_scrapes.order(year: :asc)
       else
         @car_tracking.filtered_scrapes.order(created_at: :desc)
-      end
+    end
+
+    @paginated_scrapes = @scrapes.page(page).per(5)
+    total_pages = (@scrapes.count.to_f / 5).ceil
       
-      render json: {
-        scrapes: @scrapes.map { |scrape|
-          {
-            id: scrape.id,
-            title: scrape.title,
-            price: scrape.price,
-            km: scrape.km,
-            year: scrape.year,
-            color: scrape.color,
-            city: scrape.city,
-            image_url: scrape.image_url,
-            product_url: scrape.product_url,
-            public_date: I18n.l(scrape.public_date, format: :long),
-            created_at_ago: time_ago_in_words(scrape.created_at),
-            is_new: scrape.is_new
-          }
+    render json: {
+      scrapes: @paginated_scrapes.map { |scrape|
+        {
+          id: scrape.id,
+          title: scrape.title,
+          price: scrape.price,
+          km: scrape.km,
+          year: scrape.year,
+          color: scrape.color,
+          city: scrape.city,
+          image_url: scrape.image_url,
+          product_url: scrape.product_url,
+          public_date: I18n.l(scrape.public_date, format: :long),
+          created_at_ago: time_ago_in_words(scrape.created_at),
+          is_new: scrape.is_new
         }
+      },
+      pagination: {
+        total_items: @scrapes.count,
+        current_page: page.to_i,
+        total_pages: total_pages,
+        has_previous: page.to_i > 1,
+        has_next: page.to_i < total_pages
       }
+    }
   end
 
   private

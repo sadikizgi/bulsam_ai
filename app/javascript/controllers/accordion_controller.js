@@ -35,29 +35,40 @@ export default class extends Controller {
   sort(event) {
     const sortValue = event.target.value
     const trackingId = event.target.dataset.trackingId
+    const page = 1 // İlk sayfa için
     
-    console.log('Sorting:', { sortValue, trackingId })
-    
-    // AJAX isteği gönder
-    fetch(`/cars/${trackingId}/sort_scrapes?sort=${sortValue}`, {
+    this.fetchSortedResults(sortValue, trackingId, page)
+  }
+
+  fetchSortedResults(sortValue, trackingId, page) {
+    fetch(`/cars/${trackingId}/sort_scrapes?sort=${sortValue}&page=${page}`, {
       headers: {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       }
     })
-    .then(response => {
-      console.log('Response status:', response.status)
-      return response.json()
-    })
+    .then(response => response.json())
     .then(data => {
-      console.log('Received data:', data)
-      // Sıralanmış araçları göster
       const resultsList = this.element.querySelector('.scrape-results .scrape-results-list')
       if (!resultsList) {
         console.error('Results list element not found in:', this.element)
         return
       }
-      resultsList.innerHTML = this.formatScrapes(data.scrapes)
+      
+      // Araç listesini güncelle
+      const carsHtml = this.formatScrapes(data.scrapes)
+      
+      // Pagination'ı oluştur
+      const paginationHtml = this.formatPagination(data.pagination, trackingId, sortValue)
+      
+      // Her ikisini de ekle
+      resultsList.innerHTML = carsHtml + paginationHtml
+      
+      // Pagination linklerine click event listener'ları ekle
+      this.setupPaginationListeners(resultsList, trackingId, sortValue)
+
+      // Accordion'un başına scroll yap
+      this.element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     })
     .catch(error => {
       console.error('Error:', error)
@@ -108,6 +119,64 @@ export default class extends Controller {
       maximumFractionDigits: 0
     }).format(price);
     return `${formattedPrice} ₺`;
+  }
+
+  formatPagination(pagination, trackingId, sortValue) {
+    if (pagination.total_items <= 5) return ''
+
+    let html = `
+      <div class="pagination">
+        <div class="pagination-info">
+          Toplam ${pagination.total_items} sonuç, 
+          Sayfa ${pagination.current_page} / ${pagination.total_pages}
+        </div>
+        <div class="pagination-links">`
+
+    // Önceki sayfa linki
+    if (pagination.has_previous) {
+      html += `
+        <a href="#" class="pagination-link" data-page="${pagination.current_page - 1}">
+          ← Önceki
+        </a>`
+    }
+
+    // Sayfa numaraları
+    for (let p = 1; p <= pagination.total_pages; p++) {
+      if (p <= 3 || p === pagination.total_pages || Math.abs(p - pagination.current_page) <= 1) {
+        if (p === pagination.current_page) {
+          html += `<span class="pagination-link active">${p}</span>`
+        } else {
+          html += `<a href="#" class="pagination-link" data-page="${p}">${p}</a>`
+        }
+      } else if (p === 4 && pagination.total_pages > 5) {
+        html += `<span class="pagination-ellipsis">...</span>`
+      }
+    }
+
+    // Sonraki sayfa linki
+    if (pagination.has_next) {
+      html += `
+        <a href="#" class="pagination-link" data-page="${pagination.current_page + 1}">
+          Sonraki →
+        </a>`
+    }
+
+    html += `
+        </div>
+      </div>`
+
+    return html
+  }
+
+  setupPaginationListeners(container, trackingId, sortValue) {
+    const links = container.querySelectorAll('.pagination-link[data-page]')
+    links.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault()
+        const page = e.target.dataset.page
+        this.fetchSortedResults(sortValue, trackingId, page)
+      })
+    })
   }
 
   open() {
