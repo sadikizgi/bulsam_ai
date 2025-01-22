@@ -180,17 +180,13 @@ class ScrapeArabamMainJob < ApplicationJob
       normalized_km = product[:km].gsub(".","").to_i
       normalized_price = product[:price].gsub(".","").to_i
       normalized_year = product[:year].to_i
-      
+      url = product[:link] 
       # Benzer araçları bul
       existing_scrape = CarScrape.find_by(
-        "LOWER(title) = ? AND year = ? AND km = ? AND LOWER(color) = ? AND LOWER(city) = ? AND price = ?",
-        product[:description].downcase,
-        normalized_year,
-        normalized_km,
-        product[:color].downcase,
-        product[:city].downcase,
-        normalized_price
+        "product_url = ?",
+        url
       )
+      
     end
     
     # Eğer araç bulunduysa ve aynı sprint'te değilse, yeni sprint'e kopyala
@@ -200,7 +196,13 @@ class ScrapeArabamMainJob < ApplicationJob
     else
       @scrap = existing_scrape || @sprint.car_scrapes.new
       # İlk tarama değilse ve yeni bir kayıtsa is_new true olsun
-      @scrap.is_new = !existing_scrape && !@sprint.car_tracking.sprints.one?
+      if !@sprint.car_tracking.sprints.one? 
+        @scrap.is_new = false
+      elsif @sprint.car_tracking.sprints.one? and !existing_scrape
+        @scrap.is_new = true
+      elsif !@sprint.car_tracking.sprints.one? and existing_scrape
+        @scrap.is_new = false
+      end
     end
     
     @scrap.assign_attributes(

@@ -78,9 +78,9 @@ export default class extends Controller {
   formatScrapes(scrapes) {
     return scrapes.map(scrape => `
       <div class="scraped-car ${scrape.is_new ? 'new-car' : ''}">
+        ${scrape.is_new ? '<div class="new-badge">Yeni!</div>' : ''}
         <div class="car-image">
           <img src="${scrape.image_url}" alt="${scrape.title}">
-          ${scrape.is_new ? '<div class="new-badge">Yeni!</div>' : ''}
         </div>
         <div class="car-details">
           <h5>${scrape.title}</h5>
