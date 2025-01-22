@@ -66,32 +66,34 @@ class CarsController < ApplicationController
 
   def sort_scrapes
     @car_tracking = CarTracking.find(params[:id])
-    page = params[:page] || 1
-
+    page = params[:page].to_i > 0 ? params[:page].to_i : 1
+  
     @scrapes = case params[:sort]
-      when 'newest'
-        @car_tracking.filtered_scrapes.order(public_date: :desc)
-      when 'oldest'
-        @car_tracking.filtered_scrapes.order(public_date: :asc)
-      when 'price_asc'
-        @car_tracking.filtered_scrapes.order(price: :asc)
-      when 'price_desc'
-        @car_tracking.filtered_scrapes.order(price: :desc)
-      when 'km_asc'
-        @car_tracking.filtered_scrapes.order(km: :asc)
-      when 'km_desc'
-        @car_tracking.filtered_scrapes.order(km: :desc)
-      when 'year_desc'
-        @car_tracking.filtered_scrapes.order(year: :desc)
-      when 'year_asc'
-        @car_tracking.filtered_scrapes.order(year: :asc)
-      else
-        @car_tracking.filtered_scrapes.order(created_at: :desc)
-    end
-
-    @paginated_scrapes = @scrapes.page(page).per(5)
+               when 'newest'
+                 @car_tracking.filtered_scrapes.order(public_date: :desc)
+               when 'oldest'
+                 @car_tracking.filtered_scrapes.order(public_date: :asc)
+               when 'price_asc'
+                 @car_tracking.filtered_scrapes.order(price: :asc)
+               when 'price_desc'
+                 @car_tracking.filtered_scrapes.order(price: :desc)
+               when 'km_asc'
+                 @car_tracking.filtered_scrapes.order(km: :asc)
+               when 'km_desc'
+                 @car_tracking.filtered_scrapes.order(km: :desc)
+               when 'year_desc'
+                 @car_tracking.filtered_scrapes.order(year: :desc)
+               when 'year_asc'
+                 @car_tracking.filtered_scrapes.order(year: :asc)
+               else
+                 @car_tracking.filtered_scrapes.order(created_at: :desc)
+               end
+  
+    @scrapes = @scrapes.distinct # Benzersiz kayıtları al
+    @paginated_scrapes = @scrapes.page(page).per(5) # Sayfalama uygula
+  
     total_pages = (@scrapes.count.to_f / 5).ceil
-      
+  
     render json: {
       scrapes: @paginated_scrapes.map { |scrape|
         {
@@ -111,10 +113,10 @@ class CarsController < ApplicationController
       },
       pagination: {
         total_items: @scrapes.count,
-        current_page: page.to_i,
+        current_page: page,
         total_pages: total_pages,
-        has_previous: page.to_i > 1,
-        has_next: page.to_i < total_pages
+        has_previous: page > 1,
+        has_next: page < total_pages
       }
     }
   end
