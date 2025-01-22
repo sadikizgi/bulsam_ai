@@ -4,7 +4,7 @@ class ScrapeCategoryJob < ApplicationJob
   def perform(frequency)
     # Belirtilen frekansa göre kategorileri bul
     trackings = CarTracking.joins(:car_tracking_feature)
-                          .where(car_tracking_features: { notification_frequency: frequency })
+                          .where(car_tracking_features: { notification_frequency: '30m' })
                           .distinct
 
     # Her tracking için scraping işlemini başlat

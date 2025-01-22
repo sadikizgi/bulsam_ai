@@ -130,7 +130,7 @@ class ScrapeArabamMainJob < ApplicationJob
   end
 
   def fetch_page(link, paginate, agent)
-    url = paginate == 1 ? link : "#{link}?page=#{paginate}"
+    url = paginate == 1 ? link : "#{link}?sort=startedAt.desc&page=#{paginate}"
     url = normalize_uri(url).to_s unless url_valid?(url)
     
     doc = URI.open(url, 
@@ -151,7 +151,18 @@ class ScrapeArabamMainJob < ApplicationJob
       km: item.css("td")[4].text.strip,
       color: item.css("td")[5].text.strip,
       price: item.css("td")[6].css(".listing-price").text.strip.split(" ")[0],
-      public_date: item.css("td")[7].text.strip.to_date,
+      public_date: item.css("td")[7].text.strip.gsub('Ocak', 'January')
+      .gsub('Şubat', 'February')
+      .gsub('Mart', 'March')
+      .gsub('Nisan', 'April')
+      .gsub('Mayıs', 'May')
+      .gsub('Haziran', 'June')
+      .gsub('Temmuz', 'July')
+      .gsub('Ağustos', 'August')
+      .gsub('Eylül', 'September')
+      .gsub('Ekim', 'October')
+      .gsub('Kasım', 'November')
+      .gsub('Aralık', 'December').to_date,
       city: item.css("td")[8].css(".fade-out-content-wrapper").text.strip.gsub(" ","").gsub("\r\n"," ")
     }
   rescue StandardError => e
