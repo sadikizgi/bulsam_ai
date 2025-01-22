@@ -4,7 +4,7 @@ class ScrapeCategoryJob < ApplicationJob
   def perform(frequency)
     # Belirtilen frekansa göre kategorileri bul
     trackings = CarTracking.joins(:car_tracking_feature)
-                          .where(car_tracking_features: { notification_frequency: '1h' })
+                          .where(car_tracking_features: { notification_frequency: frequency})
                           .distinct
 
     # Her tracking için scraping işlemini başlat
@@ -35,7 +35,6 @@ class ScrapeCategoryJob < ApplicationJob
       tracking.increment!(:total_scrape_count)
       tracking.increment!(:daily_scrape_count) if tracking.last_scrape_at&.today?
       tracking.update(last_scrape_at: Time.current)
-      
     end
   end
 end 
