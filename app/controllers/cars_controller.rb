@@ -94,8 +94,11 @@ class CarsController < ApplicationController
   
     total_pages = (@scrapes.count.to_f / 5).ceil
   
+    current_time = Time.current
     render json: {
       scrapes: @paginated_scrapes.map { |scrape|
+        hours_since_add = ((current_time - scrape.add_date) / 1.hour).round(2)
+        is_within_24_hours = hours_since_add <= 24
         {
           id: scrape.id,
           title: scrape.title,
@@ -108,7 +111,8 @@ class CarsController < ApplicationController
           product_url: scrape.product_url,
           public_date: I18n.l(scrape.public_date, format: :long),
           created_at_ago: time_ago_in_words(scrape.created_at),
-          is_new: scrape.is_new
+          is_new: is_within_24_hours && scrape.is_new,
+          add_date: scrape.add_date
         }
       },
       pagination: {

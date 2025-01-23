@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .car-list {
+        margin-bottom: 30px;
+      }
+      .car-item {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+      }
+      .car-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+      .car-details {
+        margin-bottom: 10px;
+      }
+      .car-price {
+        font-size: 20px;
+        color: #27ae60;
+        font-weight: bold;
+      }
+      .btn-view {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Yeni Araç Bildirimi</h1>
+        <p>Merhaba <%= @user.email %>,</p>
+        <% if @tracking&.brand_name.present? && @tracking&.model_name.present? %>
+          <p>Takip ettiğiniz <%= @tracking.brand_name %> <%= @tracking.model_name %> için yeni araçlar bulundu!</p>
+        <% else %>
+          <p>Takip ettiğiniz araç kategorisi için yeni araçlar bulundu!</p>
+        <% end %>
+      </div>
+
+      <div class="car-list">
+        <% @car_scrapes.each do |car| %>
+          <div class="car-item">
+            <div class="car-title"><%= car.title %></div>
+            <div class="car-details">
+              <p><strong>Kilometre:</strong> <%= number_with_delimiter(car.km) %> km</p>
+              <p><strong>Yıl:</strong> <%= car.year %></p>
+              <p><strong>Renk:</strong> <%= car.color %></p>
+              <p><strong>Şehir:</strong> <%= car.city %></p>
+              <p><strong>İlan Tarihi:</strong> <%= car.public_date %></p>
+            </div>
+            <div class="car-price">
+              <%= number_to_currency(car.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %>
+            </div>
+            <a href="<%= car.product_url %>" class="btn-view" target="_blank">İlana Git</a>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="footer">
+        <p>Bu e-posta Bulsam AI tarafından otomatik olarak gönderilmiştir.</p>
+        <p>Bildirim tercihlerinizi değiştirmek için web sitemizi ziyaret edin.</p>
+      </div>
+    </div>
+  </body>
+</html>

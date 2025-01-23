@@ -1,0 +1,24 @@
+Yeni Araç Bildirimi
+
+Merhaba <%= @user.email %>,
+
+<% if @tracking&.brand_name.present? && @tracking&.model_name.present? %>
+Takip ettiğiniz <%= @tracking.brand_name %> <%= @tracking.model_name %> için yeni araçlar bulundu!
+<% else %>
+Takip ettiğiniz araç kategorisi için yeni araçlar bulundu!
+<% end %>
+
+<% @car_scrapes.each do |car| %>
+* <%= car.title %>
+  Kilometre: <%= number_with_delimiter(car.km) %> km
+  Yıl: <%= car.year %>
+  Renk: <%= car.color %>
+  Şehir: <%= car.city %>
+  İlan Tarihi: <%= car.public_date %>
+  Fiyat: <%= number_to_currency(car.price, unit: "₺", format: "%n %u", delimiter: ".", precision: 0) %>
+  İlan Linki: <%= car.product_url %>
+
+<% end %>
+
+Bu e-posta Bulsam AI tarafından otomatik olarak gönderilmiştir.
+Bildirim tercihlerinizi değiştirmek için web sitemizi ziyaret edin.

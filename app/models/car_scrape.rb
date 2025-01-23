@@ -1,5 +1,6 @@
 class CarScrape < ApplicationRecord
   belongs_to :sprint
+  belongs_to :car_tracking, optional: true
   
   has_many :images, class_name: 'ScrapImage', as: :scrape, dependent: :destroy
   

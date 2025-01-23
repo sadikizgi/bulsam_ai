@@ -19,6 +19,20 @@
 
 # Learn more: http://github.com/javan/whenever
 
+set :output, "log/cron_log.log"
+
 every 1.hour do
+  runner "ScrapeArabamMainJob.perform_later"
+end
+
+every 30.minutes do
   runner "ManageNewCarScrapesJob.perform_later"
+end
+
+every 15.minutes do
+  runner "UpdateCarScrapesJob.perform_later"
+end
+
+every 10.minutes do
+  runner "SendNewCarNotificationsJob.perform_later"
 end 

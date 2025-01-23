@@ -120,35 +120,47 @@ export default class extends Controller {
   }
 
   formatScrapes(scrapes) {
-    return scrapes.map(scrape => `
-      <div class="scraped-car ${scrape.is_new ? 'new-car' : ''}">
-        ${scrape.is_new ? '<div class="new-badge">Yeni!</div>' : ''}
-        <div class="car-image">
-          <img src="${scrape.image_url}" alt="${scrape.title}">
+    return scrapes.map(scrape => {
+      // Eğer is_new false ise (24 saat geçmiş veya yeni değil), badge gösterme
+      let badgeHtml = '';
+      
+      if (scrape.is_new) {
+        const publicDate = new Date(scrape.public_date);
+        const addDate = new Date(scrape.add_date);
+        const isSameDay = publicDate.toDateString() === addDate.toDateString();
+        badgeHtml = `<div class="new-badge ${isSameDay ? '' : 'republished'}">${isSameDay ? 'Yeni!' : 'Yeniden Yayında!'}</div>`;
+      }
+
+      return `
+        <div class="scraped-car ${scrape.is_new ? 'new-car' : ''}">
+          <div class="car-image">
+            <img src="${scrape.image_url}" alt="${scrape.title}">
+            ${badgeHtml}
+          </div>
+          <div class="car-details">
+            <h5>${scrape.title}</h5>
+            <div class="car-specs">
+              <span><i class="fas fa-tachometer-alt"></i> ${this.formatNumber(scrape.km)} km</span>
+              <span><i class="fas fa-calendar"></i> ${scrape.year}</span>
+              <span><i class="fas fa-palette"></i> ${scrape.color}</span>
+              <span><i class="fas fa-map-marker-alt"></i> ${scrape.city}</span>
+            </div>
+            <div class="car-dates">
+              <span class="listing-date">
+                <i class="fas fa-calendar-alt"></i> İlan Tarihi: ${scrape.public_date}
+              </span>
+              <span class="added-date">
+                <i class="fas fa-clock"></i> Eklenme: ${scrape.created_at_ago} önce
+              </span>
+            </div>
+            <div class="car-price">
+              <span class="price">${this.formatCurrency(scrape.price)}</span>
+              <a href="${scrape.product_url}" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
+            </div>
+          </div>
         </div>
-        <div class="car-details">
-          <h5>${scrape.title}</h5>
-          <div class="car-specs">
-            <span><i class="fas fa-tachometer-alt"></i> ${this.formatNumber(scrape.km)} km</span>
-            <span><i class="fas fa-calendar"></i> ${scrape.year}</span>
-            <span><i class="fas fa-palette"></i> ${scrape.color}</span>
-            <span><i class="fas fa-map-marker-alt"></i> ${scrape.city}</span>
-          </div>
-          <div class="car-dates">
-            <span class="listing-date">
-              <i class="fas fa-calendar-alt"></i> İlan Tarihi: ${scrape.public_date}
-            </span>
-            <span class="added-date">
-              <i class="fas fa-clock"></i> Eklenme: ${scrape.created_at_ago} önce
-            </span>
-          </div>
-          <div class="car-price">
-            <span class="price">${this.formatCurrency(scrape.price)}</span>
-            <a href="${scrape.product_url}" class="btn-view" target="_blank">İlana Git <i class="fas fa-external-link-alt"></i></a>
-          </div>
-        </div>
-      </div>
-    `).join('')
+      `;
+    }).join('');
   }
 
   formatNumber(number) {

@@ -177,7 +177,11 @@
                     <div class="car-image">
                       <img src="<%= scrape.image_url %>" alt="<%= scrape.title %>">
                       <% if scrape.is_new %>
-                        <div class="new-badge">Yeni!</div>
+                        <% if scrape.public_date.to_date == scrape.add_date.to_date %>
+                          <div class="new-badge">Yeni!</div>
+                        <% else %>
+                          <div class="new-badge republished">Yeniden Yayında!</div>
+                        <% end %>
                       <% end %>
                     </div>
                     <div class="car-details">
@@ -1411,16 +1415,18 @@
 
 .new-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #28a745;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: #48bb78;
   color: white;
-  padding: 0.25rem 0.75rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: bold;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.new-badge.republished {
+  background: #4299e1;
 }
 
 .active-filters-summary {

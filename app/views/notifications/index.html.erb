@@ -84,7 +84,7 @@
 
             <div class="category-content" data-accordion-target="content">
               <% @notifications_by_parent_category[parent_category].each do |brand_name, brand_cars| %>
-                <div class="brand-section" data-controller="accordion" data-accordion-id="brand-<%= parent_category.id %>-<%= brand_name %>">
+                <div class="brand-section" data-controller="accordion" data-accordion-id="brand-<%= parent_category.id %>-<%= brand_name.parameterize %>">
                   <div class="brand-header" data-action="click->accordion#toggle">
                     <div class="brand-info">
                       <h3><%= brand_name %></h3>
@@ -107,7 +107,11 @@
                         <div class="notification-card">
                           <div class="card-image">
                             <img src="<%= car.image_url %>" alt="<%= car.title %>">
-                            <div class="new-badge">Yeni!</div>
+                            <% if car.public_date.to_date == car.add_date.to_date %>
+                              <div class="new-badge">Yeni!</div>
+                            <% else %>
+                              <div class="new-badge republished">Yeniden Yayında!</div>
+                            <% end %>
                             <div class="source-badge">
                               <% case extract_source_from_url(car.product_url) %>
                               <% when 'Arabam.com' %>
@@ -147,7 +151,7 @@
                     <% if pagination_data[:total_pages] > 1 %>
                       <div class="pagination">
                         <% if pagination_data[:current_page] > 1 %>
-                          <%= link_to notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:current_page] - 1), 
+                          <%= link_to notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => pagination_data[:current_page] - 1), 
                               class: "page-link",
                               data: { action: "click->notifications#paginate" } do %>
                             <i class="fas fa-chevron-left"></i> Önceki
@@ -158,7 +162,7 @@
                           <% if pagination_data[:total_pages] <= 5 %>
                             <% (1..pagination_data[:total_pages]).each do |page_num| %>
                               <%= link_to page_num, 
-                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => page_num), 
                                   class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
                                   data: { action: "click->notifications#paginate" } %>
                             <% end %>
@@ -166,42 +170,42 @@
                             <% if pagination_data[:current_page] <= 3 %>
                               <% (1..3).each do |page_num| %>
                                 <%= link_to page_num, 
-                                    notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                    notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => page_num), 
                                     class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
                                     data: { action: "click->notifications#paginate" } %>
                               <% end %>
                               <span class="ellipsis">...</span>
                               <%= link_to pagination_data[:total_pages], 
-                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:total_pages]), 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => pagination_data[:total_pages]), 
                                   class: "page-link",
                                   data: { action: "click->notifications#paginate" } %>
                             <% elsif pagination_data[:current_page] >= pagination_data[:total_pages] - 2 %>
                               <%= link_to 1, 
-                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => 1), 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => 1), 
                                   class: "page-link",
                                   data: { action: "click->notifications#paginate" } %>
                               <span class="ellipsis">...</span>
                               <% ((pagination_data[:total_pages]-2)..pagination_data[:total_pages]).each do |page_num| %>
                                 <%= link_to page_num, 
-                                    notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                    notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => page_num), 
                                     class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
                                     data: { action: "click->notifications#paginate" } %>
                               <% end %>
                             <% else %>
                               <%= link_to 1, 
-                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => 1), 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => 1), 
                                   class: "page-link",
                                   data: { action: "click->notifications#paginate" } %>
                               <span class="ellipsis">...</span>
                               <% (pagination_data[:current_page]-1..pagination_data[:current_page]+1).each do |page_num| %>
                                 <%= link_to page_num, 
-                                    notifications_path("page_#{parent_category.id}_#{brand_name}" => page_num), 
+                                    notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => page_num), 
                                     class: "page-link #{pagination_data[:current_page] == page_num ? 'active' : ''}",
                                     data: { action: "click->notifications#paginate" } %>
                               <% end %>
                               <span class="ellipsis">...</span>
                               <%= link_to pagination_data[:total_pages], 
-                                  notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:total_pages]), 
+                                  notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => pagination_data[:total_pages]), 
                                   class: "page-link",
                                   data: { action: "click->notifications#paginate" } %>
                             <% end %>
@@ -209,7 +213,7 @@
                         </div>
 
                         <% if pagination_data[:current_page] < pagination_data[:total_pages] %>
-                          <%= link_to notifications_path("page_#{parent_category.id}_#{brand_name}" => pagination_data[:current_page] + 1), 
+                          <%= link_to notifications_path("page_#{parent_category.id}_#{brand_name.parameterize}" => pagination_data[:current_page] + 1), 
                               class: "page-link",
                               data: { action: "click->notifications#paginate" } do %>
                             Sonraki <i class="fas fa-chevron-right"></i>
@@ -425,6 +429,10 @@
   border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+.new-badge.republished {
+  background: #4299e1;
 }
 
 .source-badge {

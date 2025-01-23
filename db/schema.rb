@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_20_095811) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_23_160654) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_20_095811) do
     t.boolean "is_new", default: false
     t.boolean "notification_sent", default: false
     t.datetime "notification_sent_at"
+    t.boolean "mail_sent", default: false
+    t.datetime "mail_sent_at"
+    t.index ["mail_sent"], name: "index_car_scrapes_on_mail_sent"
     t.index ["notification_sent"], name: "index_car_scrapes_on_notification_sent"
     t.index ["notification_sent_at"], name: "index_car_scrapes_on_notification_sent_at"
     t.index ["sprint_id"], name: "index_car_scrapes_on_sprint_id"
