@@ -145,7 +145,7 @@ export default class extends Controller {
   }
 
   updateTrackButton() {
-    const canTrack = this.currentStep >= 3 && 
+    const canTrack = this.currentStep >= 4 && 
                     this.selections.websites.length > 0 && 
                     this.selections.cities.length > 0 && 
                     this.selections.type;
