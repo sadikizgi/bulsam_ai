@@ -4,20 +4,64 @@ export default class extends Controller {
   static targets = ["content", "icon"]
 
   connect() {
-    // Reset all accordions when entering notifications page
-    if (window.location.pathname === '/notifications') {
-      localStorage.removeItem('openAccordions')
-      this.close()
-    } else {
-      const accordionId = this.getAccordionId()
-      const openAccordions = this.getStoredAccordions()
-      
+    const currentPath = window.location.pathname;
+  
+    // Mevcut açık accordion ID'lerini al
+    const openAccordions = this.getStoredAccordions();
+    const accordionId = this.getAccordionId();
+  
+    if (currentPath === '/notifications') {
+      // Bildirimler sayfasında, accordion durumunu kontrol et
       if (openAccordions.includes(accordionId)) {
-        this.open()
+        this.open(); // Eğer zaten açıksa açık bırak
       } else {
-        this.close()
+        this.close(); // Kapalı değilse kapat
+      }
+    } else {
+      // Diğer sayfalarda da aynı kontrol geçerli
+      if (openAccordions.includes(accordionId)) {
+        this.open(); // Eğer açık durumdaysa açık bırak
+      } else {
+        this.close(); // Kapalı durumdaysa kapalı bırak
       }
     }
+  }
+  
+  getStoredAccordions() {
+    // localStorage'dan açık accordion'ları al
+    return JSON.parse(localStorage.getItem('openAccordions') || '[]');
+  }
+  
+  storeAccordion(accordionId) {
+    // localStorage'da accordion ID'sini sakla
+    const openAccordions = this.getStoredAccordions();
+    if (!openAccordions.includes(accordionId)) {
+      openAccordions.push(accordionId);
+      localStorage.setItem('openAccordions', JSON.stringify(openAccordions));
+    }
+  }
+  
+  removeAccordion(accordionId) {
+    // localStorage'dan accordion ID'sini kaldır
+    const openAccordions = this.getStoredAccordions().filter(id => id !== accordionId);
+    localStorage.setItem('openAccordions', JSON.stringify(openAccordions));
+  }
+  
+  open() {
+    // Accordion'u aç
+    this.element.classList.add('is-open');
+    this.storeAccordion(this.getAccordionId()); // Açık durumunu kaydet
+  }
+  
+  close() {
+    // Accordion'u kapat
+    this.element.classList.remove('is-open');
+    this.removeAccordion(this.getAccordionId()); // Kapalı durumunu kaydet
+  }
+  
+  getAccordionId() {
+    // Her accordion'a özel bir ID döndür (örneğin data-attribute)
+    return this.element.getAttribute('data-accordion-id');
   }
 
   toggle() {
