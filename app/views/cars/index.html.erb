@@ -177,10 +177,10 @@
                     <div class="car-image">
                       <img src="<%= scrape.image_url %>" alt="<%= scrape.title %>">
                       <% if scrape.is_new %>
-                        <% if scrape.public_date.to_date == scrape.add_date.to_date %>
-                          <div class="new-badge">Yeni!</div>
-                        <% else %>
+                        <% if scrape.is_replay %>
                           <div class="new-badge republished">Yeniden Yayında!</div>
+                        <% else %>
+                          <div class="new-badge">Yeni!</div>
                         <% end %>
                       <% end %>
                     </div>

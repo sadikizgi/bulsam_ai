@@ -29,10 +29,11 @@ every 30.minutes do
   runner "ManageNewCarScrapesJob.perform_later"
 end
 
-every 15.minutes do
-  runner "UpdateCarScrapesJob.perform_later"
-end
-
 every 10.minutes do
   runner "SendNewCarNotificationsJob.perform_later"
+end
+
+# Her saat başı araç durumlarını güncelle
+every 1.hour do
+  runner "UpdateCarScrapeStatusesJob.perform_later"
 end 

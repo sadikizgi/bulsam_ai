@@ -107,10 +107,12 @@
                         <div class="notification-card">
                           <div class="card-image">
                             <img src="<%= car.image_url %>" alt="<%= car.title %>">
-                            <% if car.public_date.to_date == car.add_date.to_date %>
-                              <div class="new-badge">Yeni!</div>
-                            <% else %>
-                              <div class="new-badge republished">Yeniden Yayında!</div>
+                            <% if car.is_new %>
+                              <% if car.is_replay %>
+                                <div class="new-badge republished">Yeniden Yayında!</div>
+                              <% else %>
+                                <div class="new-badge">Yeni!</div>
+                              <% end %>
                             <% end %>
                             <div class="source-badge">
                               <% case extract_source_from_url(car.product_url) %>

@@ -9,10 +9,19 @@ class CarScrape < ApplicationRecord
   validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   
   before_save :set_add_date
+  before_save :check_new_status
   
   private
   
   def set_add_date
     self.add_date ||= Time.current
+  end
+
+  def check_new_status
+    # Eğer public_date'den itibaren 24 saatten fazla zaman geçmişse is_new'i false yap
+    if public_date.present? && public_date < 24.hours.ago
+      self.is_new = false
+      self.is_replay = false
+    end
   end
 end

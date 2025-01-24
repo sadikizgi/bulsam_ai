@@ -121,14 +121,13 @@ export default class extends Controller {
 
   formatScrapes(scrapes) {
     return scrapes.map(scrape => {
-      // Eğer is_new false ise (24 saat geçmiş veya yeni değil), badge gösterme
       let badgeHtml = '';
-      
       if (scrape.is_new) {
-        const publicDate = new Date(scrape.public_date);
-        const addDate = new Date(scrape.add_date);
-        const isSameDay = publicDate.toDateString() === addDate.toDateString();
-        badgeHtml = `<div class="new-badge ${isSameDay ? '' : 'republished'}">${isSameDay ? 'Yeni!' : 'Yeniden Yayında!'}</div>`;
+        if (scrape.is_replay) {
+          badgeHtml = '<div class="new-badge republished">Yeniden Yayında!</div>';
+        } else {
+          badgeHtml = '<div class="new-badge">Yeni!</div>';
+        }
       }
 
       return `

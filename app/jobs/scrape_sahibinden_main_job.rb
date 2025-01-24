@@ -242,8 +242,15 @@ class ScrapeSahibindenMainJob < ApplicationJob
     # Eğer hala bulunamadıysa yeni kayıt oluştur
     car ||= @sprint.car_scrapes.new
     
-    # İlk tarama değilse ve yeni bir kayıtsa is_new true olsun
-    car.is_new = !car.persisted? && !@sprint.car_tracking.sprints.one?
+    # Yeni kayıt veya yeniden yayınlanma durumunu kontrol et
+    car.is_new = if car.persisted?
+      # Eğer araç daha önce kaydedilmişse ve yeni bir public_date ile geldiyse
+      reference_date = car.add_date || car.created_at
+      data[:date_posted].to_date != reference_date.to_date
+    else
+      # Yeni kayıt ise her zaman true
+      true
+    end
     
     car.update!(
       title: data[:title],
@@ -267,5 +274,29 @@ class ScrapeSahibindenMainJob < ApplicationJob
       details_url: data[:details_url],
       image_url: data[:image_url]
     )
+  end
+
+  def process_car(car_data, sprint)
+    existing_car = CarScrape.find_by(product_url: car_data[:product_url])
+    
+    if existing_car
+      # Car exists but was republished
+      if existing_car.public_date.to_date != car_data[:public_date].to_date
+        existing_car.update(
+          is_new: true,
+          is_replay: true,
+          public_date: car_data[:public_date]
+        )
+      end
+    else
+      # New car
+      CarScrape.create!(
+        car_data.merge(
+          sprint: sprint,
+          is_new: true,
+          is_replay: false
+        )
+      )
+    end
   end
 end

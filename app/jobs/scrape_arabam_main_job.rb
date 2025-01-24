@@ -186,38 +186,40 @@ class ScrapeArabamMainJob < ApplicationJob
         "product_url = ?",
         url
       )
-      
     end
     
-    # Eğer araç bulunduysa ve aynı sprint'te değilse, yeni sprint'e kopyala
-    if existing_scrape && existing_scrape.sprint_id != @sprint.id
-      @scrap = @sprint.car_scrapes.new(existing_scrape.attributes.except('id', 'created_at', 'updated_at', 'sprint_id'))
-      @scrap.is_new = false
-    else
-      @scrap = existing_scrape || @sprint.car_scrapes.new
-      # İlk tarama değilse ve yeni bir kayıtsa is_new true olsun
-      if !@sprint.car_tracking.sprints.one? 
-        @scrap.is_new = false
-      elsif @sprint.car_tracking.sprints.one? and !existing_scrape
-        @scrap.is_new = true
-      elsif !@sprint.car_tracking.sprints.one? and existing_scrape
-        @scrap.is_new = false
+    if existing_scrape
+      # Araç varsa ve yeniden yayınlanmışsa
+      if existing_scrape.public_date.to_date != product[:public_date].to_date
+        existing_scrape.update(
+          is_new: true,
+          is_replay: true,
+          public_date: product[:public_date],
+          price: product[:price].gsub(".","").to_i,
+          km: product[:km].gsub(".","").to_i,
+          year: product[:year],
+          color: product[:color],
+          city: product[:city],
+          image_url: product[:img],
+          title: product[:description]
+        )
       end
+    else
+      # Yeni araç
+      @sprint.car_scrapes.create!(
+        title: product[:description],
+        price: product[:price].gsub(".","").to_i,
+        km: product[:km].gsub(".","").to_i,
+        year: product[:year],
+        color: product[:color],
+        city: product[:city],
+        image_url: product[:img],
+        product_url: product[:link],
+        public_date: product[:public_date],
+        is_new: true,
+        is_replay: false
+      )
     end
-    
-    @scrap.assign_attributes(
-      title: product[:description],
-      price: product[:price].gsub(".","").to_i,
-      km: product[:km].gsub(".","").to_i,
-      year: product[:year],
-      color: product[:color],
-      city: product[:city],
-      image_url: product[:img],
-      product_url: product[:link],
-      public_date: product[:public_date]
-    )
-    
-    @scrap.save!
   end
 
   def create_issue(error_message, url, agent = nil, proxy = nil)

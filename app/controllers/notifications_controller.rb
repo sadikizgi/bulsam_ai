@@ -6,15 +6,46 @@ class NotificationsController < ApplicationController
     @per_page = 5
 
     # Get all notifications within selected time frame
-    @all_notifications = CarScrape.joins(:sprint)
-                          .joins('INNER JOIN car_trackings ON car_trackings.id = sprints.car_tracking_id')
-                          .joins('INNER JOIN categories ON car_trackings.category_id = categories.id')
-                          .joins('LEFT JOIN categories parent_categories ON categories.parent_id = parent_categories.id')
-                          .where(is_new: true)
-                          .where('car_scrapes.created_at > ?', time_filter_to_duration)
-                          .order(created_at: :desc)
-                          .includes(sprint: { car_tracking: [:category, :brand, { category: :parent }] })
-                          .distinct
+    base_query = CarScrape.joins(:sprint)
+                         .joins('INNER JOIN car_trackings ON car_trackings.id = sprints.car_tracking_id')
+                         .joins('INNER JOIN categories ON car_trackings.category_id = categories.id')
+                         .joins('LEFT JOIN categories parent_categories ON categories.parent_id = parent_categories.id')
+                         .joins('LEFT JOIN car_tracking_features ON car_tracking_features.car_tracking_id = car_trackings.id')
+                         .where(is_new: true)
+                         .where('DATE(car_scrapes.public_date) >= ?', time_filter_to_duration.to_date)
+                         .order(public_date: :desc)
+                         .includes(sprint: { car_tracking: [:category, :brand, { category: :parent }] })
+
+    # Apply tracking filters
+    @all_notifications = base_query.where(<<-SQL)
+      (
+        car_tracking_features.id IS NULL
+        OR
+        (
+          (car_tracking_features.year_min IS NULL OR car_scrapes.year >= car_tracking_features.year_min)
+          AND
+          (car_tracking_features.year_max IS NULL OR car_scrapes.year <= car_tracking_features.year_max)
+          AND
+          (car_tracking_features.kilometer_min IS NULL OR car_scrapes.km >= car_tracking_features.kilometer_min)
+          AND
+          (car_tracking_features.kilometer_max IS NULL OR car_scrapes.km <= car_tracking_features.kilometer_max)
+          AND
+          (car_tracking_features.price_min IS NULL OR car_scrapes.price >= car_tracking_features.price_min)
+          AND
+          (car_tracking_features.price_max IS NULL OR car_scrapes.price <= car_tracking_features.price_max)
+          AND
+          (
+            car_tracking_features.colors IS NULL
+            OR car_tracking_features.colors = '--- []\n'
+            OR car_tracking_features.colors LIKE '%Tüm Renkler%'
+            OR LOWER(car_scrapes.color) IN (
+              SELECT LOWER(REGEXP_REPLACE(UNNEST(string_to_array(REGEXP_REPLACE(car_tracking_features.colors, '[\[\]"]', '', 'g'), ',')),' ', ''))
+            )
+          )
+        )
+      )
+    SQL
+    .distinct
 
     # Group all notifications by parent category
     @notifications_by_parent_category = {}
