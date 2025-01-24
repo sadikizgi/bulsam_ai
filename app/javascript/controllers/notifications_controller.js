@@ -11,6 +11,9 @@ export default class extends Controller {
     if (openAccordions.length > 0) {
       this.restoreOpenAccordions(openAccordions)
     }
+
+    // Sayfa yüklendiğinde URL'deki parametreleri kontrol et
+    this.checkUrlAndScroll();
   }
 
   paginate(event) {
@@ -61,5 +64,35 @@ export default class extends Controller {
   getStoredAccordions() {
     const stored = localStorage.getItem('openAccordions')
     return stored ? JSON.parse(stored) : []
+  }
+
+  checkUrlAndScroll() {
+    // Tüm pagination linklerini bul
+    const paginationLinks = document.querySelectorAll('.pagination-link');
+    
+    // Her linke click event listener ekle
+    paginationLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        // Link'in data-accordion-id değerini al
+        const accordionId = link.dataset.accordionId;
+        if (accordionId) {
+          // Local storage'a kaydet
+          localStorage.setItem('lastAccordionId', accordionId);
+        }
+      });
+    });
+
+    // Eğer local storage'da accordion ID varsa, o elemana scroll yap
+    const lastAccordionId = localStorage.getItem('lastAccordionId');
+    if (lastAccordionId) {
+      const accordion = document.querySelector(`[data-accordion-id="${lastAccordionId}"]`);
+      if (accordion) {
+        setTimeout(() => {
+          accordion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Scroll tamamlandıktan sonra local storage'ı temizle
+          localStorage.removeItem('lastAccordionId');
+        }, 100);
+      }
+    }
   }
 } 
