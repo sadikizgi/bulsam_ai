@@ -14,18 +14,31 @@
   </head>
 
   <body>
-    <div data-controller="nav">
+    <div class="app-wrapper" data-controller="nav">
       <nav class="navbar">
-        <div class="container">
+        <div class="navbar-content">
           <div class="navbar-left">
             <%= link_to root_path, class: "navbar-brand" do %>
               <i class="fas fa-car"></i>
               <span>Bulsam AI</span>
             <% end %>
+            
+            <div class="search-container">
+              <i class="fas fa-search search-icon"></i>
+              <input type="text" placeholder="Ara..." class="search-input">
+            </div>
           </div>
           
-          <div class="nav-links">
+          <div class="navbar-right">
+            <div class="notifications">
+              <i class="fas fa-bell"></i>
+            </div>
+            
             <% if user_signed_in? %>
+              <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=<%= current_user.email.split('@').first %>&background=random" alt="Profile" class="avatar">
+                <span class="user-name"><%= current_user.email.split('@').first %></span>
+              </div>
               <%= link_to "Çıkış Yap", destroy_user_session_path, 
                   data: { turbo_method: :delete }, 
                   class: "nav-link" %>
@@ -41,8 +54,8 @@
         <aside class="nav-sidebar" data-nav-target="sidebar">
           <div class="nav-menu">
             <%= link_to root_path, class: "nav-item #{current_page?(root_path) ? 'active' : ''}" do %>
-              <i class="fas fa-home"></i>
-              <span>Ana Sayfa</span>
+              <i class="fas fa-chart-pie"></i>
+              <span>Genel Bakış</span>
             <% end %>
             
             <%= link_to cars_path, class: "nav-item #{current_page?(cars_path) ? 'active' : ''}" do %>
@@ -54,11 +67,28 @@
               <i class="fas fa-bell"></i>
               <span>Bildirimler</span>
             <% end %>
+
+            <%= link_to "#", class: "nav-item" do %>
+              <i class="fas fa-map-marker-alt"></i>
+              <span>Harita</span>
+            <% end %>
             
             <%= link_to settings_path, class: "nav-item #{current_page?(settings_path) ? 'active' : ''}" do %>
               <i class="fas fa-cog"></i>
               <span>Ayarlar</span>
             <% end %>
+          </div>
+
+          <div class="nav-footer">
+            <div class="get-app">
+              <div class="app-icon">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <div class="app-text">
+                <h4>Mobil Uygulama</h4>
+                <p>Hemen İndir</p>
+              </div>
+            </div>
           </div>
         </aside>
       <% end %>
