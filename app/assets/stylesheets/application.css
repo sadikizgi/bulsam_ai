@@ -15,61 +15,119 @@ body {
 }
 
 /* Navbar */
-/* Navbar Styles - Yeni */
 .navbar {
-  background-color: #ffffff;
-  padding: 15px 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
+  background-color: #114856;
+  padding: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+  height: 56px;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 1.5rem;
 }
 
 .navbar-brand {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 1rem;
 }
 
 .nav-link {
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
   transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
 .nav-link:hover {
-  background-color: #f8f9fa;
-  color: #3182ce;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
-/* Responsive navbar */
-@media (max-width: 768px) {
-  .navbar .container {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .nav-links {
-    flex-direction: column;
-    width: 100%;
-    text-align: center;
-  }
+/* Navigation Sidebar */
+.nav-sidebar {
+  width: 240px;
+  background: #114856;
+  color: white;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  top: 56px;
+  left: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 500;
+}
+
+.nav-item i {
+  width: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 1.25rem;
+  margin-left: 140px;
+  margin-top: 20px;
+  width: calc(100% - 240px);
+  min-height: calc(100vh - 56px);
 }
 
 /* Ana Sayfa Hero Bölümü */
@@ -141,194 +199,178 @@ body {
   border-top: 1px solid #e5e5e5;
 }
 
-  
-  /* Genel Ayarlar */
-body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f9f9f9;
-    color: #333;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
-  /* Kayıt Sayfası Düzeni */
-  .devise-container {
-    max-width: 500px;
-    margin: 4rem auto;
-    padding: 4rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .devise-container h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    color: #333;
-  }
-  
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #555;
-  }
-  
-  .form-group .form-control {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .actions {
-    margin-top: 2rem;
-  }
-  
-  .actions .btn {
-    width: 100%;
-    padding: 1rem;
-    background-color: #42a5f5;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .actions .btn:hover {
-    background-color: #90caf9;
-  }
-  
-  /* Bağlantılar */
-  .devise-container a {
-    display: block;
-    text-align: center;
-    margin-top: 1rem;
-    color: #42a5f5;
-    text-decoration: none;
-  }
-  
-  .devise-container a:hover {
-    text-decoration: underline;
-  }
-
-  /* Giriş Sayfası Stilleri */
+/* Kayıt Sayfası Düzeni */
 .devise-container {
-    max-width: 450px;
-    margin: 4rem auto;
-    padding: 8rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .devise-container h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    color: #333;
-  }
-  
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #555;
-  }
-  
-  .form-group .form-control {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .actions {
-    margin-top: 2rem;
-  }
-  
-  .actions .btn {
-    width: 100%;
-    padding: 1rem;
-    background-color: #42a5f5;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .actions .btn:hover {
-    background-color: #90caf9;
-  }
-  
-  .links {
-    margin-top: 1.5rem;
-    text-align: center;
-  }
-  
-  .links a {
-    display: block;
-    color: #42a5f5;
-    text-decoration: none;
-    margin-top: 0.5rem;
-  }
-  
-  .links a:hover {
-    text-decoration: underline;
-  }
+  max-width: 500px;
+  margin: 4rem auto;
+  padding: 4rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-  /* Checkbox ve Yazıyı Yan Yana ve Tam Dikey Hizalama */
-  .remember-me {
-    display: flex; /* Yan yana hizalama */
-    align-items: center; /* Dikeyde tam ortalama */
-    gap: 0.5rem; /* Checkbox ve yazı arasındaki boşluk */
-  }
+.devise-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
 
-  .remember-me input[type="checkbox"] {
-    width: 16px; /* Checkbox genişliğini ayarla */
-    height: 16px; /* Checkbox yüksekliğini ayarla */
-    margin: 0; /* Varsayılan margin'i sıfırla */
-    vertical-align: middle; /* Dikey hizalamayı düzelt */
-  }
+.form-group {
+  margin-bottom: 1.5rem;
+}
 
-  .remember-me label {
-    margin: 0; /* Varsayılan margin'i sıfırla */
-    font-size: 1rem; /* Yazı boyutu */
-    line-height: 1; /* Yazıyı dikeyde hizala */
-  }
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
 
-  /* Logo Stil */
-  .logo-container {
-    display: flex;
-    justify-content: center; /* Yatayda ortala */
-    align-items: center; /* Dikeyde ortala (isteğe bağlı) */
-    height: 100%; /* Parent container yüksekliği */
-    margin-bottom: 1.5rem; /* Logonun alt boşluğu */
-  }
-  
-  .logo {
-    max-width: 150px; /* Logonun genişliğini kontrol edin */
-    height: auto;
-  }
+.form-group .form-control {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.actions {
+  margin-top: 2rem;
+}
+
+.actions .btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: #42a5f5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.actions .btn:hover {
+  background-color: #90caf9;
+}
+
+/* Bağlantılar */
+.devise-container a {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: #42a5f5;
+  text-decoration: none;
+}
+
+.devise-container a:hover {
+  text-decoration: underline;
+}
+
+/* Giriş Sayfası Stilleri */
+.devise-container {
+  max-width: 450px;
+  margin: 4rem auto;
+  padding: 8rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.devise-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.form-group .form-control {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.actions {
+  margin-top: 2rem;
+}
+
+.actions .btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: #42a5f5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.actions .btn:hover {
+  background-color: #90caf9;
+}
+
+.links {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.links a {
+  display: block;
+  color: #42a5f5;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+/* Checkbox ve Yazıyı Yan Yana ve Tam Dikey Hizalama */
+.remember-me {
+  display: flex; /* Yan yana hizalama */
+  align-items: center; /* Dikeyde tam ortalama */
+  gap: 0.5rem; /* Checkbox ve yazı arasındaki boşluk */
+}
+
+.remember-me input[type="checkbox"] {
+  width: 16px; /* Checkbox genişliğini ayarla */
+  height: 16px; /* Checkbox yüksekliğini ayarla */
+  margin: 0; /* Varsayılan margin'i sıfırla */
+  vertical-align: middle; /* Dikey hizalamayı düzelt */
+}
+
+.remember-me label {
+  margin: 0; /* Varsayılan margin'i sıfırla */
+  font-size: 1rem; /* Yazı boyutu */
+  line-height: 1; /* Yazıyı dikeyde hizala */
+}
+
+/* Logo Stil */
+.logo-container {
+  display: flex;
+  justify-content: center; /* Yatayda ortala */
+  align-items: center; /* Dikeyde ortala (isteğe bağlı) */
+  height: 100%; /* Parent container yüksekliği */
+  margin-bottom: 1.5rem; /* Logonun alt boşluğu */
+}
+
+.logo {
+  max-width: 150px; /* Logonun genişliğini kontrol edin */
+  height: auto;
+}
 
 .alert {
   padding: 15px;
@@ -383,76 +425,11 @@ body {
   background-color: #0056b3;
 }
 
-
-/* Main Layout das */
+/* Main Layout */
 .main-layout {
   display: flex;
   min-height: 100vh;
   background: #f8f9fa;
-}
-
-/* Navigation Sidebar */
-.nav-sidebar {
-  width: 250px;
-  background: #114856;
-  color: rgb(255, 255, 255);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.logo img {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-}
-
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  color: #a0a0a0;
-  text-decoration: none;
-  border-radius: 0.5rem;
-  transition: all 0.3s;
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.nav-item i {
-  width: 20px;
-  text-align: center;
-}
-
-/* Main Content Area */
-.main-content {
-  flex: 1;
-  padding: 2rem;
 }
 
 .welcome-header {
@@ -666,16 +643,45 @@ body {
     flex-direction: column;
   }
   
-  .nav-sidebar {
+  .navbar {
+    position: fixed;
     width: 100%;
+  }
+  
+  .nav-sidebar {
+    width: 240px;
+    position: fixed;
+  }
+  
+  .main-content {
+    margin-left: 240px;
+    width: calc(100% - 240px);
     padding: 1rem;
+  }
+  
+  .navbar .container {
+    padding: 0 1rem;
   }
   
   .stats-container {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
-/* dashbord sayfası sonu*/
+
+@media (max-width: 768px) {
+  .nav-sidebar {
+    width: 200px;
+  }
+  
+  .main-content {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+  }
+  
+  .navbar-brand span {
+    display: none;
+  }
+}
 
 /* Tracking Popup Styles */
 .popup-overlay {

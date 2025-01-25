@@ -2,6 +2,7 @@ require 'sidekiq/web'
 require 'sidekiq-scheduler/web'
 
 Rails.application.routes.draw do
+  get "settings/index"
   devise_for :users, controllers: {
     registrations: 'users/registrations'
   }
@@ -10,6 +11,7 @@ Rails.application.routes.draw do
   
   get 'dashboard', to: 'dashboard#index'
   get 'notifications', to: 'notifications#index', as: :notifications
+  get 'settings', to: 'settings#index'
   
   resources :cars, only: [:index, :create, :destroy]
   resources :properties, only: [:index, :show]

@@ -2,11 +2,7 @@
 <div class="main-layout">
   <!-- Navigation Sidebar -->
   <div class="nav-sidebar">
-    <div class="logo">
-      <img src="https://placehold.co/50x50" alt="Logo" />
-      <span>Bulsam AI</span>
-    </div>
-    
+
     <nav class="nav-menu">
       <%= link_to dashboard_path, class: "nav-item #{current_page?(dashboard_path) ? 'active' : ''}" do %>
         <i class="fas fa-th-large"></i>
@@ -553,71 +549,11 @@
 </div>
 
 <style>
-/* Main Layout Styles */
-.main-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f8f9fa;
-}
-
-/* Navigation Sidebar */
-.nav-sidebar {
-  width: 250px;
-  background: #114856;
-  color: white;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.logo img {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-}
-
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  color: #a0a0a0;
-  text-decoration: none;
-  border-radius: 0.5rem;
-  transition: all 0.3s;
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-/* Main Content Area */
+/* Main Content Styles */
 .main-content {
   flex: 1;
   padding: 2rem;
-  overflow-y: auto;
+  background: #f8f9fa;
 }
 
 .content-header {

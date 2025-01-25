@@ -1,0 +1,32 @@
+<div class="settings-page">
+  <div class="welcome-header">
+    <h1>Ayarlar</h1>
+    <p>Hesap ve bildirim tercihlerinizi buradan yönetebilirsiniz.</p>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-list">
+      <div class="setting-item">
+        <div class="setting-info">
+          <i class="fas fa-user"></i>
+          <div>
+            <h3>Profil Bilgileri</h3>
+            <p>Email: <%= current_user.email %></p>
+          </div>
+        </div>
+        <%= link_to "Düzenle", edit_user_registration_path, class: "edit-link" %>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <i class="fas fa-bell"></i>
+          <div>
+            <h3>Bildirim Tercihleri</h3>
+            <p>Email bildirimleri aktif</p>
+          </div>
+        </div>
+        <a href="#" class="edit-link">Düzenle</a>
+      </div>
+    </div>
+  </div>
+</div>
