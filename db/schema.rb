@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_24_142519) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_26_104054) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -192,6 +192,44 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_24_142519) do
     t.index ["sprint_id"], name: "index_property_scrapes_on_sprint_id"
   end
 
+  create_table "property_tracking_features", force: :cascade do |t|
+    t.bigint "property_tracking_id", null: false
+    t.text "room_count"
+    t.integer "floor_min"
+    t.integer "floor_max"
+    t.integer "size_min"
+    t.integer "size_max"
+    t.decimal "price_min", precision: 15, scale: 2
+    t.decimal "price_max", precision: 15, scale: 2
+    t.string "notification_frequency", default: "instant"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_tracking_id"], name: "index_property_tracking_features_on_property_tracking_id"
+  end
+
+  create_table "property_trackings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "category_id", null: false
+    t.bigint "property_type_id"
+    t.text "websites"
+    t.text "cities"
+    t.integer "daily_scrape_count", default: 0
+    t.integer "total_scrape_count", default: 0
+    t.datetime "last_scrape_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_property_trackings_on_category_id"
+    t.index ["property_type_id"], name: "index_property_trackings_on_property_type_id"
+    t.index ["user_id", "category_id", "property_type_id"], name: "idx_on_user_id_category_id_property_type_id_cdc83be9a8"
+    t.index ["user_id"], name: "index_property_trackings_on_user_id"
+  end
+
+  create_table "property_types", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "proxies", force: :cascade do |t|
     t.string "ip", null: false
     t.integer "port", null: false
@@ -296,6 +334,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_24_142519) do
   add_foreign_key "property_scrapes", "categories"
   add_foreign_key "property_scrapes", "properties"
   add_foreign_key "property_scrapes", "sprints"
+  add_foreign_key "property_tracking_features", "property_trackings"
+  add_foreign_key "property_trackings", "categories"
+  add_foreign_key "property_trackings", "property_types"
+  add_foreign_key "property_trackings", "users"
   add_foreign_key "scrap_issues", "sprints"
   add_foreign_key "serials", "models"
   add_foreign_key "sprints", "companies"

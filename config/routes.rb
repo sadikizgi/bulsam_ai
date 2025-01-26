@@ -44,4 +44,12 @@ Rails.application.routes.draw do
       get 'sort_scrapes'
     end
   end
+  
+  resources :properties do
+    member do
+      get :features
+      patch :update_features
+      get :sort_scrapes
+    end
+  end
 end

@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :cars, dependent: :destroy
   has_many :properties, dependent: :destroy
   has_many :car_trackings, dependent: :destroy
+  has_many :property_trackings, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   # Admin kontrolü için method
   def admin?
